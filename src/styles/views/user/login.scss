@@ -1,0 +1,230 @@
+// Login.vue
+.login-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--page-bg);
+
+  .login-bg {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url("") var(--card-bg) no-repeat center / cover;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  .bg-content {
+    position: relative;
+    z-index: 1;
+    color: var(--text-secondary);
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+
+    h2 {
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      opacity: 0.9;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    p {
+      font-size: 18px;
+      opacity: 0.8;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  }
+
+  .login-form-container {
+    width: 45%;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    padding: 50px;
+  }
+
+  .login-box {
+    width: 400px;
+  }
+
+  .login-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+
+    .header-left {
+      display: flex;
+      flex-flow: column;
+
+      h1 {
+        font-size: 32px;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      p {
+        font-size: 16px;
+        color: var(--text-muted);
+        margin: 0;
+      }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: flex-end;
+
+      button {
+        padding: initial;
+        height: initial;
+      }
+    }
+  }
+
+  .login-form {
+    width: 100%;
+
+    .ant-form-item {
+      margin-bottom: 24px;
+    }
+
+    .ant-input-large {
+      height: 48px;
+      font-size: 16px;
+    }
+
+    .ant-btn-primary {
+      height: 48px;
+      font-size: 16px;
+      font-weight: 500;
+      border-radius: 8px;
+      border: none;
+      transition: all 0.3s ease;
+    }
+  }
+
+  .form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .forgot-password {
+      padding: initial;
+      height: initial;
+    }
+  }
+
+  .other-options {
+    margin-top: 24px;
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin-bottom: 24px;
+
+      &::before,
+      &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background-color: var(--divider-color);
+      }
+
+      span {
+        padding: 0 12px;
+        color: var(--text-muted-light);
+        font-size: 14px;
+      }
+    }
+
+    .social-login {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+
+      .ant-btn-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+      }
+
+      img {
+        width: 25px;
+        height: 25px;
+        object-fit: cover;
+        margin-bottom: 2px;
+      }
+    }
+  }
+
+  .login-footer {
+    margin-top: auto;
+    padding-top: 40px;
+    text-align: center;
+
+    p {
+      font-size: 14px;
+      color: var(--text-muted-light);
+      margin: 0;
+    }
+  }
+
+  .ant-btn-link {
+    color: var(--primary-color);
+
+    &:hover {
+      color: var(--primary-color-hover);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .login-bg {
+      display: none;
+    }
+
+    .login-form-container {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      box-shadow: none;
+    }
+
+    .login-box {
+      width: 100%;
+    }
+
+    .login-form .ant-btn-primary {
+      height: 44px;
+    }
+
+    .social-login .ant-btn-circle {
+      width: 36px;
+      height: 36px;
+      font-size: 16px;
+    }
+  }
+}

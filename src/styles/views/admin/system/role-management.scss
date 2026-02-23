@@ -1,0 +1,10 @@
+@use "../../common" as *;
+
+.role-management {
+
+  .ant-table-wrapper .ant-table-cell a[disabled="disabled"] {
+    color: var(--text-disabled);
+    cursor: not-allowed;
+  }
+
+}

@@ -1,0 +1,16 @@
+@use "../../common" as *;
+
+.user-management,
+.role-management,
+.resource-management,
+.user-feedback-management,
+.system-configs-management,
+.user-names-management,
+.user-name-history-management,
+.vip-level-config-management {
+  @extend %admin-card-page;
+
+  .ant-tag {
+    margin-right: 0;
+  }
+}

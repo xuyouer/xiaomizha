@@ -1,0 +1,48 @@
+// Dashboard.vue
+.dashboard {
+  padding: 0;
+
+  .statistic-row {
+    margin-bottom: 24px;
+
+    @media (max-width: 576px) {
+      margin-bottom: 16px;
+    }
+  }
+
+  .statistic-card {
+    height: 100%;
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px var(--shadow-color-strong);
+    }
+  }
+
+  .info-row {
+    @media (max-width: 576px) {
+      margin-bottom: 0;
+    }
+  }
+
+  .info-card {
+    height: 100%;
+    margin-bottom: 16px;
+
+    @media (max-width: 768px) {
+      margin-bottom: 16px;
+    }
+  }
+
+  .action-card {
+    height: 100%;
+
+    .ant-btn {
+      margin-bottom: 8px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

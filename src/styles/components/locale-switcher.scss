@@ -1,0 +1,25 @@
+// LocaleSwitcher.vue
+.locale-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+
+  .anticon {
+    color: inherit;
+  }
+
+  &:hover {
+    color: var(--primary-color) !important;
+    background: var(--hover-bg);
+  }
+
+  .label {
+    font-size: 14px;
+    color: inherit;
+  }
+}

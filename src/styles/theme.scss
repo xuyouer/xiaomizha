@@ -1,0 +1,91 @@
+/**
+ * 主题配色：CSS 变量
+ * 主色由 stores/theme 在运行时写入 --primary-color 等
+ * 背景/文字/边框在此定义，支持 light/dark
+ */
+:root {
+  /* 背景 */
+  --page-bg: #f0f2f5;
+  --card-bg: #ffffff;
+  --header-footer-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #ebeef2;
+  --content-bg: #ffffff;
+  --surface-subtle: #fafafa;
+  --hover-bg: rgba(0, 0, 0, 0.04);
+
+  /* 文字 */
+  --text-primary: #1a1a1a;
+  --text-secondary: #333333;
+  --text-muted: #666666;
+  --text-muted-light: #999999;
+  --text-disabled: #bfbfbf;
+  --text-inverse: #ffffff;
+
+  /* 边框与分割线 */
+  --border-color: #f0f0f0;
+  --divider-color: #e8e8e8;
+  --shadow-color: rgba(0, 0, 0, 0.09);
+  --shadow-color-strong: rgba(0, 0, 0, 0.1);
+
+  /* 状态色, 不随主色切换*/
+  --color-success: #52c41a;
+  --color-warning: #faad14;
+  --color-danger: #ff4d4f;
+  --color-info: #1890ff;
+
+  /* 选中文字 ::selection, 主色由 theme store 动态设置 */
+  --selection-bg: var(--primary-color, #1890ff);
+  --selection-color: #ffffff;
+}
+
+[data-theme='dark'] {
+  /* 背景 */
+  --page-bg: #141414;
+  --card-bg: #1f1f1f;
+  --header-footer-bg: #1f1f1f;
+  --sidebar-bg: #1f1f1f;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --content-bg: #141414;
+  --surface-subtle: rgba(255, 255, 255, 0.04);
+  --hover-bg: rgba(255, 255, 255, 0.08);
+
+  /* 文字 */
+  --text-primary: rgba(255, 255, 255, 0.85);
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.45);
+  --text-muted-light: rgba(255, 255, 255, 0.25);
+  --text-disabled: rgba(255, 255, 255, 0.25);
+  --text-inverse: rgba(0, 0, 0, 0.85);
+
+  /* 边框与分割线 */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --divider-color: rgba(255, 255, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-color-strong: rgba(0, 0, 0, 0.45);
+
+  /* 状态色 */
+  --color-success: #49aa19;
+  --color-warning: #d89614;
+  --color-danger: #e84749;
+  --color-info: #177ddc;
+
+  /* 选中文字 ::selection */
+  --selection-bg: var(--primary-color, #177ddc);
+  --selection-color: rgba(255, 255, 255, 0.95);
+}
+
+/* 全局选中文字配色, 与主题主色一致 */
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-color);
+}
+
+/* 使用主色的工具类, 主色由 theme store 动态设置 */
+.app-primary {
+  color: var(--primary-color);
+}
+
+.app-primary-bg {
+  background-color: var(--primary-color);
+}

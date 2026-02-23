@@ -1,0 +1,50 @@
+// Footer.vue
+.footer {
+  background: var(--header-footer-bg);
+  border-top: 1px solid var(--border-color);
+  padding: 24px 0;
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+
+      button {
+        color: var(--text-muted);
+        font-size: 14px;
+        text-decoration: none;
+        height: initial;
+        padding: initial;
+
+        &:hover {
+          color: var(--primary-color);
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .footer-content {
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+
+      .footer-links {
+        justify-content: center;
+      }
+    }
+  }
+}

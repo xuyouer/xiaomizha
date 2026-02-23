@@ -1,0 +1,39 @@
+// ========== 通用视图样式 ==========
+
+// 表格/列表单元格省略号（单行截断）
+.ellipsis-cell {
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 后台「卡片 + 表格 + 弹窗表单」页面的共用样式（占位符，不生成单独类名）
+%admin-card-page {
+  padding: 0;
+
+  .ant-card .ant-card-head {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .ant-table-wrapper .ant-table-cell {
+    a {
+      color: var(--primary-color);
+
+      &.ant-btn-link-danger {
+        color: var(--color-danger);
+      }
+    }
+  }
+
+  .ant-modal .ant-form-item-label > label {
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .ant-table .ant-table-cell {
+      white-space: nowrap;
+    }
+  }
+}

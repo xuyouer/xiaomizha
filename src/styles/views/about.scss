@@ -1,0 +1,158 @@
+// About.vue
+.about-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  .main-content {
+    flex: 1;
+    background: var(--page-bg);
+  }
+
+  .content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .about-card {
+    border-radius: 8px;
+    padding: 32px 0;
+    overflow: hidden;
+  }
+
+  .card-header {
+    margin-bottom: 32px;
+
+    h2 {
+      margin: 0;
+      color: var(--text-primary);
+      font-size: 24px;
+      font-weight: 600;
+    }
+  }
+
+  .card-content {
+    .project-info {
+      margin-bottom: 24px;
+    }
+
+    .tech-info {
+      margin: 24px 0;
+
+      h3 {
+        margin: 0 0 24px 0;
+        color: var(--text-primary);
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+
+    .features-section {
+      margin-top: 40px;
+
+      h3 {
+        margin: 0 0 24px 0;
+        color: var(--text-primary);
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+      }
+
+      .feature-item {
+        display: flex;
+        gap: 16px;
+        padding: 20px;
+        background: var(--surface-subtle);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px var(--shadow-color-strong);
+          background: var(--card-bg);
+        }
+
+        .feature-icon {
+          display: flex;
+          align-items: flex-start;
+          margin-top: 4px;
+        }
+
+        .feature-content {
+          flex: 1;
+
+          h4 {
+            margin: 0 0 8px 0;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 500;
+          }
+
+          p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.5;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .main-content {
+      padding: 40px 0;
+    }
+
+    .content-container {
+      padding: 0 16px;
+    }
+
+    .about-card {
+      padding: 24px 0;
+    }
+
+    .card-header {
+      margin-bottom: 24px;
+
+      h2 {
+        font-size: 20px;
+      }
+    }
+
+    .tech-info h3 {
+      font-size: 16px;
+    }
+
+    .features-section {
+      h3 {
+        font-size: 16px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .feature-item {
+        padding: 16px;
+
+        .feature-content {
+          h4 {
+            font-size: 14px;
+          }
+
+          p {
+            font-size: 13px;
+          }
+        }
+      }
+    }
+  }
+}
