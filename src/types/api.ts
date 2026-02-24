@@ -26,6 +26,12 @@ export interface PageResult<T> {
   success?: boolean
 }
 
+/** 通用分页参数 */
+export interface PageParams {
+  current?: number
+  pageSize?: number
+}
+
 // ========== 认证 ==========
 
 /** 登录请求 */
@@ -38,7 +44,6 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string
   userInfo: UserDetailDTO
-  trialLicenseKey?: string
 }
 
 // ========== 用户相关 ==========
@@ -52,10 +57,7 @@ export interface User {
   updatedAt?: string
 }
 
-export interface UserListParams {
-  current?: number
-  pageSize?: number
-}
+export interface UserListParams extends PageParams { }
 
 export interface UserProfile {
   profileId?: number
@@ -83,10 +85,7 @@ export interface UserNames {
 
 export type UserNamesRecord = UserNames
 
-export interface NamesListParams {
-  current?: number
-  pageSize?: number
-}
+export interface NamesListParams extends PageParams { }
 
 export interface UserNameHistories {
   historyId?: number
@@ -99,10 +98,7 @@ export interface UserNameHistories {
 
 export type UserNameHistoryRecord = UserNameHistories
 
-export interface NameHistoryListParams {
-  current?: number
-  pageSize?: number
-}
+export interface NameHistoryListParams extends PageParams { }
 
 export interface UserPoints {
   pointsId?: number
@@ -177,10 +173,7 @@ export interface Role {
   updatedAt?: string
 }
 
-export interface RoleListParams {
-  current?: number
-  pageSize?: number
-}
+export interface RoleListParams extends PageParams { }
 
 // ========== 资源相关 ==========
 
@@ -214,10 +207,7 @@ export interface Resource {
   updatedAt?: string
 }
 
-export interface ResourceListParams {
-  current?: number
-  pageSize?: number
-}
+export interface ResourceListParams extends PageParams { }
 
 // ========== VIP 等级配置 ==========
 
@@ -237,10 +227,7 @@ export interface VipLevelConfigRecord {
   updatedAt?: string
 }
 
-export interface VipLevelConfigListParams {
-  current?: number
-  pageSize?: number
-}
+export interface VipLevelConfigListParams extends PageParams { }
 
 // ========== 系统配置 ==========
 
@@ -274,7 +261,75 @@ export interface UserFeedbackRecord {
   updatedAt?: string
 }
 
-export interface FeedbackListParams {
-  current?: number
-  pageSize?: number
+export interface FeedbackListParams extends PageParams { }
+
+// ========== 许可证 ==========
+
+export interface GenerateTrialLicenseRequest {
+  userId: number;
+  userName: string;
 }
+
+/** 许可证信息 */
+export interface LicenseInfo {
+  licenseKey?: string;
+  licenseId?: string;
+  userName?: string;
+  companyName?: string;
+  contactEmail?: string;
+  productVersion?: string;
+  features?: string;
+  startTime?: string;
+  endTime?: string;
+  hardwareInfo?: string;
+  licenseType?: string;
+  maxConcurrentUsers?: number;
+  allowOffline?: number;
+  status?: string;
+  activationCode?: string;
+  lastActivationTime?: string;
+  createdBy?: string;
+  updatedBy?: string;
+  remarks?: string;
+}
+
+/** 许可证变更记录 */
+export interface LicenseChangeLog {
+  licenseKey?: string;
+  changeType?: string;
+  oldValue?: string;
+  newValue?: string;
+  operator?: string;
+  reason?: string;
+}
+
+/** 许可证使用记录 */
+export interface LicenseUsageLog {
+  licenseKey?: string;
+  action?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  deviceInfo?: string;
+  details?: string;
+  status?: number;
+  failureReason?: string;
+}
+
+/** 许可证用户关联 */
+export interface LicenseUserRelation {
+  licenseKey?: string;
+  userId?: number;
+  status?: string;
+  assignedBy?: number;
+  assignedAt?: string;
+  expiresAt?: string;
+  lastUsedAt?: string;
+}
+
+export interface LicenseListParams extends PageParams { }
+
+export interface LicenseChangeLogListParams extends PageParams { }
+
+export interface LicenseUsageLogListParams extends PageParams { }
+
+export interface LicenseUserRelationListParams extends PageParams { }

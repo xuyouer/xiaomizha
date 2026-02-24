@@ -25,24 +25,30 @@ const service: AxiosInstance = axios.create({
   withCredentials: import.meta.env.PROD
 })
 
+// 请求拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    const url = config.url || ''
+    const isAuth = url.includes('/api/auth/')
+    const isGenerateTrial = url.includes('/api/license/generate-trial')
+
+    // 设置Authorization头
     const token = localStorage.getItem('token')
     if (token && config.headers) {
-      config.headers.Authorization = `${token}`
+      config.headers.Authorization = isAuth ? '' : `${token}`
     }
-    // 登录接口不需要token
-    const isLogin = config.url?.includes('/api/auth/login')
-    if (isLogin && config.headers) {
-      config.headers.Authorization = ''
+    // 添加X-License-Key头
+    const licenseKey = localStorage.getItem('licenseKey') || sessionStorage.getItem('licenseKey')
+    if (licenseKey && config.headers && !isAuth && !isGenerateTrial) {
+      config.headers['X-License-Key'] = licenseKey
     }
-    if (config.method === 'post' || config.method === 'put' || config.method === 'patch') {
-      if (config.data && typeof config.data === 'object' && !(config.data instanceof FormData)) {
-        if (config.headers) {
-          config.headers['Content-Type'] = 'application/json;charset=UTF-8'
-        }
-      }
+    // 设置Content-Type头
+    if ((config.method === 'post' || config.method === 'put' || config.method === 'patch') &&
+        config.data && typeof config.data === 'object' && !(config.data instanceof FormData) &&
+        config.headers) {
+      config.headers['Content-Type'] = 'application/json;charset=UTF-8'
     }
+
     // 开发环境打印请求信息
     if (import.meta.env.DEV) {
       console.log('请求拦截器:', {
@@ -65,6 +71,7 @@ service.interceptors.request.use(
   }
 )
 
+// 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
     const res = response.data
@@ -83,19 +90,8 @@ service.interceptors.response.use(
     if (code === 200 || code === 0) {
       return response
     }
-    if (code === 401) {
-      message.error('未授权，请重新登录')
-      localStorage.removeItem('token')
-      localStorage.removeItem('userInfo')
-      router.replace('/login')
-    } else if (code >= 500) {
-      message.error(`服务器错误: ${errorMessage || '服务器异常'}`)
-      if (import.meta.env.DEV) {
-        console.error('服务器错误详情:', res)
-      }
-    } else {
-      message.error(errorMessage || '请求失败')
-    }
+    // 处理错误
+    handleError(code, errorMessage, res)
     return Promise.reject(new Error(errorMessage || '请求失败'))
   },
   (err: AxiosError<ApiResponse>) => {
@@ -127,20 +123,29 @@ service.interceptors.response.use(
   }
 )
 
+// 处理错误
+function handleError(code: number, errorMessage: string, res: ApiResponse) {
+  if (code === 401) {
+    message.error('未授权，请重新登录')
+    localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
+    router.replace('/login')
+  } else if (code >= 500) {
+    message.error(`服务器错误: ${errorMessage || '服务器异常'}`)
+    if (import.meta.env.DEV) {
+      console.error('服务器错误详情:', res)
+    }
+  } else {
+    message.error(errorMessage || '请求失败')
+  }
+}
+
 // 封装请求
 export const requestApi = {
-  get: <T = any>(url: string, params: Record<string, any> = {}): Promise<T> => {
-    return service.get(url, { params })
-  },
-  post: <T = any>(url: string, data: Record<string, any> = {}): Promise<T> => {
-    return service.post(url, data)
-  },
-  put: <T = any>(url: string, data: Record<string, any> = {}): Promise<T> => {
-    return service.put(url, data)
-  },
-  del: <T = any>(url: string, data?: Record<string, any>): Promise<T> => {
-    return service.delete(url, { data })
-  }
+  get: <T = any>(url: string, params: Record<string, any> = {}): Promise<T> => service.get(url, { params }),
+  post: <T = any>(url: string, data: Record<string, any> = {}): Promise<T> => service.post(url, data),
+  put: <T = any>(url: string, data: Record<string, any> = {}): Promise<T> => service.put(url, data),
+  del: <T = any>(url: string, data?: Record<string, any>): Promise<T> => service.delete(url, { data })
 }
 
 // 封装上传文件请求
@@ -154,9 +159,7 @@ export const upload = <T = any>(
   formData.append('file', file)
 
   if (extraData) {
-    Object.entries(extraData).forEach(([key, value]) => {
-      formData.append(key, value)
-    })
+    Object.entries(extraData).forEach(([key, value]) => formData.append(key, value))
   }
 
   return service.post(url, formData, {

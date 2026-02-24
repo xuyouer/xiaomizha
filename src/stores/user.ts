@@ -10,6 +10,7 @@ import {
   getUserIdFromDetail,
   getUsernameFromDetail,
 } from "@/utils";
+import { generateTrialLicense as generateTrialLicenseApi } from "@/api/license"
 
 export const useUserStore = defineStore('user', () => {
   // 优先从localStorage读取token（自动登录），然后从sessionStorage读取（会话登录）
@@ -35,20 +36,18 @@ export const useUserStore = defineStore('user', () => {
       if (import.meta.env.DEV) console.log('登录响应: ', response)
       const { data } = response
       if (data.code === 200 && data.data) {
-        const { token: userToken, userInfo: userDetailDTO, trialLicenseKey } = humps.camelizeKeys(data.data) as LoginResponse
+        const { token: userToken, userInfo: userDetailDTO } = humps.camelizeKeys(data.data) as LoginResponse
         token.value = userToken
         userInfo.value = userDetailDTO
-
-        if (trialLicenseKey) {
-          licenseKey.value = trialLicenseKey
-        }
 
         // 根据autoLogin参数决定存储方式
         const storage = autoLogin ? localStorage : sessionStorage
         storage.setItem('token', userToken)
         storage.setItem('userInfo', JSON.stringify(userDetailDTO))
-        if (trialLicenseKey) {
-          storage.setItem('licenseKey', trialLicenseKey)
+
+        // 同步生成试用许可证
+        if (userDetailDTO && userDetailDTO.user) {
+          await generateTrialLicense(userDetailDTO.user.userId!, userDetailDTO.user.username!, storage)
         }
 
         return true
@@ -57,6 +56,24 @@ export const useUserStore = defineStore('user', () => {
     } catch (error) {
       console.error('登录失败:', error)
       return false
+    }
+  }
+
+  // 生成试用许可证
+  const generateTrialLicense = async (userId: number, userName: string, storage: Storage) => {
+    try {
+      if (import.meta.env.DEV) console.log('生成试用许可证:', { userId, userName })
+      const response = await generateTrialLicenseApi({ userId, userName: userName })
+      if (import.meta.env.DEV) console.log('生成试用许可证响应:', response)
+      const { data } = response
+      if (data.code === 200 && data.data) {
+        const { licenseKey: trialLicenseKey } = humps.camelizeKeys(data.data) as { licenseKey: string }
+        licenseKey.value = trialLicenseKey
+        storage.setItem('licenseKey', trialLicenseKey)
+        if (import.meta.env.DEV) console.log('试用许可证生成成功:', trialLicenseKey)
+      }
+    } catch (error) {
+      console.error('生成试用许可证失败:', error)
     }
   }
 

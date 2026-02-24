@@ -25,6 +25,12 @@ export default defineConfig({
     port: 3000,
     open: true,
     proxy: {
+      '/api/license': {
+        target: 'http://127.0.0.1:8094',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path
+      },
       '/api': {
         target: 'http://127.0.0.1:8092',
         changeOrigin: true,

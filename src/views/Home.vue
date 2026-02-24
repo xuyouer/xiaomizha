@@ -76,7 +76,7 @@ import { ObjectUtils } from "@/utils";
 const selectedKeys = ref<string[]>(['1'])
 
 const router = useRouter()
-const illustrationImg = ref<HTMLImageElement | null>(null)
+
 const imageError = ref(false)
 const imageAlt = '插图'
 
