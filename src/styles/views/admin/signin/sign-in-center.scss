@@ -1,0 +1,111 @@
+.sign-in-center {
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+
+  .status-card {
+    overflow: hidden;
+    position: relative;
+
+    .ant-card-head {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+      border-bottom: none;
+
+      .ant-card-head-title,
+      .ant-card-head-title .ant-typography {
+        color: #fff;
+      }
+
+      .ant-card-extra .ant-tag {
+      }
+    }
+
+    .ant-card-cover {
+      width: 100%;
+      height: 425px;
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+
+      img {
+        width: inherit;
+        height: inherit;
+        object-fit: cover;
+      }
+    }
+
+    .ant-card-body {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: initial;
+      padding-top: 57px;
+
+      .status-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: inherit;
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0) 100%);
+
+        .ant-row {
+          flex: 1;
+        }
+
+        .ant-col {
+          display: flex;
+          align-items: center;
+          text-align: center;
+
+          .ant-statistic {
+            width: 100%;
+
+            .ant-statistic-title {
+              color: rgba(255, 255, 255, 0.85);
+              font-size: 13px;
+            }
+
+            .ant-statistic-content {
+              color: #fff;
+
+              .stat-icon {
+                color: #fff;
+              }
+            }
+          }
+        }
+
+        .last-sign-in {
+          text-align: center;
+
+          .ant-typography {
+            color: rgba(255, 255, 255, 0.65) !important;
+          }
+        }
+
+        .ant-divider {
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sign-in-action {
+          text-align: center;
+          padding: 24px;
+        }
+      }
+    }
+  }
+}

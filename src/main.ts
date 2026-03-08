@@ -9,15 +9,13 @@ import i18n from '@/locales'
 import {useThemeStore} from '@/stores/theme'
 
 import {registerGlobalComponents} from '@/plugins/globalComponents'
-
-import * as Utils from '@/utils'
+import {registerGlobalProperties} from '@/plugins/globalProperties'
 
 const app = createApp(App)
 const pinia = createPinia()
 
 registerGlobalComponents(app)
-
-app.config.globalProperties.$utils = Utils
+registerGlobalProperties(app)
 
 app.use(pinia)
 app.use(i18n)

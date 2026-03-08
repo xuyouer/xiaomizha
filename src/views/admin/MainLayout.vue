@@ -1,59 +1,46 @@
 <template>
   <a-layout class="main-layout">
     <a-layout-sider
-      v-model:collapsed="collapsed"
-      :trigger="null"
-      collapsible
-      width="200"
-      :breakpoint="'lg'"
-      @collapse="handleCollapse"
-      @expand="handleExpand"
+        v-model:collapsed="collapsed"
+        :trigger="null"
+        collapsible
+        width="300"
+        :breakpoint="'lg'"
+        @collapse="handleCollapse"
+        @expand="handleExpand"
     >
       <div class="logo">
         <h2 v-if="!collapsed" class="logo-title">{{ t('app.name') }}</h2>
         <h2 v-else class="logo-collapsed">X</h2>
       </div>
       <a-menu
-        v-model:selectedKeys="selectedKeys"
-        v-model:openKeys="openKeys"
-        mode="inline"
-        :items="menuItems"
-        @click="handleMenuClick"
-        :inline-collapsed="collapsed"
-        @open-change="handleOpenChange"
+          v-model:selectedKeys="selectedKeys"
+          v-model:openKeys="openKeys"
+          mode="inline"
+          :items="menuItems"
+          @click="handleMenuClick"
+          :inline-collapsed="collapsed"
+          @open-change="handleOpenChange"
       />
     </a-layout-sider>
     <a-layout>
       <a-layout-header class="header">
         <div class="header-left">
           <menu-unfold-outlined
-            v-if="collapsed"
-            class="trigger"
-            @click="toggleCollapsed"
+              v-if="collapsed"
+              class="trigger"
+              @click="toggleCollapsed"
           />
           <menu-fold-outlined
-            v-else
-            class="trigger"
-            @click="toggleCollapsed"
+              v-else
+              class="trigger"
+              @click="toggleCollapsed"
           />
         </div>
         <div class="header-right">
-          <LocaleSwitcher />
-          <ThemeSwitcher />
-          <a-dropdown overlay-class-name="user-dropdown-overlay">
-            <a-button type="link" class="user-info" @click.prevent>
-              <UserOutlined />
-              <span class="username">{{ userStore.currentUsername || t('admin.user') }}</span>
-            </a-button>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item @click="handleLogout">
-                  <LogoutOutlined />
-                  {{ t('nav.logout') }}
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
+          <LocaleSwitcher/>
+          <ThemeSwitcher/>
+          <UserDropdown/>
         </div>
       </a-layout-header>
       <a-layout-content class="content">
@@ -68,34 +55,32 @@
                 :href="item.path"
                 @click.stop="handleBreadcrumbClick(item.path)"
             >
-              <component :is="item.icon" v-if="item.icon" />
+              <component :is="item.icon" v-if="item.icon"/>
               <span>{{ item.label }}</span>
             </a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
-            <component :is="Component" />
+            <component :is="Component"/>
           </transition>
         </router-view>
       </a-layout-content>
       <a-layout-footer class="footer">
-        <Footer />
+        <Footer/>
       </a-layout-footer>
     </a-layout>
   </a-layout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, h } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { message } from 'ant-design-vue'
+import {ref, computed, watch, h} from 'vue'
+import {useRouter, useRoute} from 'vue-router'
+import {useI18n} from 'vue-i18n'
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   UserOutlined,
-  LogoutOutlined,
   DashboardOutlined,
   UserOutlined as UserIcon,
   TeamOutlined,
@@ -104,15 +89,16 @@ import {
   EditOutlined,
   HistoryOutlined,
   CrownOutlined,
-  MessageOutlined
+  MessageOutlined,
+  CalendarOutlined,
+  IdcardOutlined,
+  KeyOutlined, SafetyCertificateOutlined
 } from '@ant-design/icons-vue'
-import { useUserStore } from '@/stores/user'
-import type { MenuProps } from 'ant-design-vue'
+import type {MenuProps} from 'ant-design-vue'
 
-const { t } = useI18n()
+const {t} = useI18n()
 const router = useRouter()
 const route = useRoute()
-const userStore = useUserStore()
 
 const collapsed = ref(false)
 const selectedKeys = ref<string[]>([])
@@ -140,6 +126,18 @@ const menuItems = computed(() => [
         icon: () => h(UserIcon),
         label: t('admin.userManage'),
         title: t('admin.userManage')
+      },
+      {
+        key: '/admin/system/profiles',
+        icon: () => h(IdcardOutlined),
+        label: t('admin.profilesManage'),
+        title: t('admin.profilesManage')
+      },
+      {
+        key: '/admin/system/user-details',
+        icon: () => h(UserIcon),
+        label: t('admin.userDetailManage'),
+        title: t('admin.userDetailManage')
       },
       {
         key: '/admin/system/roles',
@@ -182,6 +180,12 @@ const menuItems = computed(() => [
         icon: () => h(MessageOutlined),
         label: t('admin.userFeedback'),
         title: t('admin.userFeedback')
+      },
+      {
+        key: '/admin/system/licenses',
+        icon: () => h(KeyOutlined),
+        label: t('admin.licensesManage'),
+        title: t('admin.licensesManage')
       }
     ]
   },
@@ -202,6 +206,32 @@ const menuItems = computed(() => [
         icon: () => h(SettingOutlined),
         label: t('admin.personalSettings'),
         title: t('admin.personalSettings')
+      },
+      {
+        key: '/admin/profile/security',
+        icon: () => h(SafetyCertificateOutlined),
+        label: t('admin.personalSecurity'),
+        title: t('admin.personalSecurity')
+      }
+    ]
+  },
+  {
+    key: '/admin/sign-in',
+    icon: () => h(CalendarOutlined),
+    label: t('admin.signInManage'),
+    title: t('admin.signInManage'),
+    children: [
+      {
+        key: '/admin/sign-in/center',
+        icon: () => h(UserOutlined),
+        label: t('admin.signInCenter'),
+        title: t('admin.signInCenter'),
+      },
+      {
+        key: '/admin/sign-in/users',
+        icon: () => h(TeamOutlined),
+        label: t('admin.userManage'),
+        title: t('admin.userManage'),
       }
     ]
   }
@@ -214,14 +244,17 @@ const adminRoutes = computed(() => ({
     icon: AppstoreOutlined
   },
   children: [
-    { path: '/admin/system/users', label: t('admin.userManage'), icon: UserIcon },
-    { path: '/admin/system/roles', label: t('admin.roleManage'), icon: TeamOutlined },
-    { path: '/admin/system/resources', label: t('admin.resourceManage'), icon: AppstoreOutlined },
-    { path: '/admin/system/names', label: t('admin.userNames'), icon: EditOutlined },
-    { path: '/admin/system/name-history', label: t('admin.userNameHistory'), icon: HistoryOutlined },
-    { path: '/admin/system/vip-level-config', label: t('admin.vipLevelConfig'), icon: CrownOutlined },
-    { path: '/admin/system/configs', label: t('admin.systemConfigs'), icon: SettingOutlined },
-    { path: '/admin/system/feedback', label: t('admin.userFeedback'), icon: MessageOutlined }
+    {path: '/admin/system/users', label: t('admin.userManage'), icon: UserIcon},
+    {path: '/admin/system/profiles', label: t('admin.profilesManage'), icon: IdcardOutlined},
+    {path: '/admin/system/user-details', label: t('admin.userDetailManage'), icon: UserIcon},
+    {path: '/admin/system/roles', label: t('admin.roleManage'), icon: TeamOutlined},
+    {path: '/admin/system/resources', label: t('admin.resourceManage'), icon: AppstoreOutlined},
+    {path: '/admin/system/names', label: t('admin.userNames'), icon: EditOutlined},
+    {path: '/admin/system/name-history', label: t('admin.userNameHistory'), icon: HistoryOutlined},
+    {path: '/admin/system/vip-level-config', label: t('admin.vipLevelConfig'), icon: CrownOutlined},
+    {path: '/admin/system/configs', label: t('admin.systemConfigs'), icon: SettingOutlined},
+    {path: '/admin/system/feedback', label: t('admin.userFeedback'), icon: MessageOutlined},
+    {path: '/admin/system/licenses', label: t('admin.licensesManage'), icon: KeyOutlined}
   ]
 }))
 
@@ -232,34 +265,43 @@ const profileRoutes = computed(() => ({
     icon: UserOutlined
   },
   children: [
-    { path: '/admin/profile/center', label: t('admin.personalCenter'), icon: UserIcon },
-    { path: '/admin/profile/settings', label: t('admin.personalSettings'), icon: SettingOutlined }
+    {path: '/admin/profile/center', label: t('admin.personalCenter'), icon: UserIcon},
+    {path: '/admin/profile/settings', label: t('admin.personalSettings'), icon: SettingOutlined},
+    {path: '/admin/profile/security', label: t('admin.personalSecurity'), icon: SafetyCertificateOutlined}
+  ]
+}))
+
+const signInRoutes = computed(() => ({
+  parent: {
+    path: '/admin/sign-in',
+    label: t('admin.signInManage'),
+    icon: CalendarOutlined
+  },
+  children: [
+    {path: '/admin/sign-in/center', label: t('admin.signInCenter'), icon: UserOutlined},
+    {path: '/admin/sign-in/users', label: t('admin.userManage'), icon: TeamOutlined}
   ]
 }))
 
 watch(
-  () => route.path,
-  (newPath) => {
-    selectedKeys.value = [newPath]
-    if (adminRoutes.value.children.some(route => newPath.startsWith(route.path))) {
-      openKeys.value = ['/admin/system']
-    } else if (profileRoutes.value.children.some(route => newPath.startsWith(route.path))) {
-      openKeys.value = ['/admin/profile']
-    } else {
-      openKeys.value = []
-    }
-  },
-  { immediate: true }
+    () => route.path,
+    (newPath) => {
+      selectedKeys.value = [newPath]
+      if (adminRoutes.value.children.some(route => newPath.startsWith(route.path))) {
+        openKeys.value = ['/admin/system']
+      } else if (profileRoutes.value.children.some(route => newPath.startsWith(route.path))) {
+        openKeys.value = ['/admin/profile']
+      } else if (signInRoutes.value.children.some(route => newPath.startsWith(route.path))) {
+        openKeys.value = ['/admin/sign-in']
+      } else {
+        openKeys.value = []
+      }
+    },
+    {immediate: true}
 )
 
-const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+const handleMenuClick: MenuProps['onClick'] = ({key}) => {
   router.push(key as string)
-}
-
-const handleLogout = async (): Promise<void> => {
-  await userStore.logout()
-  message.success(t('auth.logoutSuccess'))
-  await router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
 }
 
 const handleOpenChange = (keys: string[]): void => {
@@ -276,7 +318,11 @@ const handleExpand = (): void => {
 
 const handleBreadcrumbClick = (path: string): void => {
   if (path) {
-    const allRoutes = [adminRoutes.value, profileRoutes.value]
+    const allRoutes = [
+      adminRoutes.value,
+      profileRoutes.value,
+      signInRoutes.value,
+    ]
     let targetPath = path
 
     for (const routeConfig of allRoutes) {
@@ -306,6 +352,7 @@ const breadcrumbItems = computed(() => {
   const allRoutes = [
     adminRoutes.value,
     profileRoutes.value,
+    signInRoutes.value
   ]
   for (const routeConfig of allRoutes) {
     const parentPathKey = routeConfig.parent.path.split('/').filter(Boolean).pop()

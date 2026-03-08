@@ -3,34 +3,19 @@
   padding: 0;
 
   .statistic-row {
-    margin-bottom: 24px;
-
-    @media (max-width: 576px) {
-      margin-bottom: 16px;
-    }
+    margin-bottom: 16px;
   }
 
   .statistic-card {
     height: 100%;
-    transition: box-shadow 0.3s ease;
-
-    &:hover {
-      box-shadow: 0 4px 12px var(--shadow-color-strong);
-    }
+    transition: transform 0.2s, box-shadow 0.2s;
   }
 
-  .info-row {
-    @media (max-width: 576px) {
-      margin-bottom: 0;
-    }
-  }
-
-  .info-card {
-    height: 100%;
+  .content-row {
     margin-bottom: 16px;
 
-    @media (max-width: 768px) {
-      margin-bottom: 16px;
+    .info-card {
+      height: 100%;
     }
   }
 
@@ -45,4 +30,7 @@
       }
     }
   }
+}
+
+@media (max-width: 576px) {
 }

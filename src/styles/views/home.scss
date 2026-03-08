@@ -38,8 +38,9 @@
     background: var(--page-bg);
 
     img {
-      width: 100%;
-      height: auto;
+      width: inherit;
+      height: inherit;
+      object-fit: cover;
       display: block;
     }
 

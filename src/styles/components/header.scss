@@ -15,6 +15,17 @@
     padding: 0 24px;
     height: 64px;
 
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-img {
+      height: 50px;
+      width: auto;
+    }
+
     .logo h1 {
       margin: 0;
       color: var(--primary-color);
@@ -42,9 +53,21 @@
     }
   }
 
+  .mobile-menu-button {
+    font-size: 16px;
+  }
+
   @media (max-width: 768px) {
     .nav-container {
       padding: 0 16px;
+    }
+
+    .logo h1 {
+      font-size: 18px;
+    }
+
+    .logo-img {
+      height: 40px;
     }
   }
 }

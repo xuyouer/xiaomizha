@@ -47,7 +47,7 @@ $transition-duration: 0.3s;
   }
 
   .ant-menu-item-selected:hover,
-  .ant-menu-sub .ant-menu-item-selected:hover  {
+  .ant-menu-sub .ant-menu-item-selected:hover {
     color: var(--text-inverse) !important;
     background: var(--primary-color) !important;
   }
@@ -64,7 +64,7 @@ $transition-duration: 0.3s;
 
   &-title,
   &-collapsed {
-    color: var(--text-primary);
+    color: var(--primary-color);
     margin: 0;
     text-align: center;
     font-size: 18px;

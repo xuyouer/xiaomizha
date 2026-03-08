@@ -2,17 +2,17 @@
   <div class="resource-management">
     <a-card>
       <template #title>
-        <span>资源管理</span>
+        <span>{{ t('resource.management.title') }}</span>
       </template>
       <template #extra>
         <a-space>
-          <a-button @click="handleExpandAll">展开全部</a-button>
-          <a-button @click="handleCollapseAll">收起全部</a-button>
+          <a-button @click="handleExpandAll">{{ t('resource.management.expandAll') }}</a-button>
+          <a-button @click="handleCollapseAll">{{ t('resource.management.collapseAll') }}</a-button>
           <a-button type="primary" @click="handleAdd">
             <template #icon>
-              <PlusOutlined />
+              <PlusOutlined/>
             </template>
-            新增资源
+            {{ t('resource.management.addResource') }}
           </a-button>
         </a-space>
       </template>
@@ -43,7 +43,7 @@
           </template>
           <template v-if="column.key === 'status'">
             <a-tag :color="record.status === 1 ? 'green' : 'red'">
-              {{ record.status === 1 ? '启用' : '禁用' }}
+              {{ record.status === 1 ? t('resource.common.enabled') : t('resource.common.disabled') }}
             </a-tag>
           </template>
           <template v-if="column.key === 'resourceCategory'">
@@ -51,8 +51,14 @@
           </template>
           <template v-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleEdit(record)">编辑</a-button>
-              <a-button type="link" size="small" danger @click="handleDelete(record)">删除</a-button>
+              <a-button type="link" size="small" @click="handleEdit(record)">{{
+                  t('resource.management.edit')
+                }}
+              </a-button>
+              <a-button type="link" size="small" danger @click="handleDelete(record)">{{
+                  t('resource.management.delete')
+                }}
+              </a-button>
             </a-space>
           </template>
         </template>
@@ -74,33 +80,33 @@
           :wrapper-col="{ span: 18 }"
       >
         <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" header="基本信息（必填）" :force-render="true">
-            <a-form-item label="资源名称" name="resourceName">
-              <a-input v-model:value="formData.resourceName" />
+          <a-collapse-panel key="required" :header="t('resource.management.form.basicInfo')" :force-render="true">
+            <a-form-item :label="t('resource.management.form.resourceName')" name="resourceName">
+              <a-input v-model:value="formData.resourceName"/>
             </a-form-item>
-            <a-form-item label="资源代码" name="resourceCode">
-              <a-input v-model:value="formData.resourceCode" />
+            <a-form-item :label="t('resource.management.form.resourceCode')" name="resourceCode">
+              <a-input v-model:value="formData.resourceCode"/>
             </a-form-item>
-            <a-form-item label="资源描述" name="resourceDescription">
-              <a-textarea v-model:value="formData.resourceDescription" :rows="3" />
+            <a-form-item :label="t('resource.management.form.resourceDescription')" name="resourceDescription">
+              <a-textarea v-model:value="formData.resourceDescription" :rows="3"/>
             </a-form-item>
-            <a-form-item label="资源类型" name="resourceCategory">
+            <a-form-item :label="t('resource.management.form.resourceCategory')" name="resourceCategory">
               <a-select v-model:value="formData.resourceCategory">
-                <a-select-option value="CATALOG">目录</a-select-option>
-                <a-select-option value="MENU">菜单</a-select-option>
-                <a-select-option value="BUTTON">按钮</a-select-option>
-                <a-select-option value="API">接口</a-select-option>
-                <a-select-option value="PAGE">页面</a-select-option>
-                <a-select-option value="MODULE">模块</a-select-option>
-                <a-select-option value="OTHER">其它</a-select-option>
+                <a-select-option value="CATALOG">{{ t('resource.management.form.catalog') }}</a-select-option>
+                <a-select-option value="MENU">{{ t('resource.management.form.menu') }}</a-select-option>
+                <a-select-option value="BUTTON">{{ t('resource.management.form.button') }}</a-select-option>
+                <a-select-option value="API">{{ t('resource.management.form.api') }}</a-select-option>
+                <a-select-option value="PAGE">{{ t('resource.management.form.page') }}</a-select-option>
+                <a-select-option value="MODULE">{{ t('resource.management.form.module') }}</a-select-option>
+                <a-select-option value="OTHER">{{ t('resource.management.form.other') }}</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="资源路径" name="resourcePath">
-              <a-input v-model:value="formData.resourcePath" />
+            <a-form-item :label="t('resource.management.form.resourcePath')" name="resourcePath">
+              <a-input v-model:value="formData.resourcePath"/>
             </a-form-item>
-            <a-form-item label="父级资源" name="parentId">
+            <a-form-item :label="t('resource.management.form.parentId')" name="parentId">
               <a-select v-model:value="formData.parentId" allow-clear>
-                <a-select-option :value="0">无</a-select-option>
+                <a-select-option :value="0">{{ t('resource.management.form.none') }}</a-select-option>
                 <a-select-option
                     v-for="item in resourceOptions"
                     :key="item.resourceId"
@@ -110,67 +116,67 @@
                 </a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="资源层级" name="level">
-              <a-input-number v-model:value="formData.level" :min="0" :max="100" />
+            <a-form-item :label="t('resource.management.form.level')" name="level">
+              <a-input-number v-model:value="formData.level" :min="0" :max="100"/>
             </a-form-item>
-            <a-form-item label="排序序号" name="sortOrder">
-              <a-input-number v-model:value="formData.sortOrder" :min="0" :max="100" />
+            <a-form-item :label="t('resource.management.form.sortOrder')" name="sortOrder">
+              <a-input-number v-model:value="formData.sortOrder" :min="0" :max="100"/>
             </a-form-item>
-            <a-form-item label="状态" name="status">
+            <a-form-item :label="t('resource.management.form.status')" name="status">
               <a-select v-model:value="formData.status">
-                <a-select-option :value="1">启用</a-select-option>
-                <a-select-option :value="0">禁用</a-select-option>
+                <a-select-option :value="1">{{ t('resource.common.enabled') }}</a-select-option>
+                <a-select-option :value="0">{{ t('resource.common.disabled') }}</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="创建人用户ID" name="createBy">
-              <a-input v-model:value="formData.createBy" :disabled="isEditMode" />
+            <a-form-item :label="t('resource.management.form.createBy')" name="createBy">
+              <a-input v-model:value="formData.createBy" :disabled="isEditMode"/>
             </a-form-item>
-            <a-form-item label="更新人用户ID" name="updateBy">
-              <a-input v-model:value="formData.updateBy" :disabled="!!userStore.currentUserId" />
+            <a-form-item :label="t('resource.management.form.updateBy')" name="updateBy">
+              <a-input v-model:value="formData.updateBy" :disabled="!!userStore.currentUserId"/>
             </a-form-item>
           </a-collapse-panel>
 
-          <a-collapse-panel key="optional" header="扩展信息（选填）">
-            <a-form-item label="组件路径" name="resourceComponent">
-              <a-input v-model:value="formData.resourceComponent" />
+          <a-collapse-panel key="optional" :header="t('resource.management.form.extraInfo')">
+            <a-form-item :label="t('resource.management.form.resourceComponent')" name="resourceComponent">
+              <a-input v-model:value="formData.resourceComponent"/>
             </a-form-item>
-            <a-form-item label="资源图标" name="resourceIcon">
-              <a-input v-model:value="formData.resourceIcon" />
+            <a-form-item :label="t('resource.management.form.resourceIcon')" name="resourceIcon">
+              <a-input v-model:value="formData.resourceIcon"/>
             </a-form-item>
-            <a-form-item label="是否可见" name="visible">
+            <a-form-item :label="t('resource.management.form.visible')" name="visible">
               <a-select v-model:value="formData.visible">
-                <a-select-option :value="1">可见</a-select-option>
-                <a-select-option :value="0">隐藏</a-select-option>
+                <a-select-option :value="1">{{ t('resource.common.visible') }}</a-select-option>
+                <a-select-option :value="0">{{ t('resource.common.hidden') }}</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="是否系统内置资源" name="isSystem">
+            <a-form-item :label="t('resource.management.form.isSystem')" name="isSystem">
               <a-select v-model:value="formData.isSystem">
-                <a-select-option :value="1">是</a-select-option>
-                <a-select-option :value="0">否</a-select-option>
+                <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
+                <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="权限标识" name="permissionFlag">
-              <a-input v-model:value="formData.permissionFlag" />
+            <a-form-item :label="t('resource.management.form.permissionFlag')" name="permissionFlag">
+              <a-input v-model:value="formData.permissionFlag"/>
             </a-form-item>
-            <a-form-item label="是否需要认证" name="requiresAuth">
+            <a-form-item :label="t('resource.management.form.requiresAuth')" name="requiresAuth">
               <a-select v-model:value="formData.requiresAuth">
-                <a-select-option :value="1">是</a-select-option>
-                <a-select-option :value="0">否</a-select-option>
+                <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
+                <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="是否缓存页面" name="keepAlive">
+            <a-form-item :label="t('resource.management.form.keepAlive')" name="keepAlive">
               <a-select v-model:value="formData.keepAlive">
-                <a-select-option :value="1">是</a-select-option>
-                <a-select-option :value="0">否</a-select-option>
+                <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
+                <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="是否外部链接" name="externalLink">
+            <a-form-item :label="t('resource.management.form.externalLink')" name="externalLink">
               <a-select v-model:value="formData.externalLink">
-                <a-select-option :value="1">是</a-select-option>
-                <a-select-option :value="0">否</a-select-option>
+                <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
+                <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="链接打开方式" name="target">
+            <a-form-item :label="t('resource.management.form.target')" name="target">
               <a-select v-model:value="formData.target">
                 <a-select-option value="_self">_self</a-select-option>
                 <a-select-option value="_blank">_blank</a-select-option>
@@ -178,10 +184,10 @@
                 <a-select-option value="_top">_top</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="徽章内容" name="badge">
-              <a-input v-model:value="formData.badge" />
+            <a-form-item :label="t('resource.management.form.badge')" name="badge">
+              <a-input v-model:value="formData.badge"/>
             </a-form-item>
-            <a-form-item label="徽章类型" name="badgeType">
+            <a-form-item :label="t('resource.management.form.badgeType')" name="badgeType">
               <a-select v-model:value="formData.badgeType">
                 <a-select-option value="danger">danger</a-select-option>
                 <a-select-option value="warning">warning</a-select-option>
@@ -190,8 +196,8 @@
                 <a-select-option value="primary">primary</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="元数据(JSON)" name="metaJson">
-              <a-textarea v-model:value="formData.metaJson" :rows="3" />
+            <a-form-item :label="t('resource.management.form.metaJson')" name="metaJson">
+              <a-textarea v-model:value="formData.metaJson" :rows="3"/>
             </a-form-item>
           </a-collapse-panel>
         </a-collapse>
@@ -201,66 +207,68 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
-import type { ColumnType } from 'ant-design-vue/es/table'
+import {ref, reactive, onMounted, computed} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {PlusOutlined} from '@ant-design/icons-vue'
+import type {ColumnType} from 'ant-design-vue/es/table'
 import {
   getResourceList,
   createResource,
   updateResource,
-  deleteResource,
-  type Resource
-} from '@/api/resource'
-import type { FormInstance } from 'ant-design-vue'
-import type {PageResult} from "@/types/api";
-import humps from "humps";
-import {useUserStore} from "@/stores/user";
+  deleteResource
+} from '@/api'
+import type {FormInstance} from 'ant-design-vue'
+import type {PageResult, Resource} from "@/types/api"
+import humps from "humps"
+import {useUserStore} from "@/stores/user"
+import {useI18n} from 'vue-i18n'
+
+const {t} = useI18n()
 
 const userStore = useUserStore()
 const loading = ref(false)
 const modalVisible = ref(false)
-const modalTitle = ref('新增资源')
+const modalTitle = ref(t('resource.management.addResource'))
 const modalCollapseActiveKey = ref<string[]>(['required'])
 const formRef = ref<FormInstance>()
 const expandedRowKeys = ref<number[]>([])
 
 const isEditMode = computed(() => !!formData.resourceId)
 
-const columns: ColumnType[] = [
+const columns = computed<ColumnType[]>(() => [
   {
-    title: '资源名称',
+    title: t('resource.management.columns.resourceName'),
     dataIndex: 'resourceName',
     key: 'resourceName'
   },
   {
-    title: '资源代码',
+    title: t('resource.management.columns.resourceCode'),
     dataIndex: 'resourceCode',
     key: 'resourceCode'
   },
   {
-    title: '资源类型',
+    title: t('resource.management.columns.resourceCategory'),
     key: 'resourceCategory',
     width: 100
   },
   {
-    title: '排序序号',
+    title: t('resource.management.columns.sortOrder'),
     dataIndex: 'sortOrder',
     key: 'sortOrder',
     width: 100
   },
   {
-    title: '状态',
+    title: t('resource.management.columns.status'),
     key: 'status',
     width: 100
   },
   {
-    title: '操作',
+    title: t('resource.management.columns.action'),
     key: 'action',
     width: 150,
     fixed: 'right'
   }
-]
+])
 
 const dataSource = ref<Resource[]>([])
 const resourceOptions = ref<Resource[]>([])
@@ -295,9 +303,13 @@ const formData = reactive<Resource>({
 })
 
 const rules = {
-  resourceName: [{ required: true, message: '请输入资源名称', trigger: 'blur' }],
-  resourceCategory: [{ required: true, message: '请选择资源类型', trigger: 'change' }],
-  status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+  resourceName: [{required: true, message: t('resource.management.form.validate.resourceName'), trigger: 'blur'}],
+  resourceCategory: [{
+    required: true,
+    message: t('resource.management.form.validate.resourceCategory'),
+    trigger: 'change'
+  }],
+  status: [{required: true, message: t('resource.management.form.validate.status'), trigger: 'change'}]
 }
 
 const loadData = async (): Promise<void> => {
@@ -317,7 +329,7 @@ const loadData = async (): Promise<void> => {
       )
     }
   } catch {
-    message.error('加载数据失败')
+    message.error(t('resource.management.messages.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -328,7 +340,7 @@ const buildTree = (resources: Resource[]): Resource[] => {
   const roots: Resource[] = []
 
   resources.forEach((resource) => {
-    map.set(resource.resourceId!, { ...resource, children: [] })
+    map.set(resource.resourceId!, {...resource, children: []})
   })
 
   resources.forEach((resource) => {
@@ -379,7 +391,7 @@ const handleCollapseAll = (): void => {
 }
 
 const handleAdd = (): void => {
-  modalTitle.value = '新增资源'
+  modalTitle.value = t('resource.management.addResource')
   modalCollapseActiveKey.value = ['required']
   Object.assign(formData, {
     resourceId: undefined,
@@ -411,25 +423,25 @@ const handleAdd = (): void => {
 }
 
 const handleEdit = (record: Resource): void => {
-  modalTitle.value = '编辑资源'
+  modalTitle.value = t('resource.management.editResource')
   modalCollapseActiveKey.value = ['required']
-  Object.assign(formData, { ...record, createBy: record.createBy, updateBy: userStore.currentUserId })
+  Object.assign(formData, {...record, createBy: record.createBy, updateBy: userStore.currentUserId})
   modalVisible.value = true
 }
 
 const handleDelete = (record: Resource): void => {
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除资源 "${record.resourceName}" 吗？`,
+    title: t('resource.management.confirm.delete.title'),
+    content: t('resource.management.confirm.delete.content', {resourceName: record.resourceName}),
     onOk: async () => {
       try {
         if (record.resourceId) {
           await deleteResource(record.resourceId)
-          message.success('删除成功')
+          message.success(t('resource.management.messages.deleteSuccess'))
           await loadData()
         }
       } catch {
-        message.error('删除失败')
+        message.error(t('resource.management.messages.deleteFailed'))
       }
     }
   })
@@ -440,10 +452,10 @@ const handleSubmit = async (): Promise<void> => {
     await formRef.value?.validate()
     if (formData.resourceId) {
       await updateResource(formData.resourceId, formData)
-      message.success('更新成功')
+      message.success(t('resource.management.messages.updateSuccess'))
     } else {
       await createResource(formData)
-      message.success('新增成功')
+      message.success(t('resource.management.messages.createSuccess'))
     }
     modalVisible.value = false
     await loadData()

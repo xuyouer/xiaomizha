@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router'
-import { LeftOutlined, HomeFilled } from '@ant-design/icons-vue';
-import {computed} from "vue";
+import {useRoute, useRouter} from 'vue-router'
+import {useI18n} from 'vue-i18n'
+import {LeftOutlined, HomeFilled} from '@ant-design/icons-vue'
+import {computed} from "vue"
 
+const {t} = useI18n()
 const router = useRouter()
 const route = useRoute()
 
@@ -21,23 +23,23 @@ const handleGoToHomePage = () => {
     <div class="error-container">
       <div class="error-content">
         <h1 class="error-code">404</h1>
-        <h2 class="error-message">页面不存在</h2>
-        <p class="error-description">抱歉，您访问的页面可能已被删除、移动或输入了错误的地址。</p>
+        <h2 class="error-message">{{ t('error.notFound') }}</h2>
+        <p class="error-description">{{ t('error.errorDescription') }}</p>
         <div class="error-buttons">
           <a-button
               type="primary"
               size="large"
               @click="handleGoHome"
           >
-            <LeftOutlined />
-            返回
+            <LeftOutlined/>
+            {{ t('error.back') }}
           </a-button>
           <a-button
               size="large"
               @click="handleGoToHomePage"
           >
-            <HomeFilled />
-            回到首页
+            <HomeFilled/>
+            {{ t('error.goHome') }}
           </a-button>
         </div>
       </div>

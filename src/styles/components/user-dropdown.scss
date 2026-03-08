@@ -1,0 +1,81 @@
+.user-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  .anticon {
+    color: inherit;
+  }
+
+  &:hover {
+    color: var(--primary-color) !important;
+    background: var(--hover-bg);
+
+    .username {
+      color: inherit;
+    }
+  }
+
+  .user-avatar {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .username {
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.user-dropdown-menu {
+  min-width: 250px;
+  padding: 8px 0;
+
+  .user-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 12px;
+
+    .user-avatar-large {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .user-details {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-flow: column;
+
+      .user-name {
+        font-size: 15px;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .user-role {
+        font-size: 12px;
+        color: var(--text-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .ant-dropdown-menu-item {
+    &.danger-item {
+      color: #ff4d4f;
+    }
+  }
+}

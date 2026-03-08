@@ -3,17 +3,18 @@ import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import LocaleSwitcher from '@/components/LocaleSwitcher.vue'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
+import SignInButton from "@/components/SignInButton.vue"
+import FormModal from "@/components/FormModal.vue"
+import UserDropdown from "@/components/UserDropdown.vue"
 
-/**
- * 全局注册的组件映射
- * <p/>
- * 组件名 -> 组件
- */
 const GLOBAL_COMPONENTS: Record<string, Component> = {
     Header,
     Footer,
     LocaleSwitcher,
     ThemeSwitcher,
+    SignInButton,
+    FormModal,
+    UserDropdown,
 }
 
 /**

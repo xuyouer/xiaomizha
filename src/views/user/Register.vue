@@ -18,7 +18,10 @@
           <div class="header-right">
             <!-- <a-button type="link" @click="router.push('/login')">前往登录</a-button> -->
             <!-- <a-button type="link" @click="router.push({ path: '/login', query: route.query.redirect ? { redirect: route.query.redirect } : {} })">前往登录</a-button> -->
-            <a-button type="link" @click="router.push({ path: '/login', query: redirectPath !== '/' ? { redirect: redirectPath } : {} })">{{ t('auth.goLogin') }}</a-button>
+            <a-button type="link"
+                      @click="router.push({ path: '/login', query: redirectPath !== '/' ? { redirect: redirectPath } : {} })">
+              {{ t('auth.goLogin') }}
+            </a-button>
           </div>
         </div>
         <a-form
@@ -34,7 +37,7 @@
                 :placeholder="t('auth.pleaseEnterUsername')"
             >
               <template #prefix>
-                <UserOutlined />
+                <UserOutlined/>
               </template>
             </a-input>
           </a-form-item>
@@ -45,7 +48,7 @@
                 :placeholder="t('auth.pleaseEnterPassword')"
             >
               <template #prefix>
-                <LockOutlined />
+                <LockOutlined/>
               </template>
             </a-input-password>
           </a-form-item>
@@ -57,13 +60,13 @@
                 @pressEnter="handleRegister"
             >
               <template #prefix>
-                <LockOutlined />
+                <LockOutlined/>
               </template>
             </a-input-password>
           </a-form-item>
           <a-form-item name="agreed" :wrapper-col="{ offset: 0 }">
             <a-checkbox v-model:checked="registerForm.agreed">
-              {{ t('auth.readAgreed' )}}
+              {{ t('auth.readAgreed') }}
               <template v-for="(item, index) in agreementList" :key="item.path">
                 <span v-if="index > 0">、</span>
                 <a-button type="link" @click="router.push(item.path)" class="agreement-link">{{ item.label }}</a-button>
@@ -78,7 +81,7 @@
                 :loading="loading"
                 block
             >
-              {{ t('auth.register' )}}
+              {{ t('auth.register') }}
             </a-button>
           </a-form-item>
         </a-form>
@@ -92,15 +95,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { message } from 'ant-design-vue'
-import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
-import { registerUser } from '@/api/user'
-import type { User } from '@/types/api'
+import {ref, reactive, computed} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {useI18n} from 'vue-i18n'
+import {message} from 'ant-design-vue'
+import {UserOutlined, LockOutlined} from '@ant-design/icons-vue'
+import {registerUser} from '@/api/user/user'
+import type {User} from '@/types/api'
 
-const { t } = useI18n()
+const {t} = useI18n()
 const router = useRouter()
 const route = useRoute()
 
@@ -108,9 +111,9 @@ const route = useRoute()
 const redirectPath = computed(() => (route.query.redirect as string) || '/')
 
 const agreementList = [
-  { label: t('app.userAgreement'), path: '/agreement/user?redirect=/register' },
-  { label: t('app.privacyPolicy'), path: '/agreement/privacy?redirect=/register' },
-  { label: t('app.serviceAgreement'), path: '/agreement/service?redirect=/register' }
+  {label: t('app.userAgreement'), path: '/agreement/user?redirect=/register'},
+  {label: t('app.privacyPolicy'), path: '/agreement/privacy?redirect=/register'},
+  {label: t('app.serviceAgreement'), path: '/agreement/service?redirect=/register'}
 ]
 
 const loading = ref(false)
@@ -125,33 +128,33 @@ const currentYear = computed(() => new Date().getFullYear())
 
 const validateConfirmPassword = (_rule: unknown, value: string) => {
   if (value !== registerForm.passwordHash) {
-    return Promise.reject('两次输入的密码不一致')
+    return Promise.reject(t('register.passwordNotMatch'))
   }
   return Promise.resolve()
 }
 
 const validateAgreed = (_rule: unknown, value: boolean) => {
   if (!value) {
-    return Promise.reject('请阅读并同意相关协议')
+    return Promise.reject(t('register.pleaseAgree'))
   }
   return Promise.resolve()
 }
 
 const rules = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 2, max: 32, message: '用户名长度为 2～32 个字符', trigger: 'blur' }
+    {required: true, message: t('register.pleaseEnterUsername'), trigger: 'blur'},
+    {min: 2, max: 32, message: t('register.usernameLength'), trigger: 'blur'}
   ],
   passwordHash: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    {required: true, message: t('register.pleaseEnterPassword'), trigger: 'blur'},
+    {min: 6, message: t('register.passwordMinLength'), trigger: 'blur'}
   ],
   confirmPassword: [
-    { required: true, message: '请再次输入密码', trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' }
+    {required: true, message: t('register.pleaseReEnterPassword'), trigger: 'blur'},
+    {validator: validateConfirmPassword, trigger: 'blur'}
   ],
   agreed: [
-    { validator: validateAgreed, trigger: 'change' }
+    {validator: validateAgreed, trigger: 'change'}
   ]
 }
 
@@ -163,20 +166,20 @@ const handleRegister = async () => {
       passwordHash: registerForm.passwordHash
     }
     const res = await registerUser(data)
-    const { code, message: msg } = res.data
+    const {code, message: msg} = res.data
     if (code === 200) {
-      message.success(msg ?? '注册成功，请登录')
+      message.success(msg ?? t('register.registerSuccess'))
       // await router.push('/login')
       await router.push({
         path: '/login',
         // query: route.query.redirect ? { redirect: route.query.redirect } : {}
-        query: redirectPath.value !== '/' ? { redirect: redirectPath.value } : {}
+        query: redirectPath.value !== '/' ? {redirect: redirectPath.value} : {}
       })
     } else {
-      message.error('注册失败: 用户名已存在或用户名已被禁用')
+      message.error(t('register.usernameExists'))
     }
   } catch (error: unknown) {
-    message.error('注册失败，请稍后重试')
+    message.error(t('register.registerFailed'))
   } finally {
     loading.value = false
   }

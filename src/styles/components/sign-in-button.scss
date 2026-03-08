@@ -1,0 +1,24 @@
+.sign-in-button {
+  min-width: 120px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+
+  &-block {
+    width: 100%;
+  }
+
+  &-signed {
+    background: var(--primary-color-active);
+    border-color: var(--primary-color-active);
+
+    // &[disabled] {
+    //   background: rgba(255, 255, 255, 0.3);
+    //   border-color: rgba(255, 255, 255, 0.4);
+    //   color: #fff;
+    // }
+  }
+
+  &-loading {
+    cursor: not-allowed;
+  }
+}

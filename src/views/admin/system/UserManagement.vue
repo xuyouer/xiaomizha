@@ -2,24 +2,24 @@
   <div class="user-management">
     <a-card>
       <template #title>
-        <span>用户管理</span>
+        <span>{{ t('userManagement.title') }}</span>
       </template>
       <template #extra>
         <a-button type="primary" @click="handleAdd">
           <template #icon>
-            <PlusOutlined />
+            <PlusOutlined/>
           </template>
-          新增用户
+          {{ t('userManagement.addUser') }}
         </a-button>
       </template>
 
       <a-table
-        :columns="columns"
-        :data-source="dataSource"
-        :loading="loading"
-        :pagination="pagination"
-        row-key="userId"
-        @change="handleTableChange"
+          :columns="columns"
+          :data-source="dataSource"
+          :loading="loading"
+          :pagination="pagination"
+          row-key="userId"
+          @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'userId'">
@@ -34,7 +34,7 @@
           </template>
           <template v-if="column.key === 'accountStatus'">
             <a-tag :color="record.accountStatus === 1 ? 'green' : 'red'">
-              {{ record.accountStatus === 1 ? '正常' : '禁用' }}
+              {{ record.accountStatus === 1 ? t('userManagement.status.normal') : t('userManagement.status.disabled') }}
             </a-tag>
           </template>
           <template v-if="column.key === 'createdAt'">
@@ -44,8 +44,15 @@
           </template>
           <template v-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleEdit(record)">编辑</a-button>
-              <a-button type="link" size="small" danger @click="handleDelete(record)">删除</a-button>
+              <a-button type="link" size="small" @click="handleDetail(record)">{{
+                  t('userManagement.detail')
+                }}
+              </a-button>
+              <a-button type="link" size="small" @click="handleEdit(record)">{{ t('userManagement.edit') }}</a-button>
+              <a-button type="link" size="small" danger @click="handleDelete(record)">{{
+                  t('userManagement.delete')
+                }}
+              </a-button>
             </a-space>
           </template>
         </template>
@@ -53,40 +60,41 @@
     </a-card>
 
     <a-modal
-      v-model:open="modalVisible"
-      :title="modalTitle"
-      @ok="handleSubmit"
-      @cancel="handleCancel"
+        v-model:open="modalVisible"
+        :title="modalTitle"
+        @ok="handleSubmit"
+        @cancel="handleCancel"
     >
       <a-form
-        ref="formRef"
-        :model="formData"
-        :rules="rules"
-        :label-col="{ span: 6 }"
-        :wrapper-col="{ span: 18 }"
+          ref="formRef"
+          :model="formData"
+          :rules="rules"
+          :label-col="{ span: 6 }"
+          :wrapper-col="{ span: 18 }"
       >
         <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" header="基本信息（必填）" :force-render="true">
-            <a-form-item label="用户名" name="username">
+          <a-collapse-panel key="required" :header="t('userManagement.form.basicInfo')" :force-render="true">
+            <a-form-item :label="t('userManagement.form.username')" name="username">
               <a-input-group compact style="display: flex">
-                <a-input v-model:value="formData.username" :disabled="!!formData.userId" />
-                <a-button :disabled="!!formData.userId" @click="handleRandomUsername">
-                  <ReloadOutlined />
+                <a-input v-model:value="formData.username" :disabled="!!formData.userId"/>
+                <a-button :disabled="!!formData.userId" @click="handleRandomUsername"
+                          :title="t('userManagement.form.randomUsername')">
+                  <ReloadOutlined/>
                 </a-button>
               </a-input-group>
             </a-form-item>
-            <a-form-item label="密码" name="passwordHash" v-if="!formData.userId">
+            <a-form-item :label="t('userManagement.form.password')" name="passwordHash" v-if="!formData.userId">
               <a-input-group compact style="display: flex">
-                <a-input-password v-model:value="formData.passwordHash" />
-                <a-button @click="handleRandomPassword">
-                  <ReloadOutlined />
+                <a-input-password v-model:value="formData.passwordHash"/>
+                <a-button @click="handleRandomPassword" :title="t('userManagement.form.randomPassword')">
+                  <ReloadOutlined/>
                 </a-button>
               </a-input-group>
             </a-form-item>
-            <a-form-item label="账户状态" name="accountStatus">
+            <a-form-item :label="t('userManagement.form.accountStatus')" name="accountStatus">
               <a-select v-model:value="formData.accountStatus">
-                <a-select-option :value="1">正常</a-select-option>
-                <a-select-option :value="0">禁用</a-select-option>
+                <a-select-option :value="1">{{ t('userManagement.status.normal') }}</a-select-option>
+                <a-select-option :value="0">{{ t('userManagement.status.disabled') }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-collapse-panel>
@@ -97,20 +105,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import type { ColumnType } from 'ant-design-vue/es/table'
-import type { TablePaginationConfig } from 'ant-design-vue/es/table'
-import { getUserList, registerUser, updateUser, logoutUser } from '@/api/user'
-import type { FormInstance } from 'ant-design-vue'
-import type { PageResult, User } from "@/types/api"
+import {ref, reactive, onMounted, computed} from 'vue'
+import {useRouter} from 'vue-router'
+import {message, Modal} from 'ant-design-vue'
+import {PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import type {ColumnType} from 'ant-design-vue/es/table'
+import type {TablePaginationConfig} from 'ant-design-vue/es/table'
+import {getUserList, registerUser, updateUser, logoutUser} from '@/api'
+import type {FormInstance} from 'ant-design-vue'
+import type {PageResult, User} from "@/types/api"
 import humps from "humps"
-import { generateNickname, generatePassword } from "@/utils"
+import {generateNickname, generatePassword} from "@/utils"
+import {useI18n} from 'vue-i18n'
 
+const {t} = useI18n()
+
+const router = useRouter()
 const loading = ref(false)
 const modalVisible = ref(false)
-const modalTitle = ref('新增用户')
+const modalTitle = ref(t('userManagement.addUser'))
 const modalCollapseActiveKey = ref<string[]>(['required'])
 const formRef = ref<FormInstance>()
 
@@ -123,43 +136,43 @@ interface PaginationConfig {
   showQuickJumper: boolean
 }
 
-const columns: ColumnType[] = [
+const columns = computed<ColumnType[]>(() => [
   {
-    title: '用户ID',
+    title: t('userManagement.columns.userId'),
     dataIndex: 'userId',
     key: 'userId',
     width: 100
   },
   {
-    title: '用户名',
+    title: t('userManagement.columns.username'),
     dataIndex: 'username',
     key: 'username'
   },
   {
-    title: '账户状态',
+    title: t('userManagement.columns.accountStatus'),
     key: 'accountStatus',
     width: 100
   },
   {
-    title: '创建时间',
+    title: t('userManagement.columns.createdAt'),
     dataIndex: 'createdAt',
     key: 'createdAt',
     width: 180
   },
   {
-    title: '操作',
+    title: t('userManagement.columns.action'),
     key: 'action',
     width: 150,
     fixed: 'right'
   }
-]
+])
 
 const dataSource = ref<User[]>([])
 const pagination = reactive<PaginationConfig>({
   current: 1,
   pageSize: 10,
   total: 0,
-  showTotal: (total: number) => `共 ${total} 条`,
+  showTotal: (total: number) => t('userManagement.pagination.total', {total}),
   showSizeChanger: true,
   showQuickJumper: true
 })
@@ -172,9 +185,9 @@ const formData = reactive({
 })
 
 const rules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  passwordHash: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  accountStatus: [{ required: true, message: '请选择账户状态', trigger: 'change' }]
+  username: [{required: true, message: t('userManagement.form.validate.username'), trigger: 'blur'}],
+  passwordHash: [{required: true, message: t('userManagement.form.validate.password'), trigger: 'blur'}],
+  accountStatus: [{required: true, message: t('userManagement.form.validate.accountStatus'), trigger: 'change'}]
 }
 
 const handleRandomUsername = (): void => {
@@ -203,7 +216,7 @@ const loadData = async (): Promise<void> => {
       pagination.pageSize = data.pageSize || 10
     }
   } catch {
-    message.error('加载数据失败')
+    message.error(t('userManagement.messages.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -216,7 +229,7 @@ const handleTableChange = (pag: TablePaginationConfig): void => {
 }
 
 const handleAdd = (): void => {
-  modalTitle.value = '新增用户'
+  modalTitle.value = t('userManagement.addUser')
   modalCollapseActiveKey.value = ['required']
   Object.assign(formData, {
     userId: undefined,
@@ -227,8 +240,15 @@ const handleAdd = (): void => {
   modalVisible.value = true
 }
 
+const handleDetail = (record: User): void => {
+  router.push({
+    path: '/admin/system/user-details',
+    query: {userId: record.userId}
+  })
+}
+
 const handleEdit = (record: User): void => {
-  modalTitle.value = '编辑用户'
+  modalTitle.value = t('userManagement.editUser')
   modalCollapseActiveKey.value = ['required']
   Object.assign(formData, record)
   modalVisible.value = true
@@ -236,17 +256,17 @@ const handleEdit = (record: User): void => {
 
 const handleDelete = (record: User): void => {
   Modal.confirm({
-    title: '确认注销',
-    content: `确定要注销用户 "${record.username}" 吗？`,
+    title: t('userManagement.confirm.delete.title'),
+    content: t('userManagement.confirm.delete.content', {username: record.username}),
     onOk: async () => {
       try {
         if (record.userId) {
           await logoutUser(record.userId)
-          message.success('注销成功')
+          message.success(t('userManagement.messages.deleteSuccess'))
           await loadData()
         }
       } catch {
-        message.error('注销失败')
+        message.error(t('userManagement.messages.deleteFailed'))
       }
     }
   })
@@ -257,10 +277,10 @@ const handleSubmit = async (): Promise<void> => {
     await formRef.value?.validate()
     if (formData.userId) {
       await updateUser(formData.userId, formData)
-      message.success('更新成功')
+      message.success(t('userManagement.messages.updateSuccess'))
     } else {
       await registerUser(formData as User)
-      message.success('注册成功')
+      message.success(t('userManagement.messages.registerSuccess'))
     }
     modalVisible.value = false
     await loadData()

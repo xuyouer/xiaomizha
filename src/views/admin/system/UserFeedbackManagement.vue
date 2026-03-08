@@ -2,24 +2,24 @@
   <div class="user-feedback-management">
     <a-card>
       <template #title>
-        <span>用户反馈</span>
+        <span>{{ t('userFeedback.management.title') }}</span>
       </template>
       <template #extra>
         <a-button type="primary" @click="handleAdd">
           <template #icon>
-            <PlusOutlined />
+            <PlusOutlined/>
           </template>
-          新增
+          {{ t('userFeedback.management.add') }}
         </a-button>
       </template>
 
       <a-table
-        :columns="columns"
-        :data-source="dataSource"
-        :loading="loading"
-        :pagination="pagination"
-        row-key="id"
-        @change="handleTableChange"
+          :columns="columns"
+          :data-source="dataSource"
+          :loading="loading"
+          :pagination="pagination"
+          row-key="id"
+          @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'id'">
@@ -46,8 +46,13 @@
           </template>
           <template v-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" size="small" @click="handleEdit(record)">编辑</a-button>
-              <a-button type="link" size="small" danger @click="handleDelete(record)">删除</a-button>
+              <a-button type="link" size="small" @click="handleEdit(record)">{{
+                  t('userFeedback.management.edit')
+                }}
+              </a-button>
+              <a-button type="link" size="small" danger @click="handleDelete(record)">
+                {{ t('userFeedback.management.delete') }}
+              </a-button>
             </a-space>
           </template>
         </template>
@@ -55,50 +60,50 @@
     </a-card>
 
     <a-modal
-      v-model:open="modalVisible"
-      :title="modalTitle"
-      :width="560"
-      @ok="handleSubmit"
-      @cancel="handleCancel"
+        v-model:open="modalVisible"
+        :title="modalTitle"
+        :width="560"
+        @ok="handleSubmit"
+        @cancel="handleCancel"
     >
       <a-form
-        ref="formRef"
-        :model="formData"
-        :rules="rules"
-        :label-col="{ span: 6 }"
-        :wrapper-col="{ span: 18 }"
+          ref="formRef"
+          :model="formData"
+          :rules="rules"
+          :label-col="{ span: 6 }"
+          :wrapper-col="{ span: 18 }"
       >
         <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" header="基本信息（必填）" :force-render="true">
-            <a-form-item label="用户ID" name="userId">
-              <a-input-number v-model:value="formData.userId" style="width: 100%" :min="1" :disabled="!!formData.id" />
+          <a-collapse-panel key="required" :header="t('userFeedback.management.form.basicInfo')" :force-render="true">
+            <a-form-item :label="t('userFeedback.management.form.userId')" name="userId">
+              <a-input-number v-model:value="formData.userId" style="width: 100%" :min="1" :disabled="!!formData.id"/>
             </a-form-item>
-            <a-form-item label="反馈类型" name="type">
+            <a-form-item :label="t('userFeedback.management.form.type')" name="type">
               <a-select v-model:value="formData.type">
-                <a-select-option :value="1">系统问题</a-select-option>
-                <a-select-option :value="2">功能建议</a-select-option>
-                <a-select-option :value="3">BUG反馈</a-select-option>
-                <a-select-option :value="4">其他</a-select-option>
+                <a-select-option :value="1">{{ t('userFeedback.common.type.systemIssue') }}</a-select-option>
+                <a-select-option :value="2">{{ t('userFeedback.common.type.featureSuggestion') }}</a-select-option>
+                <a-select-option :value="3">{{ t('userFeedback.common.type.bugReport') }}</a-select-option>
+                <a-select-option :value="4">{{ t('userFeedback.common.type.other') }}</a-select-option>
               </a-select>
             </a-form-item>
-            <a-form-item label="反馈内容" name="content">
-              <a-textarea v-model:value="formData.content" :rows="4" />
+            <a-form-item :label="t('userFeedback.management.form.content')" name="content">
+              <a-textarea v-model:value="formData.content" :rows="4"/>
             </a-form-item>
-            <a-form-item label="状态" name="status">
+            <a-form-item :label="t('userFeedback.management.form.status')" name="status">
               <a-select v-model:value="formData.status">
-                <a-select-option :value="1">待处理</a-select-option>
-                <a-select-option :value="2">已受理</a-select-option>
-                <a-select-option :value="3">已解决</a-select-option>
-                <a-select-option :value="4">已关闭</a-select-option>
+                <a-select-option :value="1">{{ t('userFeedback.common.status.pending') }}</a-select-option>
+                <a-select-option :value="2">{{ t('userFeedback.common.status.accepted') }}</a-select-option>
+                <a-select-option :value="3">{{ t('userFeedback.common.status.resolved') }}</a-select-option>
+                <a-select-option :value="4">{{ t('userFeedback.common.status.closed') }}</a-select-option>
               </a-select>
             </a-form-item>
           </a-collapse-panel>
-          <a-collapse-panel key="optional" header="扩展信息（选填）">
-            <a-form-item label="联系方式" name="contactInfo">
-              <a-input v-model:value="formData.contactInfo" />
+          <a-collapse-panel key="optional" :header="t('userFeedback.management.form.extraInfo')">
+            <a-form-item :label="t('userFeedback.management.form.contactInfo')" name="contactInfo">
+              <a-input v-model:value="formData.contactInfo"/>
             </a-form-item>
-            <a-form-item label="回复内容" name="reply">
-              <a-textarea v-model:value="formData.reply" :rows="3" />
+            <a-form-item :label="t('userFeedback.management.form.reply')" name="reply">
+              <a-textarea v-model:value="formData.reply" :rows="3"/>
             </a-form-item>
           </a-collapse-panel>
         </a-collapse>
@@ -108,35 +113,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
-import type { ColumnType } from 'ant-design-vue/es/table'
-import type { TablePaginationConfig } from 'ant-design-vue/es/table'
-import { getFeedbackList, addFeedback, updateFeedback, deleteFeedback } from '@/api/feedback'
-import type { FormInstance } from 'ant-design-vue'
-import type { PageResult, UserFeedbackRecord } from '@/types/api'
+import {ref, reactive, onMounted, computed} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {PlusOutlined} from '@ant-design/icons-vue'
+import type {ColumnType} from 'ant-design-vue/es/table'
+import type {TablePaginationConfig} from 'ant-design-vue/es/table'
+import {getFeedbackList, addFeedback, updateFeedback, deleteFeedback} from '@/api'
+import type {FormInstance} from 'ant-design-vue'
+import type {PageResult, UserFeedbackRecord} from '@/types/api'
 import humps from 'humps'
-import { useUserStore } from '@/stores/user'
+import {useUserStore} from '@/stores/user'
+import {useI18n} from 'vue-i18n'
 
-const typeLabelMap: Record<number, string> = {
-  1: '系统问题',
-  2: '功能建议',
-  3: 'BUG反馈',
-  4: '其他'
-}
+const {t} = useI18n()
+
+const typeLabelMap = computed<Record<number, string>>(() => ({
+  1: t('userFeedback.common.type.systemIssue'),
+  2: t('userFeedback.common.type.featureSuggestion'),
+  3: t('userFeedback.common.type.bugReport'),
+  4: t('userFeedback.common.type.other')
+}))
 const typeColorMap: Record<number, string> = {
   1: 'orange',
   2: 'blue',
   3: 'red',
   4: 'default'
 }
-const statusLabelMap: Record<number, string> = {
-  1: '待处理',
-  2: '已受理',
-  3: '已解决',
-  4: '已关闭'
-}
+const statusLabelMap = computed<Record<number, string>>(() => ({
+  1: t('userFeedback.common.status.pending'),
+  2: t('userFeedback.common.status.accepted'),
+  3: t('userFeedback.common.status.resolved'),
+  4: t('userFeedback.common.status.closed')
+}))
 const statusColorMap: Record<number, string> = {
   1: 'gold',
   2: 'blue',
@@ -147,7 +155,7 @@ const statusColorMap: Record<number, string> = {
 const userStore = useUserStore()
 const loading = ref(false)
 const modalVisible = ref(false)
-const modalTitle = ref('新增')
+const modalTitle = ref(t('userFeedback.management.add'))
 const modalCollapseActiveKey = ref<string[]>(['required'])
 const formRef = ref<FormInstance>()
 
@@ -160,22 +168,22 @@ interface PaginationConfig {
   showQuickJumper: boolean
 }
 
-const columns: ColumnType[] = [
-  { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-  { title: '用户ID', dataIndex: 'userId', key: 'userId', width: 90 },
-  { title: '类型', key: 'type', width: 100 },
-  { title: '内容', dataIndex: 'content', key: 'content', ellipsis: true },
-  { title: '状态', key: 'status', width: 90 },
-  { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180 },
-  { title: '操作', key: 'action', width: 150, fixed: 'right' }
-]
+const columns = computed<ColumnType[]>(() => [
+  {title: t('userFeedback.management.columns.id'), dataIndex: 'id', key: 'id', width: 80},
+  {title: t('userFeedback.management.columns.userId'), dataIndex: 'userId', key: 'userId', width: 90},
+  {title: t('userFeedback.management.columns.type'), key: 'type', width: 100},
+  {title: t('userFeedback.management.columns.content'), dataIndex: 'content', key: 'content', ellipsis: true},
+  {title: t('userFeedback.management.columns.status'), key: 'status', width: 90},
+  {title: t('userFeedback.management.columns.createdAt'), dataIndex: 'createdAt', key: 'createdAt', width: 180},
+  {title: t('userFeedback.management.columns.action'), key: 'action', width: 150, fixed: 'right'}
+])
 
 const dataSource = ref<UserFeedbackRecord[]>([])
 const pagination = reactive<PaginationConfig>({
   current: 1,
   pageSize: 10,
   total: 0,
-  showTotal: (total: number) => `共 ${total} 条`,
+  showTotal: (total: number) => t('userFeedback.management.pagination.total', {total}),
   showSizeChanger: true,
   showQuickJumper: true
 })
@@ -191,10 +199,10 @@ const formData = reactive<UserFeedbackRecord>({
 })
 
 const rules = {
-  userId: [{ required: true, message: '请输入用户ID', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择反馈类型', trigger: 'change' }],
-  content: [{ required: true, message: '请输入反馈内容', trigger: 'blur' }],
-  status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+  userId: [{required: true, message: t('userFeedback.management.form.validate.userId'), trigger: 'blur'}],
+  type: [{required: true, message: t('userFeedback.management.form.validate.type'), trigger: 'change'}],
+  content: [{required: true, message: t('userFeedback.management.form.validate.content'), trigger: 'blur'}],
+  status: [{required: true, message: t('userFeedback.management.form.validate.status'), trigger: 'change'}]
 }
 
 const loadData = async (): Promise<void> => {
@@ -204,7 +212,7 @@ const loadData = async (): Promise<void> => {
       current: pagination.current,
       pageSize: pagination.pageSize
     })
-    let { data } = response
+    let {data} = response
     if (data?.code === 200 && data?.data) {
       data = humps.camelizeKeys(data) as PageResult<UserFeedbackRecord>
       dataSource.value = data.data || []
@@ -213,7 +221,7 @@ const loadData = async (): Promise<void> => {
       pagination.pageSize = data.pageSize || 10
     }
   } catch {
-    message.error('加载数据失败')
+    message.error(t('userFeedback.management.messages.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -226,7 +234,7 @@ const handleTableChange = (pag: TablePaginationConfig): void => {
 }
 
 const handleAdd = (): void => {
-  modalTitle.value = '新增'
+  modalTitle.value = t('userFeedback.management.add')
   modalCollapseActiveKey.value = ['required']
   Object.assign(formData, {
     id: undefined,
@@ -241,25 +249,25 @@ const handleAdd = (): void => {
 }
 
 const handleEdit = (record: UserFeedbackRecord): void => {
-  modalTitle.value = '编辑'
+  modalTitle.value = t('userFeedback.management.edit')
   modalCollapseActiveKey.value = ['required']
-  Object.assign(formData, { ...record })
+  Object.assign(formData, {...record})
   modalVisible.value = true
 }
 
 const handleDelete = (record: UserFeedbackRecord): void => {
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除反馈 #${record.id} 吗？`,
+    title: t('userFeedback.management.confirm.delete.title'),
+    content: t('userFeedback.management.confirm.delete.content', {id: record.id}),
     onOk: async () => {
       try {
         if (record.id) {
           await deleteFeedback(record.id)
-          message.success('删除成功')
+          message.success(t('userFeedback.management.messages.deleteSuccess'))
           await loadData()
         }
       } catch {
-        message.error('删除失败')
+        message.error(t('userFeedback.management.messages.deleteFailed'))
       }
     }
   })
@@ -270,10 +278,10 @@ const handleSubmit = async (): Promise<void> => {
     await formRef.value?.validate()
     if (formData.id) {
       await updateFeedback(formData.id, formData)
-      message.success('更新成功')
+      message.success(t('userFeedback.management.messages.updateSuccess'))
     } else {
       await addFeedback(formData)
-      message.success('新增成功')
+      message.success(t('userFeedback.management.messages.createSuccess'))
     }
     modalVisible.value = false
     await loadData()

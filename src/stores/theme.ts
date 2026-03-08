@@ -1,5 +1,7 @@
-import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import {defineStore} from 'pinia'
+import {ref, watch} from 'vue'
+import {localStorageCache} from "@/utils"
+import {CACHE_EXPIRY} from "@/constants"
 
 const THEME_KEY = 'xiaomizha_theme'
 const THEME_PRIMARY_KEY = 'xiaomizha_theme_primary'
@@ -11,37 +13,68 @@ export interface ThemeColor {
     name: string
 }
 
-export const PRIMARY_COLORS: ThemeColor[] = [
-    { value: '#1890FF', name: '默认蓝' },
-    { value: '#00B96B', name: '青绿' },
-    { value: '#722ED1', name: '紫色' },
-    { value: '#EB2F96', name: '粉色' },
-    { value: '#2F54EB', name: '蓝色' },
-    { value: '#FA541C', name: '橙红' },
-    { value: '#007AB8', name: '海洋蓝' },
-    { value: '#00C1D5', name: '水蓝' },
-    { value: '#07C160', name: '深绿' },
-    { value: '#10AEFF', name: '浅蓝' },
-    { value: '#6467F0', name: '淡紫' },
-    { value: '#78BE20', name: '叶绿' },
-    { value: '#B145E9', name: '紫罗兰' },
-    { value: '#DC3545', name: '鲜红' },
-    { value: '#FD7E14', name: '橙黄' },
-    { value: '#556644', name: '不焦绿' },
-    { value: '#614E6F', name: '绝绝紫' },
-    { value: '#375361', name: '不摆蓝' },
-    { value: '#7A6143', name: '糖太棕' },
-    { value: '#4B7560', name: '放青松' },
-    { value: '#AE5052', name: '发财红' },
+export interface ThemeColorGroup {
+    name: string
+    colors: ThemeColor[]
+}
+
+export const PRIMARY_COLOR_GROUPS: ThemeColorGroup[] = [
+    {
+        name: '基础色系',
+        colors: [
+            {value: '#1890FF', name: '默认蓝'},
+            {value: '#00B96B', name: '青绿'},
+            {value: '#722ED1', name: '紫色'},
+            {value: '#EB2F96', name: '粉色'},
+            {value: '#2F54EB', name: '蓝色'},
+            {value: '#FA541C', name: '橙红'}
+        ]
+    },
+    {
+        name: '蓝色系',
+        colors: [
+            {value: '#007AB8', name: '海洋蓝'},
+            {value: '#00C1D5', name: '水蓝'},
+            {value: '#10AEFF', name: '浅蓝'},
+            {value: '#375361', name: '不摆蓝'}
+        ]
+    },
+    {
+        name: '绿色系',
+        colors: [
+            {value: '#07C160', name: '深绿'},
+            {value: '#78BE20', name: '叶绿'},
+            {value: '#556644', name: '不焦绿'},
+            {value: '#4B7560', name: '放青松'}
+        ]
+    },
+    {
+        name: '紫色系',
+        colors: [
+            {value: '#6467F0', name: '淡紫'},
+            {value: '#B145E9', name: '紫罗兰'},
+            {value: '#614E6F', name: '绝绝紫'}
+        ]
+    },
+    {
+        name: '红色系',
+        colors: [
+            {value: '#DC3545', name: '鲜红'},
+            {value: '#FD7E14', name: '橙黄'},
+            {value: '#AE5052', name: '发财红'}
+        ]
+    }
 ] as const
 
+export const PRIMARY_COLORS: ThemeColor[] = PRIMARY_COLOR_GROUPS.flatMap(group => group.colors)
+
 function getStoredTheme(): ThemeMode {
-    const v = localStorage.getItem(THEME_KEY)
+    const v = localStorageCache.get(THEME_KEY)
     return v === 'dark' ? 'dark' : 'light'
 }
 
 function getStoredPrimary(): string {
-    return localStorage.getItem(THEME_PRIMARY_KEY) || (PRIMARY_COLORS[0]?.value || '#1890FF')
+    return localStorageCache.get(THEME_PRIMARY_KEY) || (PRIMARY_COLORS[0]?.value || '#1890FF')
 }
 
 export const useThemeStore = defineStore('theme', () => {
@@ -63,14 +96,14 @@ export const useThemeStore = defineStore('theme', () => {
     }
 
     watch(mode, () => {
-        localStorage.setItem(THEME_KEY, mode.value)
+        localStorageCache.set(THEME_KEY, mode.value, CACHE_EXPIRY.theme)
         applyToDocument()
-    }, { immediate: true })
+    }, {immediate: true})
 
     watch(primaryColor, () => {
-        localStorage.setItem(THEME_PRIMARY_KEY, primaryColor.value)
+        localStorageCache.set(THEME_PRIMARY_KEY, primaryColor.value, CACHE_EXPIRY.theme)
         applyToDocument()
-    }, { immediate: true })
+    }, {immediate: true})
 
     function setMode(m: ThemeMode): void {
         mode.value = m

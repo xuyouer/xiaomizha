@@ -1,0 +1,98 @@
+.sign-in-user-management {
+  .management-card {
+    .ant-card-head {
+      border-bottom: 1px solid #f0f0f0;
+    }
+  }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 16px;
+
+    .anticon {
+      color: var(--primary-color);
+    }
+  }
+
+  .search-bar {
+    margin-bottom: 24px;
+    padding: 16px;
+    border-radius: 8px;
+
+    .search-icon {
+      color: #bfbfbf;
+    }
+
+    .ant-input,
+    .ant-input-number {
+      &:hover,
+      &:focus {
+        border-color: var(--primary-color);
+      }
+    }
+
+    .ant-picker {
+      width: 100%;
+    }
+  }
+
+  .user-name {
+    font-weight: 500;
+  }
+
+  .max-continuous {
+    font-size: 13px;
+  }
+
+  .points-earned {
+    font-weight: 600;
+  }
+
+  .last-sign-date {
+    font-size: 13px;
+  }
+
+  .ant-table {
+    .ant-tag {
+      margin: 0;
+    }
+  }
+
+  .monthly-calendar {
+    .calendar-cell {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-size: 12px;
+      margin: 0 auto;
+
+      &.signed-day {
+        background: var(--primary-color);
+        color: #fff;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .ant-descriptions {
+    .ant-descriptions-item-label {
+      font-weight: 500;
+      background: #fafafa;
+    }
+  }
+
+  .ant-divider {
+    margin: 16px 0;
+
+    .anticon {
+      margin-right: 8px;
+      color: var(--primary-color);
+    }
+  }
+}

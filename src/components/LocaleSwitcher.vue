@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { GlobalOutlined } from '@ant-design/icons-vue'
-import { setLocale, type LocaleType, SUPPORTED_LOCALES } from '@/locales'
+import {computed} from 'vue'
+import {useI18n} from 'vue-i18n'
+import {GlobalOutlined} from '@ant-design/icons-vue'
+import {setLocale, type LocaleType, SUPPORTED_LOCALES} from '@/locales'
 
-const { t, locale } = useI18n()
+const {t, locale} = useI18n()
 
 const localeLabels = computed<Record<LocaleType, string>>(() => ({
   'zh-CN': t('locale.zhCN'),
+  'zh-TW': t('locale.zhTW'),
   'en-US': t('locale.enUS'),
+  'ru-RU': t('locale.ruRU'),
 }))
 
 function changeLocale(loc: LocaleType) {
@@ -19,8 +21,8 @@ function changeLocale(loc: LocaleType) {
 <template>
   <a-dropdown>
     <a-button type="link" class="locale-trigger" @click.prevent>
-      <GlobalOutlined />
-      <span class="label">{{ localeLabels[locale as LocaleType] }}</span>
+      <GlobalOutlined/>
+      <a-typography-text class="label">{{ localeLabels[locale as LocaleType] }}</a-typography-text>
     </a-button>
     <template #overlay>
       <a-menu>
@@ -37,21 +39,5 @@ function changeLocale(loc: LocaleType) {
 </template>
 
 <style scoped lang="scss">
-.locale-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-.locale-trigger:hover {
-  background: rgba(0, 0, 0, 0.04);
-}
-[data-theme='dark'] .locale-trigger:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-.label {
-  font-size: 14px;
-}
+
 </style>

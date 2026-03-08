@@ -627,9 +627,72 @@ CREATE TABLE IF NOT EXISTS `license_user_relation` (
     CONSTRAINT `fk_license_user_relation_assigned_by` FOREIGN KEY (`assigned_by`) REFERENCES `users` (`user_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='License用户关联表';
 
+-- 签到表
+CREATE TABLE IF NOT EXISTS `sign_in` (
+    `sign_in_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '签到记录ID',
+    `user_id` BIGINT NOT NULL COMMENT '关联用户ID',
+    `sign_in_date` DATETIME NOT NULL COMMENT '签到日期',
+    `continuous_days` INT NOT NULL DEFAULT 1 COMMENT '连续签到天数',
+    `points_reward` INT NOT NULL COMMENT '签到获得的积分',
+    
+    `created_at` DATETIME (6) DEFAULT CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_at` DATETIME (6) DEFAULT CURRENT_TIMESTAMP (6) ON UPDATE CURRENT_TIMESTAMP (6) COMMENT '最后更新时间',
+    
+    PRIMARY KEY (`sign_in_id`),
+    UNIQUE KEY `idx_user_date` (`user_id`, `sign_in_date`),
+    KEY `idx_user_id` (`user_id`),
+    CONSTRAINT `fk_user_sign_in_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '签到表';
 
+-- 签到配置表
+CREATE TABLE IF NOT EXISTS `sign_in_config` (
+    `config_id` INT NOT NULL AUTO_INCREMENT COMMENT '配置ID',
+    `continuous_days` INT NOT NULL COMMENT '连续签到天数',
+    `points_reward` INT NOT NULL COMMENT '对应积分奖励',
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '是否启用',
+    
+    `created_at` DATETIME (6) DEFAULT CURRENT_TIMESTAMP (6) COMMENT '创建时间',
+    `updated_at` DATETIME (6) DEFAULT CURRENT_TIMESTAMP (6) ON UPDATE CURRENT_TIMESTAMP (6) COMMENT '最后更新时间',
+    
+    PRIMARY KEY (`config_id`)
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '签到配置表';
 
+-- 签到状态表
+CREATE TABLE IF NOT EXISTS `sign_in_status` (
+	`status_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '状态ID',
+	`user_id` BIGINT NOT NULL COMMENT '用户ID',
+	`current_continuous_days` INT NOT NULL DEFAULT 0 COMMENT '当前连续签到天数',
+	`last_sign_in_date` DATETIME DEFAULT NULL COMMENT '最后签到日期',
+	`is_continuous` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否处于连续签到状态',
+	`total_sign_ins` INT NOT NULL DEFAULT 0 COMMENT '总签到次数',
+	`max_continuous_days` INT NOT NULL DEFAULT 0 COMMENT '历史最大连续签到天数',
+	
+	`created_at` DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) COMMENT '创建时间',
+	`updated_at` DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '更新时间',
+	
+	PRIMARY KEY (`status_id`),
+	UNIQUE KEY `idx_user_id` (`user_id`),
+	KEY `idx_is_continuous` (`is_continuous`),
+	KEY `idx_last_sign_in_date` (`last_sign_in_date`),
+	CONSTRAINT `fk_user_sign_in_status_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '签到状态表';
 
+-- 月度签到报告表
+CREATE TABLE IF NOT EXISTS `sign_in_monthly_report` (
+	`report_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '报告ID',
+	`report_month` VARCHAR(7) NOT NULL COMMENT '报告月份(YYYY-MM)',
+	`user_id` BIGINT NOT NULL COMMENT '用户ID',
+	`total_sign_ins` INT NOT NULL COMMENT '月度签到次数',
+	`continuous_days` INT NOT NULL COMMENT '最大连续签到天数',
+	`points_earned` INT NOT NULL COMMENT '获得的积分',
+	`rank` INT DEFAULT NULL COMMENT '月度排名',
+	`created_at` DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) COMMENT '创建时间',
+	PRIMARY KEY (`report_id`),
+	UNIQUE KEY `idx_user_month` (`user_id`, `report_month`),
+	KEY `idx_report_month` (`report_month`),
+	KEY `idx_rank` (`rank`),
+	CONSTRAINT `fk_sign_in_monthly_report_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT = '月度签到报告表';
 
 
 
@@ -3367,7 +3430,9 @@ DELIMITER ;
 -- 每天检查过期许可证
 DELIMITER //
 CREATE EVENT `check_expired_licenses`
-ON SCHEDULE EVERY 1 DAY STARTS '2026-01-01 00:00:00'
+ON SCHEDULE EVERY 1 DAY 
+-- STARTS '2026-01-01 00:00:00'
+STARTS TIMESTAMP(CURDATE() + INTERVAL 1 DAY, '00:00:00')
 DO BEGIN
     -- 更新过期的许可证状态
     UPDATE license_info
@@ -3387,7 +3452,9 @@ DELIMITER ;
 -- 每周生成许可证到期提醒
 DELIMITER //
 CREATE EVENT `generate_license_expiration_reminders`
-ON SCHEDULE EVERY 1 WEEK STARTS '2026-01-01 08:00:00'
+ON SCHEDULE EVERY 1 WEEK 
+-- STARTS '2026-01-01 08:00:00'
+STARTS TIMESTAMP(CURDATE() + INTERVAL 1 DAY, '08:00:00')
 DO BEGIN
     -- TODO: 查询7天内到期的许可证发送邮件或其他通知的逻辑
     INSERT INTO license_usage_log (license_key, action, details, status)
@@ -3429,6 +3496,501 @@ BEGIN
     DELETE FROM license_user_relation
     WHERE status = 'EXPIRED'
     AND expires_at < DATE_SUB(NOW(), INTERVAL 30 DAY);
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- ============================================
+-- 用户签到相关视图
+-- ============================================
+
+-- 用户签到详情视图
+CREATE VIEW `sign_in_detail_view` AS
+SELECT 
+    usi.sign_in_id,
+    usi.user_id,
+    u.username,
+    un.display_name,
+    up.nickname,
+    usi.sign_in_date,
+    usi.continuous_days,
+    usi.points_reward,
+    usi.created_at as sign_in_time,
+    -- 连续签到奖励配置
+    sic.points_reward as configured_reward,
+    -- 用户附加信息
+    vi.vip_level,
+    up2.total_points,
+    -- 签到状态
+    CASE 
+        WHEN DATE(usi.sign_in_date) = CURDATE() THEN '今日已签到'
+        WHEN DATE(usi.sign_in_date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN '昨日已签到'
+        ELSE '历史签到'
+    END as sign_in_status
+FROM sign_in usi
+LEFT JOIN users u ON usi.user_id = u.user_id
+LEFT JOIN user_names un ON usi.user_id = un.user_id
+LEFT JOIN user_profiles up ON usi.user_id = up.user_id
+LEFT JOIN user_vip_info vi ON usi.user_id = vi.user_id
+LEFT JOIN user_points up2 ON usi.user_id = up2.user_id
+LEFT JOIN sign_in_config sic ON usi.continuous_days = sic.continuous_days AND sic.is_active = 1;
+
+-- 用户签到统计视图
+CREATE VIEW `sign_in_stats_view` AS
+SELECT 
+    usi.user_id,
+    u.username,
+    un.display_name,
+    COUNT(*) as total_sign_ins,
+    MAX(usi.continuous_days) as max_continuous_days,
+    SUM(usi.points_reward) as total_points_earned,
+    COUNT(DISTINCT DATE(usi.sign_in_date)) as unique_sign_in_days,
+    -- 本月签到统计
+    COUNT(CASE WHEN DATE_FORMAT(usi.sign_in_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN 1 END) as monthly_sign_ins,
+    -- 连续签到状态
+    CASE 
+        WHEN MAX(usi.sign_in_date) = CURDATE() THEN '今日已签到'
+        WHEN MAX(usi.sign_in_date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN '连续签到中'
+        ELSE '连续签到已中断'
+    END as continuous_status,
+    -- 最后签到信息
+    MAX(usi.sign_in_date) as last_sign_in_date,
+    MIN(usi.sign_in_date) as first_sign_in_date,
+    DATEDIFF(NOW(), MIN(usi.sign_in_date)) as days_since_first_sign_in,
+    -- 用户附加信息
+    vi.vip_level,
+    up2.total_points
+FROM sign_in usi
+LEFT JOIN users u ON usi.user_id = u.user_id
+LEFT JOIN user_names un ON usi.user_id = un.user_id
+LEFT JOIN user_vip_info vi ON usi.user_id = vi.user_id
+LEFT JOIN user_points up2 ON usi.user_id = up2.user_id
+GROUP BY usi.user_id, u.username, un.display_name, vi.vip_level, up2.total_points
+ORDER BY total_sign_ins DESC;
+
+-- 用户月度签到日历视图
+CREATE VIEW `user_monthly_sign_in_view` AS
+SELECT 
+    usi.user_id,
+    u.username,
+    un.display_name,
+    DATE_FORMAT(usi.sign_in_date, '%Y-%m') as sign_in_month,
+    DATE_FORMAT(usi.sign_in_date, '%d') as sign_in_day,
+    usi.continuous_days,
+    usi.points_reward,
+    usi.created_at as sign_in_time
+FROM sign_in usi
+LEFT JOIN users u ON usi.user_id = u.user_id
+LEFT JOIN user_names un ON usi.user_id = un.user_id
+ORDER BY usi.user_id, usi.sign_in_date;
+
+-- 签到配置视图
+CREATE VIEW `sign_in_config_view` AS
+SELECT 
+    config_id,
+    continuous_days,
+    points_reward,
+    is_active,
+    CASE is_active
+        WHEN 1 THEN '启用'
+        ELSE '禁用'
+    END as status_name,
+    created_at,
+    updated_at
+FROM sign_in_config
+ORDER BY continuous_days;
+
+-- 系统签到统计视图
+CREATE VIEW `system_sign_in_stats_view` AS
+SELECT 
+    COUNT(*) as total_sign_ins,
+    COUNT(DISTINCT user_id) as unique_users,
+    SUM(points_reward) as total_points_distributed,
+    AVG(points_reward) as avg_points_per_sign_in,
+    MAX(continuous_days) as max_continuous_days,
+    -- 今日签到统计
+    COUNT(CASE WHEN sign_in_date = CURDATE() THEN 1 END) as today_sign_ins,
+    -- 昨日签到统计
+    COUNT(CASE WHEN sign_in_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN 1 END) as yesterday_sign_ins,
+    -- 本月签到统计
+    COUNT(CASE WHEN DATE_FORMAT(sign_in_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') THEN 1 END) as monthly_sign_ins,
+    -- 签到趋势
+    COUNT(CASE WHEN sign_in_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as weekly_sign_ins,
+    COUNT(CASE WHEN sign_in_date >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as monthly_30d_sign_ins
+FROM sign_in;
+
+-- ============================================
+-- 用户签到相关函数
+-- ============================================
+
+-- 计算用户连续签到天数的函数
+DELIMITER //
+CREATE FUNCTION `calculate_continuous_sign_in_days`(user_id_param BIGINT) RETURNS INT
+READS SQL DATA
+BEGIN
+    DECLARE continuous_days INT DEFAULT 0;
+    DECLARE current_dt DATE DEFAULT CURDATE();
+    DECLARE sign_in_exists INT DEFAULT 0;
+    
+    check_sign_in_loop: WHILE TRUE DO
+        SELECT COUNT(*) INTO sign_in_exists
+        FROM sign_in
+        WHERE user_id = user_id_param AND sign_in_date = current_dt;
+        
+        IF sign_in_exists = 0 THEN
+            LEAVE check_sign_in_loop;
+        END IF;
+        
+        SET continuous_days = continuous_days + 1;
+        SET current_dt = DATE_SUB(current_dt, INTERVAL 1 DAY);
+    END WHILE check_sign_in_loop;
+    
+    RETURN continuous_days;
+END //
+DELIMITER ;
+
+-- 计算用户签到积分奖励的函数
+DELIMITER //
+CREATE FUNCTION `calculate_sign_in_reward`(user_id_param BIGINT) RETURNS INT
+READS SQL DATA
+BEGIN
+    DECLARE continuous_days INT DEFAULT 1;
+    DECLARE reward_points INT DEFAULT 0;
+    DECLARE last_sign_in_date DATE;
+    
+    -- 获取用户最后签到日期
+    SELECT MAX(sign_in_date) INTO last_sign_in_date
+    FROM sign_in
+    WHERE user_id = user_id_param;
+    
+    -- 计算连续签到天数
+    IF last_sign_in_date IS NOT NULL THEN
+        IF last_sign_in_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN
+            SELECT continuous_days + 1 INTO continuous_days
+            FROM sign_in
+            WHERE user_id = user_id_param AND sign_in_date = last_sign_in_date;
+        END IF;
+    END IF;
+    
+    -- 获取对应连续天数的积分奖励
+    SELECT points_reward INTO reward_points
+    FROM sign_in_config
+    WHERE continuous_days = continuous_days AND is_active = 1;
+    
+    -- 如果没有配置, 返回默认奖励
+    IF reward_points IS NULL THEN
+        IF continuous_days <= 3 THEN
+            SET reward_points = 5;
+        ELSEIF continuous_days <= 7 THEN
+            SET reward_points = 10;
+        ELSEIF continuous_days <= 15 THEN
+            SET reward_points = 15;
+        ELSE
+            SET reward_points = 20;
+        END IF;
+    END IF;
+    
+    RETURN reward_points;
+END //
+DELIMITER ;
+
+-- ============================================
+-- 用户签到相关事件
+-- ============================================
+
+-- 每日凌晨更新用户签到状态的事件
+DELIMITER //
+CREATE EVENT IF NOT EXISTS `sign_in_daily_update`
+ON SCHEDULE EVERY 1 DAY
+-- STARTS '2026-01-01 00:00:00'
+STARTS TIMESTAMP(CURDATE() + INTERVAL 1 DAY, '00:00:00')
+ON COMPLETION PRESERVE
+DO
+BEGIN
+    -- 为连续签到达到特定天数的用户发放额外奖励
+    -- 连续签到7天、14天、30天的用户
+    INSERT INTO user_points_log (user_id, points_change, points_type, current_total, current_available, description, reference_id)
+    SELECT 
+        usi.user_id,
+        CASE 
+            WHEN usi.continuous_days = 7 THEN 50
+            WHEN usi.continuous_days = 14 THEN 100
+            WHEN usi.continuous_days = 30 THEN 200
+            ELSE 0
+        END as points_change,
+        'SIGN_IN' as points_type,
+        up.total_points + CASE 
+            WHEN usi.continuous_days = 7 THEN 50
+            WHEN usi.continuous_days = 14 THEN 100
+            WHEN usi.continuous_days = 30 THEN 200
+            ELSE 0
+        END as current_total,
+        up.available_points + CASE 
+            WHEN usi.continuous_days = 7 THEN 50
+            WHEN usi.continuous_days = 14 THEN 100
+            WHEN usi.continuous_days = 30 THEN 200
+            ELSE 0
+        END as current_available,
+        CASE 
+            WHEN usi.continuous_days = 7 THEN '连续签到7天额外奖励'
+            WHEN usi.continuous_days = 14 THEN '连续签到14天额外奖励'
+            WHEN usi.continuous_days = 30 THEN '连续签到30天额外奖励'
+            ELSE ''
+        END as description,
+        CONCAT('continuous_', usi.continuous_days, '_', usi.user_id) as reference_id
+    FROM sign_in usi
+    JOIN user_points up ON usi.user_id = up.user_id
+    WHERE usi.continuous_days IN (7, 14, 30)
+    AND DATE(usi.sign_in_date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    AND NOT EXISTS (
+        SELECT 1 FROM user_points_log upl
+        WHERE upl.user_id = usi.user_id
+        AND upl.description = CASE 
+            WHEN usi.continuous_days = 7 THEN '连续签到7天额外奖励'
+            WHEN usi.continuous_days = 14 THEN '连续签到14天额外奖励'
+            WHEN usi.continuous_days = 30 THEN '连续签到30天额外奖励'
+            ELSE ''
+        END
+    );
+    
+    -- 更新用户积分表中的总积分和可用积分
+    UPDATE user_points up
+    JOIN (
+        SELECT 
+            usi.user_id,
+            CASE 
+                WHEN usi.continuous_days = 7 THEN 50
+                WHEN usi.continuous_days = 14 THEN 100
+                WHEN usi.continuous_days = 30 THEN 200
+                ELSE 0
+            END as points_change
+        FROM sign_in usi
+        WHERE usi.continuous_days IN (7, 14, 30)
+        AND DATE(usi.sign_in_date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+        AND NOT EXISTS (
+            SELECT 1 FROM user_points_log upl
+            WHERE upl.user_id = usi.user_id
+            AND upl.description = CASE 
+                WHEN usi.continuous_days = 7 THEN '连续签到7天额外奖励'
+                WHEN usi.continuous_days = 14 THEN '连续签到14天额外奖励'
+                WHEN usi.continuous_days = 30 THEN '连续签到30天额外奖励'
+                ELSE ''
+            END
+        )
+    ) rewards ON up.user_id = rewards.user_id
+    SET 
+        up.total_points = up.total_points + rewards.points_change,
+        up.available_points = up.available_points + rewards.points_change,
+        up.updated_at = NOW();
+    
+    -- 记录用户连续签到中断的情况
+    -- 为所有用户初始化签到状态(如果不存在)
+    INSERT INTO sign_in_status (user_id, current_continuous_days, last_sign_in_date, is_continuous, total_sign_ins, max_continuous_days)
+    SELECT 
+        u.user_id,
+        0 as current_continuous_days,
+        NULL as last_sign_in_date,
+        0 as is_continuous,
+        0 as total_sign_ins,
+        0 as max_continuous_days
+    FROM users u
+    WHERE NOT EXISTS (
+        SELECT 1 FROM sign_in_status uss WHERE uss.user_id = u.user_id
+    );
+    
+    -- 更新有签到记录的用户状态
+    UPDATE sign_in_status uss
+    JOIN (
+        SELECT 
+            user_id,
+            MAX(sign_in_date) as last_sign_in_date,
+            COUNT(*) as total_sign_ins,
+            MAX(continuous_days) as max_continuous_days
+        FROM user_sign_in
+        GROUP BY user_id
+    ) usi ON uss.user_id = usi.user_id
+    SET 
+        uss.last_sign_in_date = usi.last_sign_in_date,
+        uss.total_sign_ins = usi.total_sign_ins,
+        uss.max_continuous_days = GREATEST(uss.max_continuous_days, usi.max_continuous_days);
+    
+    -- 处理连续签到中断的用户
+    -- 连续签到中断条件: 最后签到日期不是今天也不是昨天
+    UPDATE sign_in_status uss
+    SET 
+        uss.is_continuous = 0,
+        uss.current_continuous_days = 0
+    WHERE 
+        uss.is_continuous = 1
+        AND uss.last_sign_in_date IS NOT NULL
+        AND uss.last_sign_in_date NOT IN (CURDATE(), DATE_SUB(CURDATE(), INTERVAL 1 DAY));
+    
+    -- 处理连续签到中的用户
+    -- 连续签到中条件: 最后签到日期是昨天
+    UPDATE sign_in_status uss
+    SET 
+        uss.is_continuous = 1
+    WHERE 
+        uss.is_continuous = 0
+        AND uss.last_sign_in_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY);
+    
+    -- 更新今日已签到用户的状态
+    UPDATE sign_in_status uss
+    JOIN (
+        SELECT user_id, continuous_days
+        FROM sign_in
+        WHERE sign_in_date = CURDATE()
+    ) today_sign_in ON uss.user_id = today_sign_in.user_id
+    SET 
+        uss.current_continuous_days = today_sign_in.continuous_days,
+        uss.last_sign_in_date = CURDATE(),
+        uss.is_continuous = 1,
+        uss.total_sign_ins = uss.total_sign_ins + 1,
+        uss.max_continuous_days = GREATEST(uss.max_continuous_days, today_sign_in.continuous_days);
+END //
+DELIMITER ;
+
+-- 每月统计用户签到情况的事件
+DELIMITER //
+CREATE EVENT `sign_in_monthly_statistics`
+ON SCHEDULE EVERY 1 MONTH
+-- STARTS '2026-01-01 00:00:00'
+STARTS TIMESTAMP(CURDATE() + INTERVAL 1 DAY, '00:00:00')
+ON COMPLETION PRESERVE
+DO
+BEGIN
+    -- 生成上月的签到报告
+    SET @last_month = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m');
+    
+    INSERT INTO sign_in_monthly_report (report_month, user_id, total_sign_ins, continuous_days, points_earned)
+    SELECT 
+        @last_month as report_month,
+        usi.user_id,
+        COUNT(*) as total_sign_ins,
+        MAX(usi.continuous_days) as continuous_days,
+        SUM(usi.points_reward) as points_earned
+    FROM sign_in usi
+    WHERE DATE_FORMAT(usi.sign_in_date, '%Y-%m') = @last_month
+    GROUP BY usi.user_id
+    ON DUPLICATE KEY UPDATE
+        total_sign_ins = VALUES(total_sign_ins),
+        continuous_days = VALUES(continuous_days),
+        points_earned = VALUES(points_earned),
+        updated_at = NOW();
+    
+    -- 更新月度排名
+    SET @rank = 0;
+    UPDATE sign_in_monthly_report msr
+    JOIN (
+        SELECT 
+            report_id,
+            @rank := @rank + 1 as new_rank
+        FROM sign_in_monthly_report
+        WHERE report_month = @last_month
+        ORDER BY total_sign_ins DESC, continuous_days DESC
+    ) ranked ON msr.report_id = ranked.report_id
+    SET msr.rank = ranked.new_rank;
+    
+    -- 为月度签到前三名的用户发放额外奖励
+    INSERT INTO user_points_log (user_id, points_change, points_type, current_total, current_available, description, reference_id)
+    SELECT 
+        msr.user_id,
+        CASE msr.rank
+            WHEN 1 THEN 500
+            WHEN 2 THEN 300
+            WHEN 3 THEN 200
+            ELSE 0
+        END as points_change,
+        'SIGN_IN' as points_type,
+        up.total_points + CASE msr.rank
+            WHEN 1 THEN 500
+            WHEN 2 THEN 300
+            WHEN 3 THEN 200
+            ELSE 0
+        END as current_total,
+        up.available_points + CASE msr.rank
+            WHEN 1 THEN 500
+            WHEN 2 THEN 300
+            WHEN 3 THEN 200
+            ELSE 0
+        END as current_available,
+        CASE msr.rank
+            WHEN 1 THEN '月度签到冠军奖励'
+            WHEN 2 THEN '月度签到亚军奖励'
+            WHEN 3 THEN '月度签到季军奖励'
+            ELSE ''
+        END as description,
+        CONCAT('monthly_rank_', msr.rank, '_', @last_month) as reference_id
+    FROM sign_in_monthly_report msr
+    JOIN user_points up ON msr.user_id = up.user_id
+    WHERE msr.report_month = @last_month
+    AND msr.rank IN (1, 2, 3)
+    AND NOT EXISTS (
+        SELECT 1 FROM user_points_log upl
+        WHERE upl.user_id = msr.user_id
+        AND upl.description = CASE msr.rank
+            WHEN 1 THEN '月度签到冠军奖励'
+            WHEN 2 THEN '月度签到亚军奖励'
+            WHEN 3 THEN '月度签到季军奖励'
+            ELSE ''
+        END
+        AND upl.reference_id = CONCAT('monthly_rank_', msr.rank, '_', @last_month)
+    );
+    
+    -- 更新用户积分表
+    UPDATE user_points up
+    JOIN (
+        SELECT 
+            msr.user_id,
+            CASE msr.rank
+                WHEN 1 THEN 500
+                WHEN 2 THEN 300
+                WHEN 3 THEN 200
+                ELSE 0
+            END as points_change
+        FROM sign_in_monthly_report msr
+        WHERE msr.report_month = @last_month
+        AND msr.rank IN (1, 2, 3)
+        AND NOT EXISTS (
+            SELECT 1 FROM user_points_log upl
+            WHERE upl.user_id = msr.user_id
+            AND upl.description = CASE msr.rank
+                WHEN 1 THEN '月度签到冠军奖励'
+                WHEN 2 THEN '月度签到亚军奖励'
+                WHEN 3 THEN '月度签到季军奖励'
+                ELSE ''
+            END
+            AND upl.reference_id = CONCAT('monthly_rank_', msr.rank, '_', @last_month)
+        )
+    ) rewards ON up.user_id = rewards.user_id
+    SET 
+        up.total_points = up.total_points + rewards.points_change,
+        up.available_points = up.available_points + rewards.points_change,
+        up.updated_at = NOW();
+    
+    -- 清理过期数据(保留最近12个月的报告)
+    DELETE FROM sign_in_monthly_report
+    WHERE report_month < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 12 MONTH), '%Y-%m');
 END //
 DELIMITER ;
 
@@ -3794,6 +4356,7 @@ INSERT INTO `system_configs` (`config_key`, `config_value`, `config_type`, `desc
 -- 积分系统配置
 ('points_sign_in_daily', '10', 'number', '每日签到积分', TRUE),
 ('points_sign_in_continuous_7', '30', 'number', '连续签到7天额外积分', TRUE),
+('points_sign_in_continuous_15', '50', 'number', '连续签到15天额外积分', TRUE),
 ('points_sign_in_continuous_30', '100', 'number', '连续签到30天额外积分', TRUE),
 ('points_first_login', '50', 'number', '首次登录奖励积分', FALSE),
 ('points_complete_profile', '100', 'number', '完善资料奖励积分', TRUE),
@@ -3959,47 +4522,55 @@ INSERT INTO `license_info` (
     `created_by`, `remarks`
 ) VALUES
 -- 试用版许可证
-('LIC-TRIAL-2026-0001', 'LID-20260222-0001', '张三', '测试公司A', 'zhangsan@example.com',
+('LIC-TRIAL-XIAOMIZHA-INFINITY', 'LID-20260222-1000', '江底溺水的鱼', '小咪楂', 'example@example.com',
+ '1.0.0', '["basic_features", "trial_period"]', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 'TRIAL',
+ NULL, FALSE, 'ACTIVE', 'TRIAL-ACTIVATION-1000',
+ 'system', '30天试用版许可证'),
+
+-- 试用版许可证
+('LIC-TRIAL-2026-0001', 'LID-20260222-0001', '江底溺水的鱼', '小咪楂', 'zhangsan@example.com',
  '1.0.0', '["basic_features", "trial_period"]', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 'TRIAL',
  5, FALSE, 'ACTIVE', 'TRIAL-ACTIVATION-0001',
  'system', '30天试用版许可证'),
 
 -- 基础版许可证
-('LIC-BASIC-2026-0001', 'LID-20260222-0002', '李四', '测试公司B', 'lisi@example.com',
+('LIC-BASIC-2026-0001', 'LID-20260222-0002', '江底溺水的鱼', '小咪楂', 'lisi@example.com',
  '1.0.0', '["basic_features", "standard_support"]', NOW(), DATE_ADD(NOW(), INTERVAL 1 YEAR), 'BASIC',
  10, TRUE, 'ACTIVE', 'BASIC-ACTIVATION-0001',
  'system', '1年期基础版许可证'),
 
 -- 高级版许可证
-('LIC-PREMIUM-2026-0001', 'LID-20260222-0003', '王五', '测试公司C', 'wangwu@example.com',
+('LIC-PREMIUM-2026-0001', 'LID-20260222-0003', '江底溺水的鱼', '小咪楂', 'wangwu@example.com',
  '1.0.0', '["basic_features", "advanced_features", "premium_support", "api_access"]', NOW(), DATE_ADD(NOW(), INTERVAL 2 YEAR), 'PREMIUM',
  50, TRUE, 'ACTIVE', 'PREMIUM-ACTIVATION-0001',
  'system', '2年期高级版许可证'),
 
 -- 企业版许可证
-('LIC-ENTERPRISE-2026-0001', 'LID-20260222-0004', '赵六', '测试公司D', 'zhaoliu@example.com',
+('LIC-ENTERPRISE-2026-0001', 'LID-20260222-0004', '江底溺水的鱼', '小咪楂', 'zhaoliu@example.com',
  '1.0.0', '["basic_features", "advanced_features", "enterprise_features", "247_support", "api_access", "custom_integration"]', NOW(), DATE_ADD(NOW(), INTERVAL 3 YEAR), 'ENTERPRISE',
  200, TRUE, 'ACTIVE', 'ENTERPRISE-ACTIVATION-0001',
  'system', '3年期企业版许可证'),
 
 -- 待激活的许可证
-('LIC-TRIAL-2026-0002', 'LID-20260222-0005', '孙七', '测试公司E', 'sunqi@example.com',
+('LIC-TRIAL-2026-0002', 'LID-20260222-0005', '江底溺水的鱼', '小咪楂', 'sunqi@example.com',
  '1.0.0', '["basic_features", "trial_period"]', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 'TRIAL',
  5, FALSE, 'INACTIVE', 'TRIAL-ACTIVATION-0002',
  'system', '待激活的试用版许可证'),
 
 -- 已过期的许可证
-('LIC-BASIC-2025-0001', 'LID-20250222-0001', '周八', '测试公司F', 'zhouba@example.com',
+('LIC-BASIC-2025-0001', 'LID-20250222-0001', '江底溺水的鱼', '小咪楂', 'zhouba@example.com',
  '1.0.0', '["basic_features", "standard_support"]', DATE_SUB(NOW(), INTERVAL 1 YEAR), DATE_SUB(NOW(), INTERVAL 1 DAY), 'BASIC',
  10, TRUE, 'EXPIRED', 'BASIC-ACTIVATION-2025-0001',
- 'system', '已过期的基础版许可证'),
-
--- 试用版许可证
-('LIC-TRIAL-2026-1000', 'LID-20260222-1000', '江底溺水的鱼', '小咪楂', 'example@example.com',
- '1.0.0', '["basic_features", "trial_period"]', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 'TRIAL',
- 99999, FALSE, 'ACTIVE', 'TRIAL-ACTIVATION-1000',
- 'system', '30天试用版许可证')
+ 'system', '已过期的基础版许可证')
  ;
+ 
+-- 签到配置表
+INSERT INTO `sign_in_config` (`continuous_days`, `points_reward`, `is_active`) VALUES
+(1, 10, 1),
+(7, 30, 1),
+(15, 50, 1),
+(30, 100, 1)
+;
 
 
 
