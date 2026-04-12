@@ -1,9 +1,8 @@
 import {createI18n} from 'vue-i18n'
 import {zhCN, zhTW, enUS, ruRU} from './lang'
 import {localStorageCache} from "@/utils"
-import {CACHE_EXPIRY} from "@/constants"
+import {CACHE_EXPIRY, CACHE_KEYS} from "@/constants"
 
-export const LOCALE_KEY = 'xiaomizha_locale'
 export const SUPPORTED_LOCALES = [
     'zh-CN',
     'zh-TW',
@@ -12,7 +11,7 @@ export const SUPPORTED_LOCALES = [
 ] as const
 export type LocaleType = (typeof SUPPORTED_LOCALES)[number]
 
-const defaultLocale: LocaleType = (localStorageCache.get(LOCALE_KEY) as LocaleType) || 'zh-CN'
+const defaultLocale: LocaleType = (localStorageCache.get(CACHE_KEYS.locale) as LocaleType) || 'zh-CN'
 
 const i18n = createI18n({
     legacy: false, // 使用 Composition API 模式
@@ -28,7 +27,7 @@ const i18n = createI18n({
 
 export function setLocale(locale: LocaleType): void {
     i18n.global.locale.value = locale
-    localStorageCache.set(LOCALE_KEY, locale, CACHE_EXPIRY.locale)
+    localStorageCache.set(CACHE_KEYS.locale, locale, CACHE_EXPIRY.locale)
 }
 
 export function getLocale(): LocaleType {

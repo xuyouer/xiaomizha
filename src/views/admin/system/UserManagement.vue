@@ -59,48 +59,42 @@
       </a-table>
     </a-card>
 
-    <a-modal
+    <FormDrawer
+        ref="modalRef"
         v-model:open="modalVisible"
         :title="modalTitle"
+        :model-value="formData"
+        :rules="rules"
+        :required-header="t('userManagement.form.basicInfo')"
         @ok="handleSubmit"
         @cancel="handleCancel"
     >
-      <a-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
-      >
-        <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" :header="t('userManagement.form.basicInfo')" :force-render="true">
-            <a-form-item :label="t('userManagement.form.username')" name="username">
-              <a-input-group compact style="display: flex">
-                <a-input v-model:value="formData.username" :disabled="!!formData.userId"/>
-                <a-button :disabled="!!formData.userId" @click="handleRandomUsername"
-                          :title="t('userManagement.form.randomUsername')">
-                  <ReloadOutlined/>
-                </a-button>
-              </a-input-group>
-            </a-form-item>
-            <a-form-item :label="t('userManagement.form.password')" name="passwordHash" v-if="!formData.userId">
-              <a-input-group compact style="display: flex">
-                <a-input-password v-model:value="formData.passwordHash"/>
-                <a-button @click="handleRandomPassword" :title="t('userManagement.form.randomPassword')">
-                  <ReloadOutlined/>
-                </a-button>
-              </a-input-group>
-            </a-form-item>
-            <a-form-item :label="t('userManagement.form.accountStatus')" name="accountStatus">
-              <a-select v-model:value="formData.accountStatus">
-                <a-select-option :value="1">{{ t('userManagement.status.normal') }}</a-select-option>
-                <a-select-option :value="0">{{ t('userManagement.status.disabled') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-collapse-panel>
-        </a-collapse>
-      </a-form>
-    </a-modal>
+      <template #required>
+        <a-form-item :label="t('userManagement.form.username')" name="username">
+          <a-input-group compact style="display: flex">
+            <a-input v-model:value="formData.username" :disabled="!!formData.userId"/>
+            <a-button :disabled="!!formData.userId" @click="handleRandomUsername"
+                      :title="t('userManagement.form.randomUsername')">
+              <ReloadOutlined/>
+            </a-button>
+          </a-input-group>
+        </a-form-item>
+        <a-form-item :label="t('userManagement.form.password')" name="passwordHash" v-if="!formData.userId">
+          <a-input-group compact style="display: flex">
+            <a-input-password v-model:value="formData.passwordHash"/>
+            <a-button @click="handleRandomPassword" :title="t('userManagement.form.randomPassword')">
+              <ReloadOutlined/>
+            </a-button>
+          </a-input-group>
+        </a-form-item>
+        <a-form-item :label="t('userManagement.form.accountStatus')" name="accountStatus">
+          <a-select v-model:value="formData.accountStatus">
+            <a-select-option :value="1">{{ t('userManagement.status.normal') }}</a-select-option>
+            <a-select-option :value="0">{{ t('userManagement.status.disabled') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </template>
+    </FormDrawer>
   </div>
 </template>
 
@@ -112,11 +106,11 @@ import {PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import type {ColumnType} from 'ant-design-vue/es/table'
 import type {TablePaginationConfig} from 'ant-design-vue/es/table'
 import {getUserList, registerUser, updateUser, logoutUser} from '@/api'
-import type {FormInstance} from 'ant-design-vue'
-import type {PageResult, User} from "@/types/api"
+import type {PageResult, User} from "@/types"
 import humps from "humps"
-import {generateNickname, generatePassword} from "@/utils"
+import {generateNickname, generatePassword, usePaginationConfig} from "@/utils"
 import {useI18n} from 'vue-i18n'
+import FormDrawer from '@/components/FormDrawer.vue'
 
 const {t} = useI18n()
 
@@ -124,17 +118,7 @@ const router = useRouter()
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref(t('userManagement.addUser'))
-const modalCollapseActiveKey = ref<string[]>(['required'])
-const formRef = ref<FormInstance>()
-
-interface PaginationConfig {
-  current: number
-  pageSize: number
-  total: number
-  showTotal: (total: number) => string
-  showSizeChanger: boolean
-  showQuickJumper: boolean
-}
+const modalRef = ref<InstanceType<typeof FormDrawer>>()
 
 const columns = computed<ColumnType[]>(() => [
   {
@@ -151,7 +135,8 @@ const columns = computed<ColumnType[]>(() => [
   {
     title: t('userManagement.columns.accountStatus'),
     key: 'accountStatus',
-    width: 100
+    width: 100,
+    align: 'center'
   },
   {
     title: t('userManagement.columns.createdAt'),
@@ -168,14 +153,7 @@ const columns = computed<ColumnType[]>(() => [
 ])
 
 const dataSource = ref<User[]>([])
-const pagination = reactive<PaginationConfig>({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showTotal: (total: number) => t('userManagement.pagination.total', {total}),
-  showSizeChanger: true,
-  showQuickJumper: true
-})
+const pagination = reactive(usePaginationConfig('userManagement.pagination.total').value)
 
 const formData = reactive({
   userId: undefined as number | undefined,
@@ -192,12 +170,12 @@ const rules = {
 
 const handleRandomUsername = (): void => {
   formData.username = generateNickname()
-  formRef.value?.clearValidate?.(['username'])
+  modalRef.value?.clearValidate?.(['username'])
 }
 
 const handleRandomPassword = (): void => {
   formData.passwordHash = generatePassword()
-  formRef.value?.clearValidate?.(['passwordHash'])
+  modalRef.value?.clearValidate?.(['passwordHash'])
 }
 
 const loadData = async (): Promise<void> => {
@@ -230,7 +208,9 @@ const handleTableChange = (pag: TablePaginationConfig): void => {
 
 const handleAdd = (): void => {
   modalTitle.value = t('userManagement.addUser')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {
     userId: undefined,
     username: '',
@@ -249,7 +229,9 @@ const handleDetail = (record: User): void => {
 
 const handleEdit = (record: User): void => {
   modalTitle.value = t('userManagement.editUser')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, record)
   modalVisible.value = true
 }
@@ -274,7 +256,7 @@ const handleDelete = (record: User): void => {
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    await formRef.value?.validate()
+    await modalRef.value?.validate()
     if (formData.userId) {
       await updateUser(formData.userId, formData)
       message.success(t('userManagement.messages.updateSuccess'))
@@ -291,7 +273,7 @@ const handleSubmit = async (): Promise<void> => {
 
 const handleCancel = (): void => {
   modalVisible.value = false
-  formRef.value?.resetFields()
+  modalRef.value?.resetFields()
 }
 
 onMounted(() => {

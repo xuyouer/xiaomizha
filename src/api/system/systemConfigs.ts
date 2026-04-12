@@ -1,11 +1,15 @@
 import request from '@/utils/request'
-import type {ApiResponse, PageResult, SystemConfigsPageParams, SystemConfigsRecord} from '@/types/api'
+import type {ApiResponse, PageResult, SystemConfigsPageParams, SystemConfigsRecord} from '@/types'
 import humps from 'humps'
 
-export type { SystemConfigsRecord }
+export type {SystemConfigsRecord}
+
+export function getAllSystemConfigs() {
+    return request.get<ApiResponse<SystemConfigsRecord[]>>('/api/configs/list')
+}
 
 export function getSystemConfigsPage(params: SystemConfigsPageParams) {
-    return request.get<PageResult<SystemConfigsRecord>>('/api/configs/list/page', { params })
+    return request.get<PageResult<SystemConfigsRecord>>('/api/configs/list/page', {params})
 }
 
 export function getConfigByKey(configKey: string) {
@@ -14,6 +18,10 @@ export function getConfigByKey(configKey: string) {
 
 export function getConfigDetailByKey(configKey: string) {
     return request.get<ApiResponse<SystemConfigsRecord>>(`/api/configs/detail/${configKey}`)
+}
+
+export function checkConfig(configKey: string) {
+    return request.get<ApiResponse<boolean>>(`/api/configs/check/${configKey}`)
 }
 
 export function addSystemConfig(data: SystemConfigsRecord) {

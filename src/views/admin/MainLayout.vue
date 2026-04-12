@@ -11,7 +11,9 @@
     >
       <div class="logo">
         <h2 v-if="!collapsed" class="logo-title">{{ t('app.name') }}</h2>
-        <h2 v-else class="logo-collapsed">X</h2>
+        <h2 v-else class="logo-collapsed">
+          <img :src="Base64Utils.get('xiaomizha')" alt="Logo" class="logo-img">
+        </h2>
       </div>
       <a-menu
           v-model:selectedKeys="selectedKeys"
@@ -43,6 +45,23 @@
           <UserDropdown/>
         </div>
       </a-layout-header>
+      <a-tabs
+          v-model:activeKey="activeTab"
+          type="editable-card"
+          hide-add
+          class="page-tabs"
+          @edit="onEditTab"
+          @change="onChangeTab"
+      >
+        <a-tab-pane v-for="tab in tabPanes" :key="tab.key" :closable="tab.key !== '/admin/dashboard'">
+          <template #tab>
+            <span>
+              <component :is="tab.icon" v-if="tab.icon"/>
+              {{ tab.title }}
+            </span>
+          </template>
+        </a-tab-pane>
+      </a-tabs>
       <a-layout-content class="content">
         <div class="breadcrumb-container">
           <a-breadcrumb>
@@ -74,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, computed, watch, h} from 'vue'
+import {ref, computed, watch, h, nextTick} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import {useI18n} from 'vue-i18n'
 import {
@@ -92,9 +111,14 @@ import {
   MessageOutlined,
   CalendarOutlined,
   IdcardOutlined,
-  KeyOutlined, SafetyCertificateOutlined
+  KeyOutlined,
+  SafetyCertificateOutlined,
+  UserSwitchOutlined,
+  GiftOutlined
 } from '@ant-design/icons-vue'
 import type {MenuProps} from 'ant-design-vue'
+import {Base64Utils, localStorageCache} from "@/utils"
+import {CACHE_EXPIRY, CACHE_KEYS} from "@/constants"
 
 const {t} = useI18n()
 const router = useRouter()
@@ -103,6 +127,37 @@ const route = useRoute()
 const collapsed = ref(false)
 const selectedKeys = ref<string[]>([])
 const openKeys = ref<string[]>([])
+
+const savedActiveTab = localStorageCache.get(CACHE_KEYS.adminActiveTab) as string | null
+const activeTab = ref(savedActiveTab || '/admin/dashboard')
+const savedTabs = localStorageCache.get(CACHE_KEYS.adminTabs) as string[] | null
+const tabPaths = ref<string[]>(savedTabs || ['/admin/dashboard'])
+
+const getRouteInfo = (path: string): { title: string; icon: any } => {
+  const allRoutes = [
+    {path: '/admin/dashboard', label: t('admin.dashboard'), icon: DashboardOutlined},
+    ...adminRoutes.value.children,
+    ...profileRoutes.value.children,
+    ...signInRoutes.value.children,
+    ...licenseRoutes.value.children
+  ]
+  const found = allRoutes.find(r => r.path === path)
+  return {
+    title: found?.label || path,
+    icon: found?.icon || UserIcon
+  }
+}
+
+const tabPanes = computed(() => {
+  return tabPaths.value.map(path => {
+    const info = getRouteInfo(path)
+    return {
+      key: path,
+      title: info.title,
+      icon: info.icon
+    }
+  })
+})
 
 const toggleCollapsed = (): void => {
   collapsed.value = !collapsed.value
@@ -126,6 +181,12 @@ const menuItems = computed(() => [
         icon: () => h(UserIcon),
         label: t('admin.userManage'),
         title: t('admin.userManage')
+      },
+      {
+        key: '/admin/system/user-assign',
+        icon: () => h(UserSwitchOutlined),
+        label: t('admin.userAssign'),
+        title: t('admin.userAssign')
       },
       {
         key: '/admin/system/profiles',
@@ -223,7 +284,7 @@ const menuItems = computed(() => [
     children: [
       {
         key: '/admin/sign-in/center',
-        icon: () => h(UserOutlined),
+        icon: () => h(UserIcon),
         label: t('admin.signInCenter'),
         title: t('admin.signInCenter'),
       },
@@ -232,6 +293,32 @@ const menuItems = computed(() => [
         icon: () => h(TeamOutlined),
         label: t('admin.userManage'),
         title: t('admin.userManage'),
+      },
+      {
+        key: '/admin/sign-in/repair-cards',
+        icon: () => h(GiftOutlined),
+        label: t('admin.repairCardManage'),
+        title: t('admin.repairCardManage'),
+      }
+    ]
+  },
+  {
+    key: '/admin/license',
+    icon: () => h(KeyOutlined),
+    label: t('admin.licenseManage'),
+    title: t('admin.licenseManage'),
+    children: [
+      {
+        key: '/admin/license/personal',
+        icon: () => h(IdcardOutlined),
+        label: t('admin.personalLicense'),
+        title: t('admin.personalLicense'),
+      },
+      {
+        key: '/admin/license/users',
+        icon: () => h(TeamOutlined),
+        label: t('admin.allUsersLicenses'),
+        title: t('admin.allUsersLicenses'),
       }
     ]
   }
@@ -245,6 +332,7 @@ const adminRoutes = computed(() => ({
   },
   children: [
     {path: '/admin/system/users', label: t('admin.userManage'), icon: UserIcon},
+    {path: '/admin/system/user-assign', label: t('admin.userAssign'), icon: UserSwitchOutlined},
     {path: '/admin/system/profiles', label: t('admin.profilesManage'), icon: IdcardOutlined},
     {path: '/admin/system/user-details', label: t('admin.userDetailManage'), icon: UserIcon},
     {path: '/admin/system/roles', label: t('admin.roleManage'), icon: TeamOutlined},
@@ -278,29 +366,72 @@ const signInRoutes = computed(() => ({
     icon: CalendarOutlined
   },
   children: [
-    {path: '/admin/sign-in/center', label: t('admin.signInCenter'), icon: UserOutlined},
-    {path: '/admin/sign-in/users', label: t('admin.userManage'), icon: TeamOutlined}
+    {path: '/admin/sign-in/center', label: t('admin.signInCenter'), icon: UserIcon},
+    {path: '/admin/sign-in/users', label: t('admin.userManage'), icon: TeamOutlined},
+    {path: '/admin/sign-in/repair-cards', label: t('admin.repairCardManage'), icon: GiftOutlined}
   ]
 }))
 
-watch(
-    () => route.path,
-    (newPath) => {
-      selectedKeys.value = [newPath]
-      if (adminRoutes.value.children.some(route => newPath.startsWith(route.path))) {
-        openKeys.value = ['/admin/system']
-      } else if (profileRoutes.value.children.some(route => newPath.startsWith(route.path))) {
-        openKeys.value = ['/admin/profile']
-      } else if (signInRoutes.value.children.some(route => newPath.startsWith(route.path))) {
-        openKeys.value = ['/admin/sign-in']
-      } else {
-        openKeys.value = []
-      }
-    },
-    {immediate: true}
-)
+const licenseRoutes = computed(() => ({
+  parent: {
+    path: '/admin/license',
+    label: t('admin.licenseManage'),
+    icon: KeyOutlined
+  },
+  children: [
+    {path: '/admin/license/personal', label: t('admin.personalLicense'), icon: IdcardOutlined},
+    {path: '/admin/license/users', label: t('admin.allUsersLicenses'), icon: TeamOutlined}
+  ]
+}))
+
+const saveTabsToStorage = () => {
+  localStorageCache.set(CACHE_KEYS.adminTabs, tabPaths.value, CACHE_EXPIRY.long)
+}
+
+const saveActiveTabToStorage = () => {
+  localStorageCache.set(CACHE_KEYS.adminActiveTab, activeTab.value, CACHE_EXPIRY.long)
+}
+
+const onEditTab = (targetKey: string, action: 'add' | 'remove') => {
+  if (action === 'remove' && targetKey !== '/admin/dashboard') {
+    const tabs = document.querySelectorAll('.ant-tabs-tab')
+    const currentIndex = Array.from(tabs).findIndex(tab => tab.getAttribute('aria-controls')?.includes(targetKey))
+
+    const newTabs = tabPaths.value.filter(path => path !== targetKey)
+    tabPaths.value = newTabs
+    saveTabsToStorage()
+
+    if (activeTab.value === targetKey) {
+      const newIndex = Math.min(currentIndex, newTabs.length - 1)
+      activeTab.value = newTabs[newIndex] || '/admin/dashboard'
+      saveActiveTabToStorage()
+      router.push(activeTab.value)
+    }
+  }
+}
+
+const onChangeTab = (activeKey: string) => {
+  activeTab.value = activeKey
+  saveActiveTabToStorage()
+  router.push(activeKey)
+}
+
+const addTab = (path: string) => {
+  const key = path
+
+  if (!tabPaths.value.includes(key)) {
+    tabPaths.value.push(key)
+    saveTabsToStorage()
+  }
+
+  nextTick(() => {
+    activeTab.value = key
+    saveActiveTabToStorage()
+  })
+}
 
 const handleMenuClick: MenuProps['onClick'] = ({key}) => {
+  addTab(key as string)
   router.push(key as string)
 }
 
@@ -322,6 +453,7 @@ const handleBreadcrumbClick = (path: string): void => {
       adminRoutes.value,
       profileRoutes.value,
       signInRoutes.value,
+      licenseRoutes.value,
     ]
     let targetPath = path
 
@@ -352,7 +484,8 @@ const breadcrumbItems = computed(() => {
   const allRoutes = [
     adminRoutes.value,
     profileRoutes.value,
-    signInRoutes.value
+    signInRoutes.value,
+    licenseRoutes.value,
   ]
   for (const routeConfig of allRoutes) {
     const parentPathKey = routeConfig.parent.path.split('/').filter(Boolean).pop()
@@ -371,6 +504,40 @@ const breadcrumbItems = computed(() => {
   }
 
   return items
+})
+
+watch(
+    () => route.path,
+    (newPath) => {
+      selectedKeys.value = [newPath]
+
+      if (newPath === '/admin/dashboard') {
+        activeTab.value = newPath
+        saveActiveTabToStorage()
+      } else if (!tabPaths.value.includes(newPath)) {
+        addTab(newPath)
+      } else {
+        activeTab.value = newPath
+        saveActiveTabToStorage()
+      }
+
+      if (adminRoutes.value.children.some(r => newPath.startsWith(r.path))) {
+        openKeys.value = ['/admin/system']
+      } else if (profileRoutes.value.children.some(r => newPath.startsWith(r.path))) {
+        openKeys.value = ['/admin/profile']
+      } else if (signInRoutes.value.children.some(r => newPath.startsWith(r.path))) {
+        openKeys.value = ['/admin/sign-in']
+      } else if (licenseRoutes.value.children.some(r => newPath.startsWith(r.path))) {
+        openKeys.value = ['/admin/license']
+      } else {
+        openKeys.value = []
+      }
+    },
+    {immediate: true}
+)
+
+defineExpose({
+  addTab
 })
 </script>
 

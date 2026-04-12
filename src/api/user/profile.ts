@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type {ApiResponse, PageResult, UserProfile, ProfileListParams} from '@/types/api'
+import type {ApiResponse, PageResult, UserProfile, ProfileListParams} from '@/types'
 import humps from "humps"
 
 export type {UserProfile}

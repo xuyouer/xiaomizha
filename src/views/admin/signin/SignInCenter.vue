@@ -1,27 +1,41 @@
 <script setup lang="ts">
-import {ref, onMounted, computed} from 'vue'
-import {message} from 'ant-design-vue'
+import {computed, onMounted, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
 import {useI18n} from 'vue-i18n'
 import {useRoute} from "vue-router"
-import dayjs from 'dayjs'
-import {CalendarOutlined, TrophyOutlined} from '@ant-design/icons-vue'
-import {
-  getSignInStatus,
-  getMonthlySignInRecord,
-  getSignInRanking
-} from '@/api'
-import type {SignInStatusResponse, SignInRankingResponse, MonthlySignInRecordResponse} from '@/types/api'
-import type {ColumnsType} from 'ant-design-vue/es/table'
 import type {Dayjs} from 'dayjs'
-import {useUserStore} from '@/stores/user'
-import {CACHE_PREFIX_SIGNIN, CACHE_EXPIRY} from '@/constants'
-import {Base64Utils, localStorageCache} from "@/utils"
+import dayjs from 'dayjs'
 import {
+  CalendarOutlined,
+  ClockCircleOutlined,
+  DownOutlined,
   FireOutlined,
-  StarOutlined,
+  GiftOutlined,
   HeartOutlined,
-  LikeOutlined
+  LikeOutlined,
+  StarOutlined,
+  TrophyOutlined,
+  UpOutlined
 } from '@ant-design/icons-vue'
+import {
+  claimFreeCard,
+  doRepair,
+  getAvailableRepairDates,
+  getClaimStatus,
+  getMonthlySignInRecord,
+  getRepairCards,
+  getSignInRanking,
+  getSignInStatus
+} from '@/api'
+import type {
+  MonthlySignInRecordResponse,
+  SignInRankingResponse,
+  SignInStatusResponse
+} from '@/types'
+import type {ColumnsType} from 'ant-design-vue/es/table'
+import {useUserStore} from '@/stores/user'
+import {CACHE_EXPIRY, CACHE_PREFIX_SIGNIN} from '@/constants'
+import {Base64Utils, localStorageCache} from "@/utils"
 
 const {t} = useI18n()
 const route = useRoute()
@@ -52,6 +66,42 @@ const rankingList = ref<SignInRankingResponse[]>([])
 const rankingType = ref('1')
 
 const selectedMonth = ref<Dayjs>(dayjs())
+
+const repairCards = ref({
+  normalCardCount: 0,
+  advancedCardCount: 0,
+  totalCardCount: 0
+})
+
+const availableRepairDates = ref<string[]>([])
+
+const claimStatus = ref({
+  normal: {hasClaimed: false},
+  advanced: {hasClaimed: false}
+})
+
+const repairLoading = ref(false)
+const claimLoading = ref<Record<string, boolean>>({normal: false, advanced: false})
+
+const isExpanded = ref(false)
+const DATES_PER_ROW = 4
+const MAX_ROWS = 2
+
+const displayedDates = computed(() => {
+  const maxVisible = DATES_PER_ROW * MAX_ROWS
+  if (isExpanded.value || availableRepairDates.value.length <= maxVisible) {
+    return availableRepairDates.value
+  }
+  return availableRepairDates.value.slice(0, maxVisible)
+})
+
+const hasMoreDates = computed(() => {
+  return availableRepairDates.value.length > DATES_PER_ROW * MAX_ROWS
+})
+
+const toggleExpand = () => {
+  isExpanded.value = !isExpanded.value
+}
 
 const rankingColumns = computed<ColumnsType<SignInRankingResponse>>(() => [
   {
@@ -145,10 +195,10 @@ const getSignInStatusData = async () => {
   }
 }
 
-const handleSignInSuccess = async () => {
+const clearCacheAndRefresh = async () => {
   const userId = getUserId()
   const statusCacheKey = `${CACHE_PREFIX_SIGNIN}status_${userId}_${dayjs().format('YYYY-MM-DD')}`
-  const recordCacheKey = `${CACHE_PREFIX_SIGNIN}record_${userId}_${dayjs().format('YYYY-MM')}`
+  const recordCacheKey = `${CACHE_PREFIX_SIGNIN}record_${userId}_${selectedMonth.value.format('YYYY-MM')}`
 
   localStorageCache.remove(statusCacheKey)
   localStorageCache.remove(recordCacheKey)
@@ -156,9 +206,17 @@ const handleSignInSuccess = async () => {
     localStorageCache.remove(`${CACHE_PREFIX_SIGNIN}ranking_${i}`)
   }
 
-  await getSignInStatusData()
-  await getMonthlyRecord()
-  await getRanking()
+  await Promise.all([
+    getRepairCardsData(),
+    getAvailableRepairDatesData(),
+    getMonthlyRecord(),
+    getSignInStatusData(),
+    getRanking()
+  ])
+}
+
+const handleSignInSuccess = async () => {
+  await clearCacheAndRefresh()
 }
 
 const getMonthlyRecord = async (year?: number, month?: number) => {
@@ -221,12 +279,133 @@ const getRanking = async () => {
   }
 }
 
+const getRepairCardsData = async () => {
+  try {
+    const userId = getUserId()
+    const response = await getRepairCards(userId)
+    const {data} = response
+    if (data.code === 200) {
+      const cardData = data.data as { normalCardCount?: number; advancedCardCount?: number; totalCardCount?: number }
+      repairCards.value = {
+        normalCardCount: cardData.normalCardCount || 0,
+        advancedCardCount: cardData.advancedCardCount || 0,
+        totalCardCount: cardData.totalCardCount || 0
+      }
+    }
+  } catch (error) {
+    console.error('获取补签卡信息失败:', error)
+  }
+}
+
+const getAvailableRepairDatesData = async () => {
+  try {
+    const userId = getUserId()
+    const response = await getAvailableRepairDates(userId)
+    const {data} = response
+    if (data.code === 200) {
+      const dates = data.data || []
+      availableRepairDates.value = [...dates].sort((a, b) => b.localeCompare(a))
+    }
+  } catch (error) {
+    console.error('获取可补签日期失败:', error)
+  }
+}
+
+const getClaimStatusData = async () => {
+  try {
+    const userId = getUserId()
+    const [normalRes, advancedRes] = await Promise.all([
+      getClaimStatus(userId, 1),
+      getClaimStatus(userId, 2)
+    ])
+    if (normalRes.data.code === 200) {
+      claimStatus.value.normal = normalRes.data.data as { hasClaimed: boolean; cardType: number; userId: number }
+    }
+    if (advancedRes.data.code === 200) {
+      claimStatus.value.advanced = advancedRes.data.data as { hasClaimed: boolean; cardType: number; userId: number }
+    }
+  } catch (error) {
+    console.error('获取领取状态失败:', error)
+  }
+}
+
+const handleClaimCard = async (cardType: number) => {
+  const userId = getUserId()
+  const typeKey = cardType === 1 ? 'normal' : 'advanced'
+
+  if (claimStatus.value[typeKey].hasClaimed) {
+    message.warning('本月已领取过该类型补签卡')
+    return
+  }
+
+  claimLoading.value[typeKey] = true
+  try {
+    const response = await claimFreeCard(userId, cardType)
+    const {data} = response
+    if (data.code === 200) {
+      const claimResult = data.data as { message?: string; success?: boolean }
+      message.success(claimResult.message || '领取成功')
+      claimStatus.value[typeKey] = {hasClaimed: true}
+      await getRepairCardsData()
+    } else {
+      message.error(data.message || '领取失败')
+    }
+  } catch (error: any) {
+    console.error('领取补签卡失败:', error)
+    message.error(error.response?.data?.message || '领取失败')
+  } finally {
+    claimLoading.value[typeKey] = false
+  }
+}
+
+const handleRepair = async (date: string) => {
+  const userId = getUserId()
+
+  if (repairCards.value.totalCardCount <= 0) {
+    message.warning(t('signIn.repair.noCard'))
+    return
+  }
+
+  Modal.confirm({
+    title: t('signIn.repair.confirmRepair'),
+    content: t('signIn.repair.confirmRepairContent', {date}),
+    okText: t('common.confirm'),
+    cancelText: t('common.cancel'),
+    onOk: async () => {
+      repairLoading.value = true
+      try {
+        const response = await doRepair(userId, date)
+        const {data} = response
+        if (data.code === 200) {
+          const repairResult = data.data as { success?: boolean; message?: string }
+          if (repairResult.success) {
+            message.success(t('signIn.repair.repairSuccess'))
+            await clearCacheAndRefresh()
+          } else {
+            message.error(repairResult.message || t('signIn.repair.repairFailed'))
+          }
+        } else {
+          message.error(data.message || t('signIn.repair.repairFailed'))
+        }
+      } catch (error: any) {
+        console.error('补签失败:', error)
+        message.error(error.response?.data?.message || t('signIn.repair.repairFailed'))
+      } finally {
+        repairLoading.value = false
+      }
+    }
+  })
+}
+
 onMounted(async () => {
   selectedMonth.value = dayjs()
 
   await getSignInStatusData()
   await getMonthlyRecord()
   await getRanking()
+  await getRepairCardsData()
+  await getAvailableRepairDatesData()
+  await getClaimStatusData()
 })
 </script>
 
@@ -367,6 +546,120 @@ onMounted(async () => {
               </template>
             </a-calendar>
           </div>
+        </a-card>
+      </a-col>
+
+      <a-col :xs="24" :md="8">
+        <!-- :style="`background: url(${Base64Utils.get('fairy-tale-road')}) no-repeat center / cover`" -->
+        <a-card class="repair-card">
+          <template #title>
+            <a-typography-text>
+              <GiftOutlined/>
+              {{ t('signIn.repair.repairCard') }}
+            </a-typography-text>
+          </template>
+
+          <div class="repair-card-content">
+            <a-row :gutter="[12, 12]" style="text-align: center">
+              <a-col :span="12">
+                <a-statistic
+                    :title="t('signIn.repair.normalCard')"
+                    :value="repairCards.normalCardCount"
+                    :suffix="t('signIn.times')"
+                />
+              </a-col>
+              <a-col :span="12">
+                <a-statistic
+                    :title="t('signIn.repair.advancedCard')"
+                    :value="repairCards.advancedCardCount"
+                    :suffix="t('signIn.times')"
+                />
+              </a-col>
+            </a-row>
+
+            <div class="claim-section">
+              <a-space direction="vertical" style="width: 100%" :size="8">
+                <a-button
+                    type="primary"
+                    block
+                    :disabled="claimStatus.normal.hasClaimed"
+                    :loading="claimLoading.normal"
+                    @click="handleClaimCard(1)"
+                >
+                  {{
+                    claimStatus.normal.hasClaimed ? t('signIn.repair.alreadyClaimed') : t('signIn.repair.claimNormalCard')
+                  }}
+                </a-button>
+                <a-button
+                    type="primary"
+                    block
+                    :disabled="claimStatus.advanced.hasClaimed"
+                    :loading="claimLoading.advanced"
+                    @click="handleClaimCard(2)"
+                >
+                  {{
+                    claimStatus.advanced.hasClaimed ? t('signIn.repair.alreadyClaimed') : t('signIn.repair.claimAdvancedCard')
+                  }}
+                </a-button>
+              </a-space>
+            </div>
+          </div>
+        </a-card>
+      </a-col>
+
+      <a-col :xs="24" :md="16">
+        <a-card class="available-dates-card">
+          <template #title>
+            <a-typography-text>
+              <ClockCircleOutlined/>
+              {{ t('signIn.repair.availableDates') }}
+            </a-typography-text>
+          </template>
+
+          <template #extra>
+            <a-space :size="8">
+              <a-tag color="blue">
+                {{ t('signIn.repair.normalCard') }}: {{ repairCards.normalCardCount }}
+              </a-tag>
+              <a-tag color="purple">
+                {{ t('signIn.repair.advancedCard') }}: {{ repairCards.advancedCardCount }}
+              </a-tag>
+            </a-space>
+          </template>
+
+          <div v-if="availableRepairDates.length > 0" class="available-dates">
+            <a-row :gutter="[8, 8]">
+              <a-col v-for="date in displayedDates" :key="date" :span="6">
+                <a-card
+                    size="small"
+                    :class="{'date-card': true, 'date-card-disabled': repairCards.totalCardCount <= 0}"
+                    @click="repairCards.totalCardCount > 0 && handleRepair(date)"
+                >
+                  <div class="date-content">
+                    <a-typography-text class="date-text">{{ date }}</a-typography-text>
+                    <a-button
+                        type="link"
+                        size="small"
+                        :disabled="repairCards.totalCardCount <= 0"
+                        :loading="repairLoading"
+                    >
+                      {{ t('signIn.repair.repairNow') }}
+                    </a-button>
+                  </div>
+                </a-card>
+              </a-col>
+            </a-row>
+            <div v-if="hasMoreDates" class="expand-btn-wrapper">
+              <a-button type="link" @click="toggleExpand">
+                {{
+                  isExpanded ? t('common.collapse') : t('signIn.repair.showMore', {count: availableRepairDates.length - DATES_PER_ROW * MAX_ROWS})
+                }}
+                <DownOutlined v-if="!isExpanded"/>
+                <UpOutlined v-else/>
+              </a-button>
+            </div>
+          </div>
+          <a-empty v-else :description="t('signIn.repair.noAvailableDates')"/>
         </a-card>
       </a-col>
 

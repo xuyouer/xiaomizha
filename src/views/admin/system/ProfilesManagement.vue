@@ -3,7 +3,9 @@
 </script>
 
 <template>
-  
+  <div class="profiles-management">
+
+  </div>
 </template>
 
 <style scoped lang="scss">

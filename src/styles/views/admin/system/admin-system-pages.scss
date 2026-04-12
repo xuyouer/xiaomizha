@@ -7,10 +7,27 @@
 .system-configs-management,
 .user-names-management,
 .user-name-history-management,
-.vip-level-config-management {
+.vip-level-config-management,
+.licenses-management,
+.profiles-management,
+.user-detail-management,
+.user-assign-management,
+.license-user-management {
   @extend %admin-card-page;
+
+  .management-card {
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
 
   .ant-tag {
     margin-right: 0;
+  }
+
+  .search-bar {
+    margin-bottom: 24px;
   }
 }

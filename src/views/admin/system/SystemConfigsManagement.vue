@@ -54,51 +54,46 @@
       </a-table>
     </a-card>
 
-    <a-modal
+    <FormDrawer
+        ref="modalRef"
         v-model:open="modalVisible"
         :title="modalTitle"
+        :model-value="formData"
+        :rules="rules"
+        :required-header="t('systemConfig.management.form.basicInfo')"
+        :optional-header="t('systemConfig.management.form.extraInfo')"
         @ok="handleSubmit"
         @cancel="handleCancel"
     >
-      <a-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
-      >
-        <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" :header="t('systemConfig.management.form.basicInfo')" :force-render="true">
-            <a-form-item :label="t('systemConfig.management.form.configKey')" name="configKey">
-              <a-input v-model:value="formData.configKey" :disabled="!!formData.id"
-                       :placeholder="t('systemConfig.management.form.configKeyPlaceholder')"/>
-            </a-form-item>
-            <a-form-item :label="t('systemConfig.management.form.configValue')" name="configValue">
-              <a-textarea v-model:value="formData.configValue" :rows="3"/>
-            </a-form-item>
-            <a-form-item :label="t('systemConfig.management.form.configType')" name="configType">
-              <a-select v-model:value="formData.configType">
-                <a-select-option value="string">string</a-select-option>
-                <a-select-option value="number">number</a-select-option>
-                <a-select-option value="boolean">boolean</a-select-option>
-                <a-select-option value="json">json</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-collapse-panel>
-          <a-collapse-panel key="optional" :header="t('systemConfig.management.form.extraInfo')">
-            <a-form-item :label="t('systemConfig.management.form.description')" name="description">
-              <a-input v-model:value="formData.description"/>
-            </a-form-item>
-            <a-form-item :label="t('systemConfig.management.form.isPublic')" name="isPublic">
-              <a-select v-model:value="formData.isPublic">
-                <a-select-option :value="1">{{ t('systemConfig.common.yes') }}</a-select-option>
-                <a-select-option :value="0">{{ t('systemConfig.common.no') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-collapse-panel>
-        </a-collapse>
-      </a-form>
-    </a-modal>
+      <template #required>
+        <a-form-item :label="t('systemConfig.management.form.configKey')" name="configKey">
+          <a-input v-model:value="formData.configKey" :disabled="!!formData.id"
+                   :placeholder="t('systemConfig.management.form.configKeyPlaceholder')"/>
+        </a-form-item>
+        <a-form-item :label="t('systemConfig.management.form.configValue')" name="configValue">
+          <a-textarea v-model:value="formData.configValue" :rows="3"/>
+        </a-form-item>
+        <a-form-item :label="t('systemConfig.management.form.configType')" name="configType">
+          <a-select v-model:value="formData.configType">
+            <a-select-option value="string">string</a-select-option>
+            <a-select-option value="number">number</a-select-option>
+            <a-select-option value="boolean">boolean</a-select-option>
+            <a-select-option value="json">json</a-select-option>
+          </a-select>
+        </a-form-item>
+      </template>
+      <template #optional>
+        <a-form-item :label="t('systemConfig.management.form.description')" name="description">
+          <a-input v-model:value="formData.description"/>
+        </a-form-item>
+        <a-form-item :label="t('systemConfig.management.form.isPublic')" name="isPublic">
+          <a-select v-model:value="formData.isPublic">
+            <a-select-option :value="1">{{ t('systemConfig.common.yes') }}</a-select-option>
+            <a-select-option :value="0">{{ t('systemConfig.common.no') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </template>
+    </FormDrawer>
   </div>
 </template>
 
@@ -109,27 +104,18 @@ import {PlusOutlined} from '@ant-design/icons-vue'
 import type {ColumnType} from 'ant-design-vue/es/table'
 import type {TablePaginationConfig} from 'ant-design-vue/es/table'
 import {getSystemConfigsPage, addSystemConfig, updateSystemConfig, deleteSystemConfig} from '@/api'
-import type {FormInstance} from 'ant-design-vue'
-import type {PageResult, SystemConfigsRecord} from '@/types/api'
+import type {PageResult, SystemConfigsRecord} from '@/types'
 import humps from 'humps'
 import {useI18n} from 'vue-i18n'
+import FormDrawer from '@/components/FormDrawer.vue'
+import {usePaginationConfig} from '@/utils'
 
 const {t} = useI18n()
 
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref(t('systemConfig.management.add'))
-const modalCollapseActiveKey = ref<string[]>(['required'])
-const formRef = ref<FormInstance>()
-
-interface PaginationConfig {
-  current: number
-  pageSize: number
-  total: number
-  showTotal: (total: number) => string
-  showSizeChanger: boolean
-  showQuickJumper: boolean
-}
+const modalRef = ref<InstanceType<typeof FormDrawer>>()
 
 const columns = computed<ColumnType[]>(() => [
   {title: t('systemConfig.management.columns.id'), dataIndex: 'id', key: 'id', width: 80},
@@ -140,27 +126,30 @@ const columns = computed<ColumnType[]>(() => [
     key: 'configValue',
     ellipsis: true
   },
-  {title: t('systemConfig.management.columns.configType'), key: 'configType', width: 90},
+  {
+    title: t('systemConfig.management.columns.configType'),
+    key: 'configType',
+    width: 90,
+    align: 'center'
+  },
   {
     title: t('systemConfig.management.columns.description'),
     dataIndex: 'description',
     key: 'description',
     ellipsis: true
   },
-  {title: t('systemConfig.management.columns.isPublic'), key: 'isPublic', width: 70},
+  {
+    title: t('systemConfig.management.columns.isPublic'),
+    key: 'isPublic',
+    width: 70,
+    align: 'center'
+  },
   {title: t('systemConfig.management.columns.createdAt'), dataIndex: 'createdAt', key: 'createdAt', width: 180},
   {title: t('systemConfig.management.columns.action'), key: 'action', width: 150, fixed: 'right'}
 ])
 
 const dataSource = ref<SystemConfigsRecord[]>([])
-const pagination = reactive<PaginationConfig>({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showTotal: (total: number) => t('systemConfig.management.pagination.total', {total}),
-  showSizeChanger: true,
-  showQuickJumper: true
-})
+const pagination = reactive(usePaginationConfig('systemConfig.management.pagination.total').value)
 
 const formData = reactive<SystemConfigsRecord>({
   id: undefined,
@@ -207,7 +196,9 @@ const handleTableChange = (pag: TablePaginationConfig): void => {
 
 const handleAdd = (): void => {
   modalTitle.value = t('systemConfig.management.add')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {
     id: undefined,
     configKey: '',
@@ -221,7 +212,9 @@ const handleAdd = (): void => {
 
 const handleEdit = (record: SystemConfigsRecord): void => {
   modalTitle.value = t('systemConfig.management.edit')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {...record})
   modalVisible.value = true
 }
@@ -246,7 +239,7 @@ const handleDelete = (record: SystemConfigsRecord): void => {
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    await formRef.value?.validate()
+    await modalRef.value?.validate()
     if (formData.id) {
       await updateSystemConfig(formData.id, formData)
       message.success(t('systemConfig.management.messages.updateSuccess'))
@@ -263,7 +256,7 @@ const handleSubmit = async (): Promise<void> => {
 
 const handleCancel = (): void => {
   modalVisible.value = false
-  formRef.value?.resetFields()
+  modalRef.value?.resetFields()
 }
 
 onMounted(() => {

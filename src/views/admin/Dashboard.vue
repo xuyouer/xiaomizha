@@ -2,7 +2,7 @@
   <div class="dashboard">
     <a-row :gutter="[16, 16]" class="statistic-row">
       <a-col :xs="12" :sm="12" :md="6">
-        <a-card class="statistic-card" hoverable>
+        <a-card class="statistic-card">
           <a-statistic :title="t('dashboard.totalUsers')" :value="statistics.userCount">
             <template #prefix>
               <UserOutlined class="stat-icon user-icon"/>
@@ -11,7 +11,7 @@
         </a-card>
       </a-col>
       <a-col :xs="12" :sm="12" :md="6">
-        <a-card class="statistic-card" hoverable>
+        <a-card class="statistic-card">
           <a-statistic :title="t('dashboard.totalRoles')" :value="statistics.roleCount">
             <template #prefix>
               <TeamOutlined class="stat-icon role-icon"/>
@@ -20,7 +20,7 @@
         </a-card>
       </a-col>
       <a-col :xs="12" :sm="12" :md="6">
-        <a-card class="statistic-card" hoverable>
+        <a-card class="statistic-card">
           <a-statistic :title="t('dashboard.totalResources')" :value="statistics.resourceCount">
             <template #prefix>
               <AppstoreOutlined class="stat-icon resource-icon"/>
@@ -29,7 +29,7 @@
         </a-card>
       </a-col>
       <a-col :xs="12" :sm="12" :md="6">
-        <a-card class="statistic-card" hoverable>
+        <a-card class="statistic-card">
           <a-statistic :title="t('dashboard.onlineUsers')" :value="statistics.onlineCount">
             <template #prefix>
               <CheckCircleOutlined class="stat-icon online-icon"/>

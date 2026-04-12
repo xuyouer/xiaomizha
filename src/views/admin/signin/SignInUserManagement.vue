@@ -5,8 +5,7 @@ import {
   TeamOutlined,
   SearchOutlined,
   ReloadOutlined,
-  CalendarOutlined,
-  ExportOutlined
+  CalendarOutlined
 } from '@ant-design/icons-vue'
 import type {ColumnsType} from 'ant-design-vue/es/table'
 import type {TablePaginationConfig} from 'ant-design-vue/es/table'
@@ -15,10 +14,10 @@ import {useI18n} from 'vue-i18n'
 import {useRouter} from 'vue-router'
 import {type Dayjs} from 'dayjs'
 import dayjs from 'dayjs'
-import {getUserSignInList, getMonthlySignInRecord} from '@/api/signin/signIn'
-import type {SignInUserListItem, PageResult} from '@/types/api'
+import {getUserSignInList, getMonthlySignInRecord} from '@/api'
+import type {SignInUserListItem, PageResult} from '@/types'
 import humps from 'humps'
-import {ExportUtils} from "@/utils"
+import {ExportUtils, usePaginationConfig} from "@/utils"
 
 const {t} = useI18n()
 const router = useRouter()
@@ -30,16 +29,7 @@ const searchParams = reactive({
 })
 
 const loading = ref(false)
-
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showSizeChanger: true,
-  showQuickJumper: true,
-  pageSizeOptions: ['10', '20', '50', '100'],
-  showTotal: (total: number) => t('signInUserManagement.pagination.total', {total})
-})
+const pagination = reactive(usePaginationConfig('signInUserManagement.pagination.total').value)
 
 const userSignInList = ref<SignInUserListItem[]>([])
 
@@ -114,7 +104,7 @@ const columns = computed<ColumnsType>(() => [
   {
     title: t('signInUserManagement.columns.action'),
     key: 'action',
-    width: 140,
+    width: 150,
     fixed: 'right',
     align: 'center'
   }
@@ -358,7 +348,6 @@ onMounted(() => {
 
       <template #extra>
         <a-button type="primary" :loading="exportLoading" @click="exportData">
-          <ExportOutlined/>
           {{ t('signInUserManagement.export.button') }}
         </a-button>
       </template>

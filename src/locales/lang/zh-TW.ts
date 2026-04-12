@@ -16,6 +16,10 @@ export default {
         loading: '載入中...',
         success: '操作成功',
         fail: '操作失敗',
+        refresh: '重新整理',
+        collapse: '收起',
+        expand: '展開',
+        total: '共 {total} 條',
     },
     nav: {
         home: '首頁',
@@ -73,6 +77,7 @@ export default {
         dashboard: '儀表板',
         system: '系統管理',
         userManage: '使用者管理',
+        userAssign: '使用者分配',
         profilesManage: '使用者資料管理',
         userDetailManage: '使用者詳情管理',
         roleManage: '角色管理',
@@ -83,6 +88,9 @@ export default {
         systemConfigs: '系統設定',
         userFeedback: '使用者回饋',
         licensesManage: '授權管理',
+        licenseManage: '授權管理',
+        personalLicense: '個人授權',
+        allUsersLicenses: '使用者授權',
         profile: '個人管理',
         personalCenter: '個人中心',
         personalSettings: '個人設定',
@@ -90,6 +98,12 @@ export default {
         user: '使用者',
         signInManage: '簽到管理',
         signInCenter: '簽到中心',
+        repairCardManage: '補簽卡管理',
+        pageTabs: {
+            close: '關閉',
+            closeOthers: '關閉其他',
+            closeAll: '關閉全部'
+        }
     },
     personalSecurity: {
         title: '帳戶安全',
@@ -243,6 +257,110 @@ export default {
         signInFailed: '簽到失敗，請稍後重試',
         getMonthlyRecordFailed: '獲取月度記錄失敗',
         getRankingFailed: '獲取排行榜失敗',
+        repair: {
+            title: '補簽',
+            repairCard: '補簽卡',
+            normalCard: '普通補簽卡',
+            advancedCard: '高級補簽卡',
+            cardCount: '補簽卡數量',
+            availableDates: '可補簽日期',
+            maxRepairDays: '最大可補簽天數',
+            repairNow: '立即補簽',
+            repairing: '補簽中...',
+            batchRepair: '批量補簽',
+            repairSuccess: '補簽成功',
+            repairFailed: '補簽失敗',
+            noCard: '補簽卡不足',
+            alreadySigned: '該日期已簽到',
+            alreadyRepaired: '該日期已補簽',
+            dateTooOld: '超過可補簽天數限制',
+            futureDate: '不能補簽未來的日期',
+            preview: '補簽預覽',
+            continuousBefore: '補簽前連續天數',
+            continuousAfter: '補簽後連續天數',
+            pointsReward: '預計獲得積分',
+            repairRecord: '補簽記錄',
+            repairDate: '補簽日期',
+            cardType: '補簽卡類型',
+            status: '狀態',
+            repairTime: '補簽時間',
+            getRepairStatusFailed: '獲取補簽狀態失敗',
+            getRepairPreviewFailed: '獲取補簽預覽失敗',
+            getRepairRecordsFailed: '獲取補簽記錄失敗',
+            confirmRepair: '確認補簽',
+            confirmRepairContent: '確定要使用1張補簽卡補簽{date}嗎？',
+            confirmBatchRepair: '確認批量補簽',
+            confirmBatchRepairContent: '確定要使用{count}張補簽卡補簽{dates}嗎？',
+            monthlyGrant: '每月發放',
+            claimNormalCard: '領取普通補簽卡',
+            claimAdvancedCard: '領取高級補簽卡',
+            claimSuccess: '領取成功',
+            claimFailed: '領取失敗',
+            alreadyClaimed: '本月已領取',
+            cardSource: {
+                monthly_grant: '每月發放',
+                purchase: '購買',
+                reward: '獎勵',
+                admin_grant: '管理員發放'
+            },
+            showMore: '展開更多 ({count}個)',
+            noAvailableDates: '暫無可補簽日期'
+        }
+    },
+    repairCardManagement: {
+        title: '補簽卡管理',
+        tabs: {
+            cardInventory: '補簽卡庫存',
+            grantRecords: '發放記錄'
+        },
+        columns: {
+            userId: '用戶ID',
+            username: '用戶名',
+            normalCard: '普通補簽卡',
+            advancedCard: '高級補簽卡',
+            totalCard: '總卡數',
+            action: '操作',
+            grantId: '記錄ID',
+            cardType: '卡類型',
+            quantity: '數量',
+            source: '來源',
+            grantMonth: '發放月份',
+            remark: '備註',
+            createdAt: '發放時間'
+        },
+        cardTypes: {
+            normal: '普通補簽卡',
+            advanced: '高級補簽卡'
+        },
+        sources: {
+            monthly_grant: '每月發放',
+            purchase: '購買',
+            reward: '獎勵',
+            admin_grant: '管理員發放'
+        },
+        actions: {
+            grant: '發放'
+        },
+        modal: {
+            grantTitle: '發放補簽卡'
+        },
+        form: {
+            userId: '用戶',
+            selectUser: '請選擇用戶',
+            cardType: '補簽卡類型',
+            quantity: '數量',
+            remark: '備註',
+            remarkPlaceholder: '請輸入備註（可選）'
+        },
+        searchPlaceholder: '搜索用戶名或用戶ID',
+        messages: {
+            loadFailed: '載入資料失敗',
+            loadUsersFailed: '載入用戶列表失敗',
+            grantSuccess: '發放成功',
+            grantFailed: '發放失敗',
+            selectUser: '請選擇用戶',
+            invalidQuantity: '請輸入有效數量'
+        }
     },
     signInUserManagement: {
         title: '使用者簽到記錄',
@@ -266,7 +384,7 @@ export default {
             reset: '重設'
         },
         action: {
-            viewDetail: '查看詳情',
+            viewDetail: '詳情',
             brief: '簡訊'
         },
         detail: {
@@ -669,6 +787,91 @@ export default {
             total: '共 {total} 條'
         }
     },
+    userAssign: {
+        title: '使用者分配管理',
+        searchPlaceholder: '搜尋使用者名稱或使用者ID',
+        assign: '分配',
+        assignRoles: '分配角色',
+        assignResources: '分配資源',
+        assignVip: '分配VIP',
+        assignPoints: '分配積分',
+        assignLicense: '分配授權',
+        columns: {
+            userId: '使用者ID',
+            username: '使用者名稱',
+            accountStatus: '狀態',
+            createdAt: '建立時間',
+            action: '操作'
+        },
+        status: {
+            normal: '正常',
+            disabled: '禁用'
+        },
+        extraInfo: {
+            userId: '使用者ID',
+            username: '使用者名稱',
+            roles: '當前角色',
+            vipLevel: 'VIP等級',
+            points: '當前積分',
+            accountStatus: '賬戶狀態'
+        },
+        form: {
+            basicInfo: '基本資訊（必填）',
+            extraInfo: '擴展資訊（選填）',
+            userId: '使用者ID',
+            username: '使用者名稱',
+            selectRoles: '選擇角色',
+            selectRolesPlaceholder: '請選擇要分配的角色',
+            selectResources: '選擇資源',
+            selectResourcesPlaceholder: '請選擇要分配的資源',
+            vipLevel: 'VIP等級',
+            selectVipPlaceholder: '請選擇VIP等級',
+            vipExpireTime: '過期時間',
+            vipExpireTimePlaceholder: '請選擇過期時間',
+            pointsType: '操作類型',
+            pointsAdd: '增加積分',
+            pointsSubtract: '扣除積分',
+            pointsSet: '設定為',
+            pointsAmount: '積分數量',
+            pointsAmountPlaceholder: '請輸入積分數量',
+            pointsReason: '操作原因',
+            pointsReasonPlaceholder: '請輸入操作原因',
+            licenseType: '授權類型',
+            selectLicensePlaceholder: '請選擇授權類型',
+            licenseDuration: '有效期',
+            licenseDurationPlaceholder: '請輸入有效天數',
+            licenseReason: '分配原因',
+            licenseReasonPlaceholder: '請輸入分配原因',
+            days: '天',
+            validate: {
+                roleIds: '請選擇角色',
+                resourceIds: '請選擇資源',
+                vipLevel: '請選擇VIP等級',
+                pointsAmount: '請輸入積分數量',
+                pointsReason: '請輸入操作原因',
+                licenseType: '請選擇授權類型',
+                licenseDuration: '請輸入有效天數'
+            }
+        },
+        messages: {
+            loadFailed: '載入數據失敗',
+            loadDetailFailed: '載入使用者詳情失敗',
+            loadRoleFailed: '載入角色列表失敗',
+            loadResourceFailed: '載入資源列表失敗',
+            loadVipFailed: '載入VIP等級列表失敗',
+            loadLicenseFailed: '載入授權列表失敗',
+            noChanges: '沒有需要更新的內容',
+            assignSuccess: '分配成功',
+            assignRolesSuccess: '角色分配成功',
+            assignResourcesSuccess: '資源分配成功',
+            assignVipSuccess: 'VIP分配成功',
+            assignPointsSuccess: '積分分配成功',
+            assignLicenseSuccess: '授權分配成功'
+        },
+        pagination: {
+            total: '共 {total} 條'
+        }
+    },
     userNameHistory: {
         management: {
             title: '使用者名稱變更歷史',
@@ -972,6 +1175,7 @@ export default {
         activationCode: '啟動碼',
         columns: {
             licenseKey: '授權金鑰',
+            licenseId: '授權ID',
             userName: '使用者名稱',
             companyName: '公司名稱',
             contactEmail: '聯絡電子郵件',
@@ -981,8 +1185,13 @@ export default {
             endTime: '結束時間',
             productVersion: '產品版本',
             maxConcurrentUsers: '最大並發使用者',
+            allowOffline: '允許離線',
             features: '功能',
             remarks: '備註',
+            hardwareInfo: '硬體資訊',
+            activationCode: '啟動碼',
+            lastActivationTime: '最後啟動時間',
+            createdBy: '建立者',
             action: '操作'
         },
         search: {
@@ -1000,14 +1209,19 @@ export default {
         },
         type: {
             trial: '試用版',
+            basic: '基礎版',
+            premium: '進階版',
             standard: '標準版',
             professional: '專業版',
-            enterprise: '企業版'
+            enterprise: '企業版',
+            custom: '客製版'
         },
         status: {
             active: '有效',
             expired: '已過期',
-            disabled: '已停用'
+            revoked: '已撤銷',
+            inactive: '未啟用',
+            suspended: '已暫停'
         },
         messages: {
             loadFailed: '載入數據失敗',
@@ -1029,6 +1243,167 @@ export default {
         },
         pagination: {
             total: '共 {total} 條'
+        },
+        personal: {
+            title: '個人授權',
+            description: '查看目前使用者或指定授權的詳細資訊',
+            noData: '暫無授權資料',
+            backToList: '返回列表',
+            applyTrial: '申請試用',
+            applyTrialSuccess: '試用授權申請成功',
+            applyTrialFailed: '試用授權申請失敗，請稍後重試'
+        },
+        userManagement: {
+            title: '使用者授權',
+            columns: {
+                licenseKey: '授權金鑰',
+                userName: '使用者名稱',
+                companyName: '公司名稱',
+                contactEmail: '聯絡電子郵件',
+                licenseType: '授權類型',
+                status: '狀態',
+                startTime: '開始時間',
+                endTime: '結束時間',
+                productVersion: '產品版本',
+                maxConcurrentUsers: '最大並發使用者數',
+                features: '功能',
+                remarks: '備註',
+                action: '操作'
+            },
+            search: {
+                licenseKey: '授權金鑰',
+                licenseKeyPlaceholder: '請輸入授權金鑰',
+                search: '搜尋',
+                reset: '重設'
+            },
+            action: {
+                detail: '詳情',
+                edit: '編輯',
+                delete: '刪除'
+            },
+            form: {
+                addTitle: '新增授權關聯',
+                editTitle: '編輯授權資訊',
+                licenseKey: '授權金鑰',
+                userId: '使用者ID',
+                licenseKeyPlaceholder: '請輸入授權金鑰',
+                userIdPlaceholder: '請輸入使用者ID'
+            },
+            messages: {
+                loadFailed: '載入授權資料失敗',
+                deleteSuccess: '刪除成功',
+                deleteFailed: '刪除失敗',
+                saveSuccess: '儲存成功',
+                saveFailed: '儲存失敗'
+            },
+            confirm: {
+                delete: {
+                    title: '確認刪除',
+                    content: '確定要刪除授權 "{licenseKey}" 嗎？'
+                }
+            },
+            pagination: {
+                total: '共 {total} 條記錄'
+            }
         }
+    },
+    licensesManagement: {
+        title: '授權管理',
+        columns: {
+            assignedUsers: '分配使用者'
+        },
+        search: {
+            licenseTypePlaceholder: '授權類型',
+            statusPlaceholder: '狀態'
+        },
+        action: {
+            viewUsers: '查看使用者',
+            disable: '停用',
+            enable: '啟用'
+        },
+        form: {
+            editTitle: '編輯授權',
+            basicInfo: '基本資訊',
+            extendedInfo: '延伸資訊',
+            assignedUsers: '已分配使用者',
+            userNamePlaceholder: '請輸入使用者名稱',
+            companyNamePlaceholder: '請輸入公司名稱',
+            productVersionPlaceholder: '請輸入產品版本',
+            contactEmailPlaceholder: '請輸入聯絡電子郵件',
+            hardwareInfoPlaceholder: '請輸入硬體綁定資訊',
+            activationCodePlaceholder: '請輸入啟動碼',
+            selectLicenseType: '請選擇授權類型',
+            selectStatus: '請選擇狀態',
+            selectStartTime: '請選擇開始時間',
+            selectEndTime: '請選擇結束時間',
+            selectAllowOffline: '請選擇是否允許離線',
+            offlineDisabled: '不允許',
+            offlineEnabled: '允許',
+            maxConcurrentUsersPlaceholder: '請輸入最大並發使用者數',
+            featuresPlaceholder: '請輸入功能配置',
+            remarksPlaceholder: '請輸入備註',
+            validate: {
+                userName: '請輸入使用者名稱',
+                companyName: '請輸入公司名稱',
+                productVersion: '請輸入產品版本',
+                licenseType: '請選擇授權類型',
+                status: '請選擇狀態'
+            }
+        },
+        confirm: {
+            disable: {
+                title: '確認停用',
+                content: '確定要停用授權 "{licenseKey}" 嗎？'
+            },
+            enable: {
+                title: '確認啟用',
+                content: '確定要啟用授權 "{licenseKey}" 嗎？'
+            },
+            delete: {
+                title: '確認刪除',
+                content: '確定要刪除授權 "{licenseKey}" 及其所有關聯嗎？'
+            }
+        },
+        messages: {
+            deleteSuccess: '刪除成功',
+            deleteFailed: '刪除失敗'
+        },
+        modal: {
+            assignedUsersTitle: '已分配使用者',
+            noAssignedUsers: '暫無已分配使用者',
+            userId: '使用者ID',
+            status: '狀態',
+            assignedAt: '分配時間'
+        }
+    },
+    licensesUserManagement: {
+        title: '使用者授權',
+        columns: {
+            userId: '使用者ID',
+            username: '使用者名稱',
+            accountStatus: '帳戶狀態',
+            licenseCount: '授權數量',
+            createdAt: '建立時間'
+        },
+        search: {
+            keywordPlaceholder: '搜尋使用者名稱或使用者ID'
+        },
+        action: {
+            assignLicense: '分配授權',
+            addLicense: '新增授權',
+            remove: '移除'
+        },
+        confirm: {
+            remove: {
+                title: '確認移除',
+                content: '確定要移除使用者 "{username}" 的授權 "{licenseKey}" 嗎？'
+            }
+        },
+        messages: {
+            loadFailed: '載入數據失敗',
+            removeSuccess: '移除成功',
+            removeFailed: '移除失敗'
+        },
+        noLicenses: '該使用者暫無授權'
     }
 } as const

@@ -13,7 +13,7 @@ import type {
     UserSignInListParams,
     PageResult,
     SignInUserListItem
-} from '@/types/api'
+} from '@/types'
 
 /**
  * 用户签到

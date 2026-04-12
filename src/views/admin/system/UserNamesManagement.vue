@@ -54,52 +54,46 @@
       </a-table>
     </a-card>
 
-    <a-modal
+    <FormDrawer
+        ref="modalRef"
         v-model:open="modalVisible"
         :title="modalTitle"
+        :model-value="formData"
+        :rules="rules"
+        :required-header="t('userNames.management.form.basicInfo')"
         @ok="handleSubmit"
         @cancel="handleCancel"
     >
-      <a-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
-      >
-        <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" :header="t('userNames.management.form.basicInfo')" :force-render="true">
-            <a-form-item :label="t('userNames.management.form.userId')" name="userId">
-              <a-input-number v-model:value="formData.userId" style="width: 100%" :min="1"
-                              :disabled="!!formData.nameId"/>
-            </a-form-item>
-            <a-form-item :label="t('userNames.management.form.createName')" name="createName">
-              <a-input-group compact style="display: flex">
-                <a-input v-model:value="formData.createName" :disabled="!!formData.nameId"/>
-                <a-button :disabled="!!formData.nameId" @click="handleRandomCreateName"
-                          :title="t('userNames.management.form.randomCreateName')">
-                  <ReloadOutlined/>
-                </a-button>
-              </a-input-group>
-            </a-form-item>
-            <a-form-item :label="t('userNames.management.form.displayName')" name="displayName">
-              <a-input-group compact style="display: flex">
-                <a-input v-model:value="formData.displayName"/>
-                <a-button @click="handleRandomDisplayName" :title="t('userNames.management.form.randomDisplayName')">
-                  <ReloadOutlined/>
-                </a-button>
-              </a-input-group>
-            </a-form-item>
-            <a-form-item :label="t('userNames.management.form.isDefaultDisplay')" name="isDefaultDisplay">
-              <a-select v-model:value="formData.isDefaultDisplay">
-                <a-select-option :value="1">{{ t('userNames.common.yes') }}</a-select-option>
-                <a-select-option :value="0">{{ t('userNames.common.no') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-collapse-panel>
-        </a-collapse>
-      </a-form>
-    </a-modal>
+      <template #required>
+        <a-form-item :label="t('userNames.management.form.userId')" name="userId">
+          <a-input-number v-model:value="formData.userId" style="width: 100%" :min="1"
+                          :disabled="!!formData.nameId"/>
+        </a-form-item>
+        <a-form-item :label="t('userNames.management.form.createName')" name="createName">
+          <a-input-group compact style="display: flex">
+            <a-input v-model:value="formData.createName" :disabled="!!formData.nameId"/>
+            <a-button :disabled="!!formData.nameId" @click="handleRandomCreateName"
+                      :title="t('userNames.management.form.randomCreateName')">
+              <ReloadOutlined/>
+            </a-button>
+          </a-input-group>
+        </a-form-item>
+        <a-form-item :label="t('userNames.management.form.displayName')" name="displayName">
+          <a-input-group compact style="display: flex">
+            <a-input v-model:value="formData.displayName"/>
+            <a-button @click="handleRandomDisplayName" :title="t('userNames.management.form.randomDisplayName')">
+              <ReloadOutlined/>
+            </a-button>
+          </a-input-group>
+        </a-form-item>
+        <a-form-item :label="t('userNames.management.form.isDefaultDisplay')" name="isDefaultDisplay">
+          <a-select v-model:value="formData.isDefaultDisplay">
+            <a-select-option :value="1">{{ t('userNames.common.yes') }}</a-select-option>
+            <a-select-option :value="0">{{ t('userNames.common.no') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </template>
+    </FormDrawer>
   </div>
 </template>
 
@@ -110,12 +104,12 @@ import {PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import type {ColumnType} from 'ant-design-vue/es/table'
 import type {TablePaginationConfig} from 'ant-design-vue/es/table'
 import {getNamesList, addName, updateName, deleteName} from '@/api'
-import type {FormInstance} from 'ant-design-vue'
-import type {PageResult, UserNamesRecord} from '@/types/api'
+import type {PageResult, UserNamesRecord} from '@/types'
 import humps from 'humps'
 import {useUserStore} from '@/stores/user'
-import {generateNickname, generateXmzId} from "@/utils"
+import {generateNickname, generateXmzId, usePaginationConfig} from "@/utils"
 import {useI18n} from 'vue-i18n'
+import FormDrawer from "@/components/FormDrawer.vue"
 
 const {t} = useI18n()
 
@@ -123,26 +117,16 @@ const userStore = useUserStore()
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref(t('userNames.management.add'))
-const modalCollapseActiveKey = ref<string[]>(['required'])
-const formRef = ref<FormInstance>()
-
-interface PaginationConfig {
-  current: number
-  pageSize: number
-  total: number
-  showTotal: (total: number) => string
-  showSizeChanger: boolean
-  showQuickJumper: boolean
-}
+const modalRef = ref<InstanceType<typeof FormDrawer>>()
 
 const handleRandomCreateName = (): void => {
   formData.createName = generateXmzId()
-  formRef.value?.clearValidate?.(['createName'])
+  modalRef.value?.clearValidate?.(['createName'])
 }
 
 const handleRandomDisplayName = (): void => {
   formData.displayName = generateNickname()
-  formRef.value?.clearValidate?.(['displayName'])
+  modalRef.value?.clearValidate?.(['displayName'])
 }
 
 const columns = computed<ColumnType[]>(() => [
@@ -156,14 +140,7 @@ const columns = computed<ColumnType[]>(() => [
 ])
 
 const dataSource = ref<UserNamesRecord[]>([])
-const pagination = reactive<PaginationConfig>({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showTotal: (total: number) => t('userNames.management.pagination.total', {total}),
-  showSizeChanger: true,
-  showQuickJumper: true
-})
+const pagination = reactive(usePaginationConfig('userNames.management.pagination.total').value)
 
 const formData = reactive<UserNamesRecord>({
   nameId: undefined,
@@ -214,7 +191,9 @@ const handleTableChange = (pag: TablePaginationConfig): void => {
 
 const handleAdd = (): void => {
   modalTitle.value = t('userNames.management.add')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {
     nameId: undefined,
     userId: userStore.currentUserId,
@@ -227,7 +206,9 @@ const handleAdd = (): void => {
 
 const handleEdit = (record: UserNamesRecord): void => {
   modalTitle.value = t('userNames.management.edit')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {...record})
   modalVisible.value = true
 }
@@ -252,7 +233,7 @@ const handleDelete = (record: UserNamesRecord): void => {
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    await formRef.value?.validate()
+    await modalRef.value?.validate()
     if (formData.nameId) {
       await updateName(formData.nameId, formData)
       message.success(t('userNames.management.messages.updateSuccess'))
@@ -269,7 +250,7 @@ const handleSubmit = async (): Promise<void> => {
 
 const handleCancel = (): void => {
   modalVisible.value = false
-  formRef.value?.resetFields()
+  modalRef.value?.resetFields()
 }
 
 onMounted(() => {

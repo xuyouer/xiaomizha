@@ -6,7 +6,7 @@ import type {
     LicenseUserRelation,
     PageResult,
     PageParams
-} from '@/types/api'
+} from '@/types'
 import humps from "humps"
 
 export type {LicenseInfo, LicenseUserRelation}
@@ -15,97 +15,161 @@ export function getLicenseList(params?: PageParams) {
     return request.get<PageResult<LicenseInfo>>('/api/license/list', {params})
 }
 
-// 生成试用许可证
+/**
+ * 生成试用许可证
+ * @param data
+ */
 export function generateTrialLicense(data: GenerateTrialLicenseRequest) {
     return request.post<ApiResponse<{ licenseKey: string }>>('/api/license/generate-trial', humps.decamelizeKeys(data))
 }
 
-// 获取许可证信息
+/**
+ * 获取许可证信息
+ * @param licenseKey
+ */
 export function getLicense(licenseKey: string) {
     return request.get<ApiResponse<LicenseInfo>>(`/api/license/get/${licenseKey}`)
 }
 
-// 激活许可证
+/**
+ * 激活许可证
+ * @param data
+ */
 export function activateLicense(data: { licenseKey: string; activationCode: string }) {
     return request.post<ApiResponse<boolean>>('/api/license/activate', humps.decamelizeKeys(data))
 }
 
-// 验证许可证
+/**
+ * 验证许可证
+ * @param licenseKey
+ */
 export function validateLicense(licenseKey: string) {
     return request.post<ApiResponse<Record<string, any>>>(`/api/license/validate/${licenseKey}`)
 }
 
-// 生成激活码
+/**
+ * 生成激活码
+ * @param expireDays
+ */
 export function generateActivationCode(expireDays: number) {
     return request.post<ApiResponse<{ activationCode: string }>>(`/api/license/generate-activation-code/${expireDays}`)
 }
 
-// 禁用许可证
+/**
+ * 禁用许可证
+ * @param licenseKey
+ */
 export function disableLicense(licenseKey: string) {
     return request.post<ApiResponse<boolean>>(`/api/license/disable/${licenseKey}`)
 }
 
-// 启用许可证
+/**
+ * 启用许可证
+ * @param licenseKey
+ */
 export function enableLicense(licenseKey: string) {
     return request.post<ApiResponse<boolean>>(`/api/license/enable/${licenseKey}`)
 }
 
-// 更新硬件绑定
+/**
+ * 更新硬件绑定
+ * @param licenseKey
+ */
 export function updateHardwareBinding(licenseKey: string) {
     return request.post<ApiResponse<boolean>>(`/api/license/update-hardware-binding/${licenseKey}`)
 }
 
-// 验证功能访问权限
+/**
+ * 验证功能访问权限
+ * @param licenseKey
+ * @param featureCode
+ */
 export function validateFeatureAccess(licenseKey: string, featureCode: string) {
     return request.get<ApiResponse<boolean>>(`/api/license/validate-feature/${licenseKey}/${featureCode}`)
 }
 
-// 获取授权功能列表
+/**
+ * 获取授权功能列表
+ * @param licenseKey
+ */
 export function getAuthorizedFeatures(licenseKey: string) {
     return request.get<ApiResponse<string[]>>(`/api/license/features/${licenseKey}`)
 }
 
-// 获取即将过期的许可证
+/**
+ * 获取即将过期的许可证
+ * @param days
+ */
 export function getExpiringLicenses(days: number) {
     return request.get<ApiResponse<LicenseInfo[]>>(`/api/license/expiring/${days}`)
 }
 
-// 统计许可证数量
+/**
+ * 统计许可证数量
+ */
 export function countLicenses() {
     return request.get<ApiResponse<Record<string, number>>>('/api/license/count')
 }
 
-// 批量更新许可证状态
+/**
+ * 批量更新许可证状态
+ * @param data
+ */
 export function batchUpdateStatus(data: { licenseKeys: string[]; status: string }) {
     return request.post<ApiResponse<boolean>>('/api/license/batch-update-status', humps.decamelizeKeys(data))
 }
 
-// 根据用户ID查询用户名下的所有许可证
+/**
+ * 根据用户ID查询用户名下的所有许可证
+ * @param userId
+ * @param params
+ */
 export function getLicensesByUserId(userId: number, params?: PageParams) {
     return request.get<PageResult<LicenseInfo>>(`/api/license/user/${userId}`, {params})
 }
 
-// 根据许可证ID查询关联的用户
+/**
+ * 根据许可证ID查询关联的用户
+ * @param licenseId
+ * @param params
+ */
 export function getUsersByLicenseId(licenseId: string, params?: PageParams) {
     return request.get<PageResult<LicenseUserRelation>>(`/api/license/relations/license/${licenseId}`, {params})
 }
 
-// 根据用户ID和许可证类型查询许可证
+/**
+ * 根据用户ID和许可证类型查询许可证
+ * @param userId
+ * @param licenseType
+ * @param params
+ */
 export function getLicensesByUserIdAndType(userId: number, licenseType: string, params?: PageParams) {
     return request.get<PageResult<LicenseInfo>>(`/api/license/user/${userId}/type/${licenseType}`, {params})
 }
 
-// 检查用户是否已有指定类型的许可证
+/**
+ * 检查用户是否已有指定类型的许可证
+ * @param userId
+ * @param licenseType
+ */
 export function hasLicenseByType(userId: number, licenseType: string) {
     return request.get<ApiResponse<boolean>>(`/api/license/user/${userId}/has-type/${licenseType}`)
 }
 
-// 创建用户与许可证的关联
+/**
+ * 创建用户与许可证的关联
+ * @param userId
+ * @param licenseId
+ */
 export function createUserLicenseRelation(userId: number, licenseId: string) {
     return request.post<ApiResponse<boolean>>('/api/license/relations', humps.decamelizeKeys({userId, licenseId}))
 }
 
-// 根据许可证密钥创建用户与许可证的关联
+/**
+ * 根据许可证密钥创建用户与许可证的关联
+ * @param userId
+ * @param licenseKey
+ */
 export function createUserLicenseRelationByKey(userId: number, licenseKey: string) {
     return request.post<ApiResponse<boolean>>('/api/license/relations/by-key', humps.decamelizeKeys({
         userId,
@@ -113,52 +177,86 @@ export function createUserLicenseRelationByKey(userId: number, licenseKey: strin
     }))
 }
 
-// 根据用户ID和许可证ID删除关联
+/**
+ * 根据用户ID和许可证ID删除关联
+ * @param userId
+ * @param licenseId
+ */
 export function deleteUserLicenseRelation(userId: number, licenseId: string) {
     return request.delete<ApiResponse<boolean>>(`/api/license/relations/${userId}/${licenseId}`)
 }
 
-// 根据用户ID删除所有关联
+/**
+ * 根据用户ID删除所有关联
+ * @param userId
+ */
 export function deleteAllRelationsByUserId(userId: number) {
     return request.delete<ApiResponse<boolean>>(`/api/license/relations/user/${userId}`)
 }
 
-// 根据许可证ID删除所有关联
+/**
+ * 根据许可证ID删除所有关联
+ * @param licenseId
+ */
 export function deleteAllRelationsByLicenseId(licenseId: string) {
     return request.delete<ApiResponse<boolean>>(`/api/license/relations/license/${licenseId}`)
 }
 
-// 根据许可证密钥查询关联的用户
+/**
+ * 根据许可证密钥查询关联的用户
+ * @param licenseKey
+ */
 export function getUsersByLicenseKey(licenseKey: string) {
     return request.get<ApiResponse<LicenseUserRelation[]>>(`/api/license/relations/key/${licenseKey}`)
 }
 
-// 根据许可证密钥和用户ID检查关联是否存在
+/**
+ * 根据许可证密钥和用户ID检查关联是否存在
+ * @param licenseKey
+ * @param userId
+ */
 export function existsByLicenseKeyAndUserId(licenseKey: string, userId: number) {
     return request.get<ApiResponse<boolean>>(`/api/license/relations/exists/${licenseKey}/${userId}`)
 }
 
-// 根据许可证密钥删除所有关联
+/**
+ * 根据许可证密钥删除所有关联
+ * @param licenseKey
+ */
 export function deleteAllRelationsByLicenseKey(licenseKey: string) {
     return request.delete<ApiResponse<boolean>>(`/api/license/relations/key/${licenseKey}`)
 }
 
-// 根据许可证密钥和用户ID删除关联
+/**
+ * 根据许可证密钥和用户ID删除关联
+ * @param licenseKey
+ * @param userId
+ */
 export function deleteRelationByLicenseKeyAndUserId(licenseKey: string, userId: number) {
     return request.delete<ApiResponse<boolean>>(`/api/license/relations/key/${licenseKey}/${userId}`)
 }
 
-// 根据许可证密钥查询许可证信息
+/**
+ * 根据许可证密钥查询许可证信息
+ * @param licenseKey
+ */
 export function getLicenseByLicenseKey(licenseKey: string) {
     return request.get<ApiResponse<LicenseInfo>>(`/api/license/info/key/${licenseKey}`)
 }
 
-// 根据许可证ID查询许可证信息
+/**
+ * 根据许可证ID查询许可证信息
+ * @param licenseId
+ */
 export function getLicenseByLicenseId(licenseId: string) {
     return request.get<ApiResponse<LicenseInfo>>(`/api/license/info/id/${licenseId}`)
 }
 
-// 批量创建用户与许可证的关联
+/**
+ * 批量创建用户与许可证的关联
+ * @param userId
+ * @param licenseKeys
+ */
 export function batchCreateUserLicenseRelations(userId: number, licenseKeys: string[]) {
     return request.post<ApiResponse<boolean>>('/api/license/relations/batch', humps.decamelizeKeys({
         userId,
@@ -166,7 +264,11 @@ export function batchCreateUserLicenseRelations(userId: number, licenseKeys: str
     }))
 }
 
-// 批量删除用户与许可证的关联
+/**
+ * 批量删除用户与许可证的关联
+ * @param userId
+ * @param licenseKeys
+ */
 export function batchDeleteUserLicenseRelations(userId: number, licenseKeys: string[]) {
     return request.delete<ApiResponse<boolean>>('/api/license/relations/batch', {
         data: humps.decamelizeKeys({
@@ -174,4 +276,35 @@ export function batchDeleteUserLicenseRelations(userId: number, licenseKeys: str
             licenseKeys
         })
     })
+}
+
+/**
+ * 创建许可证
+ */
+export function generateLicense(data: { licenseInfo: Record<string, unknown>; expireDays: number }) {
+    return request.post<ApiResponse<LicenseInfo>>('/api/license/generate', humps.decamelizeKeys(data))
+}
+
+/**
+ * 获取当前机器码
+ */
+export function getMachineCode() {
+    return request.get<ApiResponse<Record<string, unknown>>>('/api/license/machine-code')
+}
+
+/**
+ * 获取License详细状态（包含剩余时间、功能列表等完整信息）
+ */
+export function getLicenseStatus() {
+    return request.get<ApiResponse<Record<string, unknown>>>('/api/license/status')
+}
+
+/**
+ * 上传License文件
+ * @param file .lic格式文件
+ */
+export function uploadLicenseFile(file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return request.post<ApiResponse<Record<string, unknown>>>('/api/license/upload', formData)
 }

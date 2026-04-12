@@ -50,14 +50,14 @@
       bottom: 0;
       height: 100%;
       display: flex;
-      flex-direction: column;
+      flex-flow: column;
       padding: initial;
       padding-top: 57px;
 
       .status-content {
         flex: 1;
         display: flex;
-        flex-direction: column;
+        flex-flow: column;
         justify-content: space-between;
         height: inherit;
         background: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0) 100%);
@@ -107,5 +107,65 @@
         }
       }
     }
+  }
+
+  .repair-card,
+  .available-dates-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .ant-card-body {
+      flex: 1;
+    }
+  }
+
+  .repair-card {
+    max-height: 307px;
+  }
+
+  .repair-card-content {
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+    justify-content: space-evenly;
+
+    .claim-section {
+      padding-top: 24px;
+    }
+  }
+
+  .available-dates {
+    .date-card {
+      cursor: pointer;
+      transition: all 0.3s;
+
+      &-disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      &:hover {
+        border-color: var(--primary-color);
+      }
+
+      .date-content {
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        gap: 4px;
+
+        .date-text {
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .expand-btn-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
   }
 }

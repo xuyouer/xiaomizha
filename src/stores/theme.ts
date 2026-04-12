@@ -1,10 +1,7 @@
 import {defineStore} from 'pinia'
 import {ref, watch} from 'vue'
 import {localStorageCache} from "@/utils"
-import {CACHE_EXPIRY} from "@/constants"
-
-const THEME_KEY = 'xiaomizha_theme'
-const THEME_PRIMARY_KEY = 'xiaomizha_theme_primary'
+import {CACHE_EXPIRY, CACHE_KEYS} from "@/constants"
 
 export type ThemeMode = 'light' | 'dark'
 
@@ -69,12 +66,12 @@ export const PRIMARY_COLOR_GROUPS: ThemeColorGroup[] = [
 export const PRIMARY_COLORS: ThemeColor[] = PRIMARY_COLOR_GROUPS.flatMap(group => group.colors)
 
 function getStoredTheme(): ThemeMode {
-    const v = localStorageCache.get(THEME_KEY)
+    const v = localStorageCache.get(CACHE_KEYS.theme)
     return v === 'dark' ? 'dark' : 'light'
 }
 
 function getStoredPrimary(): string {
-    return localStorageCache.get(THEME_PRIMARY_KEY) || (PRIMARY_COLORS[0]?.value || '#1890FF')
+    return localStorageCache.get(CACHE_KEYS.themePrimary) || (PRIMARY_COLORS[0]?.value || '#1890FF')
 }
 
 export const useThemeStore = defineStore('theme', () => {
@@ -96,12 +93,12 @@ export const useThemeStore = defineStore('theme', () => {
     }
 
     watch(mode, () => {
-        localStorageCache.set(THEME_KEY, mode.value, CACHE_EXPIRY.theme)
+        localStorageCache.set(CACHE_KEYS.theme, mode.value, CACHE_EXPIRY.theme)
         applyToDocument()
     }, {immediate: true})
 
     watch(primaryColor, () => {
-        localStorageCache.set(THEME_PRIMARY_KEY, primaryColor.value, CACHE_EXPIRY.theme)
+        localStorageCache.set(CACHE_KEYS.themePrimary, primaryColor.value, CACHE_EXPIRY.theme)
         applyToDocument()
     }, {immediate: true})
 

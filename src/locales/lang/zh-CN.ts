@@ -16,6 +16,10 @@ export default {
         loading: '加载中...',
         success: '操作成功',
         fail: '操作失败',
+        refresh: '刷新',
+        collapse: '收起',
+        expand: '展开',
+        total: '共 {total} 条',
     },
     nav: {
         home: '首页',
@@ -73,6 +77,7 @@ export default {
         dashboard: '仪表盘',
         system: '系统管理',
         userManage: '用户管理',
+        userAssign: '用户分配',
         profilesManage: '用户资料管理',
         userDetailManage: '用户详情管理',
         roleManage: '角色管理',
@@ -83,6 +88,9 @@ export default {
         systemConfigs: '系统配置',
         userFeedback: '用户反馈',
         licensesManage: '许可证管理',
+        licenseManage: '许可证管理',
+        personalLicense: '个人许可证',
+        allUsersLicenses: '用户许可证',
         profile: '个人管理',
         personalCenter: '个人中心',
         personalSettings: '个人设置',
@@ -90,6 +98,12 @@ export default {
         user: '用户',
         signInManage: '签到管理',
         signInCenter: '签到中心',
+        repairCardManage: '补签卡管理',
+        pageTabs: {
+            close: '关闭',
+            closeOthers: '关闭其他',
+            closeAll: '关闭全部'
+        }
     },
     personalSecurity: {
         title: '账户安全',
@@ -243,6 +257,110 @@ export default {
         signInFailed: '签到失败，请稍后重试',
         getMonthlyRecordFailed: '获取月度记录失败',
         getRankingFailed: '获取排行榜失败',
+        repair: {
+            title: '补签',
+            repairCard: '补签卡',
+            normalCard: '普通补签卡',
+            advancedCard: '高级补签卡',
+            cardCount: '补签卡数量',
+            availableDates: '可补签日期',
+            maxRepairDays: '最大可补签天数',
+            repairNow: '立即补签',
+            repairing: '补签中...',
+            batchRepair: '批量补签',
+            repairSuccess: '补签成功',
+            repairFailed: '补签失败',
+            noCard: '补签卡不足',
+            alreadySigned: '该日期已签到',
+            alreadyRepaired: '该日期已补签',
+            dateTooOld: '超过可补签天数限制',
+            futureDate: '不能补签未来的日期',
+            preview: '补签预览',
+            continuousBefore: '补签前连续天数',
+            continuousAfter: '补签后连续天数',
+            pointsReward: '预计获得积分',
+            repairRecord: '补签记录',
+            repairDate: '补签日期',
+            cardType: '补签卡类型',
+            status: '状态',
+            repairTime: '补签时间',
+            getRepairStatusFailed: '获取补签状态失败',
+            getRepairPreviewFailed: '获取补签预览失败',
+            getRepairRecordsFailed: '获取补签记录失败',
+            confirmRepair: '确认补签',
+            confirmRepairContent: '确定要使用1张补签卡补签{date}吗？',
+            confirmBatchRepair: '确认批量补签',
+            confirmBatchRepairContent: '确定要使用{count}张补签卡补签{dates}吗？',
+            monthlyGrant: '每月发放',
+            claimNormalCard: '领取普通补签卡',
+            claimAdvancedCard: '领取高级补签卡',
+            claimSuccess: '领取成功',
+            claimFailed: '领取失败',
+            alreadyClaimed: '本月已领取',
+            cardSource: {
+                monthly_grant: '每月发放',
+                purchase: '购买',
+                reward: '奖励',
+                admin_grant: '管理员发放'
+            },
+            showMore: '展开更多 ({count}个)',
+            noAvailableDates: '暂无可补签日期'
+        }
+    },
+    repairCardManagement: {
+        title: '补签卡管理',
+        tabs: {
+            cardInventory: '补签卡库存',
+            grantRecords: '发放记录'
+        },
+        columns: {
+            userId: '用户ID',
+            username: '用户名',
+            normalCard: '普通补签卡',
+            advancedCard: '高级补签卡',
+            totalCard: '总卡数',
+            action: '操作',
+            grantId: '记录ID',
+            cardType: '卡类型',
+            quantity: '数量',
+            source: '来源',
+            grantMonth: '发放月份',
+            remark: '备注',
+            createdAt: '发放时间'
+        },
+        cardTypes: {
+            normal: '普通补签卡',
+            advanced: '高级补签卡'
+        },
+        sources: {
+            monthly_grant: '每月发放',
+            purchase: '购买',
+            reward: '奖励',
+            admin_grant: '管理员发放'
+        },
+        actions: {
+            grant: '发放'
+        },
+        modal: {
+            grantTitle: '发放补签卡'
+        },
+        form: {
+            userId: '用户',
+            selectUser: '请选择用户',
+            cardType: '补签卡类型',
+            quantity: '数量',
+            remark: '备注',
+            remarkPlaceholder: '请输入备注（可选）'
+        },
+        searchPlaceholder: '搜索用户名或用户ID',
+        messages: {
+            loadFailed: '加载数据失败',
+            loadUsersFailed: '加载用户列表失败',
+            grantSuccess: '发放成功',
+            grantFailed: '发放失败',
+            selectUser: '请选择用户',
+            invalidQuantity: '请输入有效数量'
+        }
     },
     signInUserManagement: {
         title: '用户签到记录',
@@ -266,7 +384,7 @@ export default {
             reset: '重置'
         },
         action: {
-            viewDetail: '查看详情',
+            viewDetail: '详情',
             brief: '简讯'
         },
         detail: {
@@ -669,6 +787,92 @@ export default {
             total: '共 {total} 条'
         }
     },
+    userAssign: {
+        title: '用户分配管理',
+        searchPlaceholder: '搜索用户名或用户ID',
+        assign: '分配',
+        assignRoles: '分配角色',
+        assignResources: '分配资源',
+        assignVip: '分配VIP',
+        assignPoints: '分配积分',
+        assignLicense: '分配许可证',
+        columns: {
+            userId: '用户ID',
+            username: '用户名',
+            accountStatus: '状态',
+            createdAt: '创建时间',
+            action: '操作'
+        },
+        status: {
+            normal: '正常',
+            disabled: '禁用'
+        },
+        extraInfo: {
+            userId: '用户ID',
+            username: '用户名',
+            roles: '当前角色',
+            vipLevel: 'VIP等级',
+            points: '当前积分',
+            accountStatus: '账户状态'
+        },
+        form: {
+            basicInfo: '基本信息（必填）',
+            extraInfo: '扩展信息（选填）',
+            userId: '用户ID',
+            username: '用户名',
+            selectRoles: '选择角色',
+            selectRolesPlaceholder: '请选择要分配的角色',
+            selectResources: '选择资源',
+            selectResourcesPlaceholder: '请选择要分配的资源',
+            vipLevel: 'VIP等级',
+            selectVipPlaceholder: '请选择VIP等级',
+            vipExpireTime: '过期时间',
+            vipExpireTimePlaceholder: '请选择过期时间',
+            pointsType: '操作类型',
+            pointsAdd: '增加积分',
+            pointsSubtract: '扣除积分',
+            pointsSet: '设置为',
+            pointsAmount: '积分数量',
+            pointsAmountPlaceholder: '请输入积分数量',
+            pointsReason: '操作原因',
+            pointsReasonPlaceholder: '请输入操作原因',
+            licenseType: '许可证类型',
+            selectLicense: '选择许可证',
+            selectLicensePlaceholder: '请选择许可证',
+            licenseDuration: '有效期',
+            licenseDurationPlaceholder: '请输入有效天数',
+            licenseReason: '分配原因',
+            licenseReasonPlaceholder: '请输入分配原因',
+            days: '天',
+            validate: {
+                roleIds: '请选择角色',
+                resourceIds: '请选择资源',
+                vipLevel: '请选择VIP等级',
+                pointsAmount: '请输入积分数量',
+                pointsReason: '请输入操作原因',
+                licenseType: '请选择许可证类型',
+                licenseDuration: '请输入有效天数'
+            }
+        },
+        messages: {
+            loadFailed: '加载数据失败',
+            loadDetailFailed: '加载用户详情失败',
+            loadRoleFailed: '加载角色列表失败',
+            loadResourceFailed: '加载资源列表失败',
+            loadVipFailed: '加载VIP等级列表失败',
+            loadLicenseFailed: '加载许可证列表失败',
+            noChanges: '没有需要更新的内容',
+            assignSuccess: '分配成功',
+            assignRolesSuccess: '角色分配成功',
+            assignResourcesSuccess: '资源分配成功',
+            assignVipSuccess: 'VIP分配成功',
+            assignPointsSuccess: '积分分配成功',
+            assignLicenseSuccess: '许可证分配成功'
+        },
+        pagination: {
+            total: '共 {total} 条'
+        }
+    },
     userNameHistory: {
         management: {
             title: '用户名变更历史',
@@ -972,6 +1176,7 @@ export default {
         activationCode: '激活码',
         columns: {
             licenseKey: '许可证密钥',
+            licenseId: '许可证ID',
             userName: '用户名',
             companyName: '公司名称',
             contactEmail: '联系邮箱',
@@ -981,8 +1186,13 @@ export default {
             endTime: '结束时间',
             productVersion: '产品版本',
             maxConcurrentUsers: '最大并发用户',
+            allowOffline: '允许离线',
             features: '功能',
             remarks: '备注',
+            hardwareInfo: '硬件信息',
+            activationCode: '激活码',
+            lastActivationTime: '最后激活时间',
+            createdBy: '创建者',
             action: '操作'
         },
         search: {
@@ -1000,14 +1210,19 @@ export default {
         },
         type: {
             trial: '试用版',
+            basic: '基础版',
+            premium: '高级版',
             standard: '标准版',
             professional: '专业版',
-            enterprise: '企业版'
+            enterprise: '企业版',
+            custom: '定制版'
         },
         status: {
             active: '有效',
             expired: '已过期',
-            disabled: '已禁用'
+            revoked: '已撤销',
+            inactive: '未激活',
+            suspended: '已暂停'
         },
         messages: {
             loadFailed: '加载数据失败',
@@ -1029,6 +1244,167 @@ export default {
         },
         pagination: {
             total: '共 {total} 条'
+        },
+        personal: {
+            title: '个人许可证',
+            description: '查看当前用户或指定许可证的详细信息',
+            noData: '暂无许可证数据',
+            backToList: '返回列表',
+            applyTrial: '申请试用',
+            applyTrialSuccess: '试用许可证申请成功',
+            applyTrialFailed: '试用许可证申请失败，请稍后重试'
+        },
+        userManagement: {
+            title: '用户许可证',
+            columns: {
+                licenseKey: '许可证密钥',
+                userName: '用户名',
+                companyName: '公司名称',
+                contactEmail: '联系邮箱',
+                licenseType: '许可证类型',
+                status: '状态',
+                startTime: '开始时间',
+                endTime: '结束时间',
+                productVersion: '产品版本',
+                maxConcurrentUsers: '最大并发用户数',
+                features: '功能',
+                remarks: '备注',
+                action: '操作'
+            },
+            search: {
+                licenseKey: '许可证密钥',
+                licenseKeyPlaceholder: '请输入许可证密钥',
+                search: '搜索',
+                reset: '重置'
+            },
+            action: {
+                detail: '详情',
+                edit: '编辑',
+                delete: '删除'
+            },
+            form: {
+                addTitle: '新增许可证关联',
+                editTitle: '编辑许可证信息',
+                licenseKey: '许可证密钥',
+                userId: '用户ID',
+                licenseKeyPlaceholder: '请输入许可证密钥',
+                userIdPlaceholder: '请输入用户ID'
+            },
+            messages: {
+                loadFailed: '加载许可证数据失败',
+                deleteSuccess: '删除成功',
+                deleteFailed: '删除失败',
+                saveSuccess: '保存成功',
+                saveFailed: '保存失败'
+            },
+            confirm: {
+                delete: {
+                    title: '确认删除',
+                    content: '确定要删除许可证 "{licenseKey}" 吗？'
+                }
+            },
+            pagination: {
+                total: '共 {total} 条记录'
+            }
         }
+    },
+    licensesManagement: {
+        title: '许可证管理',
+        columns: {
+            assignedUsers: '分配用户'
+        },
+        search: {
+            licenseTypePlaceholder: '许可证类型',
+            statusPlaceholder: '状态'
+        },
+        action: {
+            viewUsers: '查看用户',
+            disable: '禁用',
+            enable: '启用'
+        },
+        form: {
+            editTitle: '编辑许可证',
+            basicInfo: '基本信息',
+            extendedInfo: '扩展信息',
+            assignedUsers: '已分配用户',
+            userNamePlaceholder: '请输入用户名',
+            companyNamePlaceholder: '请输入公司名称',
+            productVersionPlaceholder: '请输入产品版本',
+            contactEmailPlaceholder: '请输入联系邮箱',
+            hardwareInfoPlaceholder: '请输入硬件绑定信息',
+            activationCodePlaceholder: '请输入激活码',
+            selectLicenseType: '请选择许可证类型',
+            selectStatus: '请选择状态',
+            selectStartTime: '请选择开始时间',
+            selectEndTime: '请选择结束时间',
+            selectAllowOffline: '请选择是否允许离线',
+            offlineDisabled: '不允许',
+            offlineEnabled: '允许',
+            maxConcurrentUsersPlaceholder: '请输入最大并发用户数',
+            featuresPlaceholder: '请输入功能配置',
+            remarksPlaceholder: '请输入备注',
+            validate: {
+                userName: '请输入用户名',
+                companyName: '请输入公司名称',
+                productVersion: '请输入产品版本',
+                licenseType: '请选择许可证类型',
+                status: '请选择状态'
+            }
+        },
+        confirm: {
+            disable: {
+                title: '确认禁用',
+                content: '确定要禁用许可证 "{licenseKey}" 吗？'
+            },
+            enable: {
+                title: '确认启用',
+                content: '确定要启用许可证 "{licenseKey}" 吗？'
+            },
+            delete: {
+                title: '确认删除',
+                content: '确定要删除许可证 "{licenseKey}" 及其所有关联吗？'
+            }
+        },
+        messages: {
+            deleteSuccess: '删除成功',
+            deleteFailed: '删除失败'
+        },
+        modal: {
+            assignedUsersTitle: '已分配用户',
+            noAssignedUsers: '暂无已分配用户',
+            userId: '用户ID',
+            status: '状态',
+            assignedAt: '分配时间'
+        }
+    },
+    licensesUserManagement: {
+        title: '用户许可证',
+        columns: {
+            userId: '用户ID',
+            username: '用户名',
+            accountStatus: '账户状态',
+            licenseCount: '许可证数量',
+            createdAt: '创建时间'
+        },
+        search: {
+            keywordPlaceholder: '搜索用户名或用户ID'
+        },
+        action: {
+            assignLicense: '分配许可证',
+            addLicense: '添加许可证',
+            remove: '移除'
+        },
+        confirm: {
+            remove: {
+                title: '确认移除',
+                content: '确定要移除用户 "{username}" 的许可证 "{licenseKey}" 吗？'
+            }
+        },
+        messages: {
+            loadFailed: '加载数据失败',
+            removeSuccess: '移除成功',
+            removeFailed: '移除失败'
+        },
+        noLicenses: '该用户暂无许可证'
     }
 } as const

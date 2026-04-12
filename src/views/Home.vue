@@ -71,8 +71,8 @@ import {useRouter} from 'vue-router'
 import {useI18n} from 'vue-i18n'
 import {message} from 'ant-design-vue'
 import {useUserStore} from "@/stores/user"
-import type {UserDetailDTO} from "@/types/api"
-import {Base64Utils, localStorageCache, ObjectUtils, sessionStorageCache} from "@/utils"
+import type {UserDetailDTO} from "@/types"
+import {Base64Utils, ObjectUtils} from "@/utils"
 
 const {t} = useI18n()
 
@@ -109,8 +109,10 @@ const handleLogout = async () => {
 }
 
 onMounted(() => {
-  const token = localStorageCache.get('token') || sessionStorageCache.get('token')
-  const userInfo = localStorageCache.get('userInfo') || sessionStorageCache.get('userInfo')
+  // const token = localStorageCache.get(CACHE_KEYS.token) || sessionStorageCache.get(CACHE_KEYS.token)
+  // const userInfo = localStorageCache.get(CACHE_KEYS.userInfo) || sessionStorageCache.get(CACHE_KEYS.userInfo)
+  const token = userStore.token || ''
+  const userInfo = userStore.userInfo || null
   if (token) {
     isLoggedIn.value = true
     if (userInfo != null) {

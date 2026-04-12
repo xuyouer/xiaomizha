@@ -5,11 +5,12 @@ import axios, {
     type AxiosError
 } from 'axios'
 import router from '@/router'
-import type {ApiResponse} from '@/types/api'
+import type {ApiResponse} from '@/types'
 import {message} from "ant-design-vue"
-import {localStorageCache, sessionStorageCache} from "@/utils/app"
+import {localStorageCache, sessionStorageCache} from "@/utils"
+import {CACHE_KEYS} from "@/constants"
 
-export type {ApiResponse} from '@/types/api'
+export type {ApiResponse} from '@/types'
 
 // 开发环境：使用空字符串，通过Vite代理转发（避免CORS问题）
 // 生产环境：使用环境变量或默认值
@@ -35,12 +36,12 @@ service.interceptors.request.use(
         const isGenerateTrial = url.includes('/api/license/generate-trial')
 
         // 设置Authorization头
-        const token = localStorageCache.get('token') || sessionStorageCache.get('token')
+        const token = localStorageCache.get(CACHE_KEYS.token) || sessionStorageCache.get(CACHE_KEYS.token)
         if (token && config.headers) {
             config.headers.Authorization = isAuth ? '' : `${token}`
         }
         // 添加X-License-Key头
-        const licenseKey = localStorageCache.get('licenseKey') || sessionStorageCache.get('licenseKey')
+        const licenseKey = localStorageCache.get(CACHE_KEYS.licenseKey) || sessionStorageCache.get(CACHE_KEYS.licenseKey)
         if (licenseKey && config.headers && !isAuth && !isGenerateTrial) {
             config.headers['X-License-Key'] = licenseKey
         }

@@ -1,11 +1,11 @@
 import request from '@/utils/request'
-import type { ApiResponse, PageResult, VipLevelConfigListParams, VipLevelConfigRecord } from '@/types/api'
+import type {ApiResponse, PageResult, VipLevelConfigListParams, VipLevelConfigRecord} from '@/types'
 import humps from 'humps'
 
-export type { VipLevelConfigRecord }
+export type {VipLevelConfigRecord}
 
 export function getVipLevelConfigList(params: VipLevelConfigListParams) {
-    return request.get<PageResult<VipLevelConfigRecord>>('/api/vip-level-config/list', { params })
+    return request.get<PageResult<VipLevelConfigRecord>>('/api/vip-level-config/list', {params})
 }
 
 export function getVipLevelConfigById(levelId: number) {

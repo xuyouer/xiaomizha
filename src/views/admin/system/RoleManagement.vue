@@ -75,59 +75,53 @@
       </a-table>
     </a-card>
 
-    <a-modal
+    <FormDrawer
+        ref="modalRef"
         v-model:open="modalVisible"
         :title="modalTitle"
+        :model-value="formData"
+        :rules="rules"
+        :required-header="t('role.management.form.basicInfo')"
+        :optional-header="t('role.management.form.extraInfo')"
         @ok="handleSubmit"
         @cancel="handleCancel"
-        width="600px"
     >
-      <a-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
-      >
-        <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" :header="t('role.management.form.basicInfo')" :force-render="true">
-            <a-form-item :label="t('role.management.form.roleName')" name="roleName">
-              <a-input v-model:value="formData.roleName"/>
-            </a-form-item>
-            <a-form-item :label="t('role.management.form.roleCode')" name="roleCode">
-              <a-input v-model:value="formData.roleCode"/>
-            </a-form-item>
-            <a-form-item :label="t('role.management.form.roleDescription')" name="roleDescription">
-              <a-textarea v-model:value="formData.roleDescription" :rows="3"/>
-            </a-form-item>
-            <a-form-item :label="t('role.management.form.sortOrder')" name="sortOrder">
-              <a-input-number v-model:value="formData.sortOrder" :min="0" :max="100"/>
-            </a-form-item>
-            <a-form-item :label="t('role.management.form.status')" name="status">
-              <a-select v-model:value="formData.status">
-                <a-select-option :value="1">{{ t('role.common.enabled') }}</a-select-option>
-                <a-select-option :value="0">{{ t('role.common.disabled') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-collapse-panel>
+      <template #required>
+        <a-form-item :label="t('role.management.form.roleName')" name="roleName">
+          <a-input v-model:value="formData.roleName"/>
+        </a-form-item>
+        <a-form-item :label="t('role.management.form.roleCode')" name="roleCode">
+          <a-input v-model:value="formData.roleCode"/>
+        </a-form-item>
+        <a-form-item :label="t('role.management.form.roleDescription')" name="roleDescription">
+          <a-textarea v-model:value="formData.roleDescription" :rows="3"/>
+        </a-form-item>
+        <a-form-item :label="t('role.management.form.sortOrder')" name="sortOrder">
+          <a-input-number v-model:value="formData.sortOrder" :min="0" :max="100"/>
+        </a-form-item>
+        <a-form-item :label="t('role.management.form.status')" name="status">
+          <a-select v-model:value="formData.status">
+            <a-select-option :value="1">{{ t('role.common.enabled') }}</a-select-option>
+            <a-select-option :value="0">{{ t('role.common.disabled') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </template>
 
-          <a-collapse-panel key="optional" :header="t('role.management.form.extraInfo')">
-            <a-form-item :label="t('role.management.form.isSystemRole')" name="isSystemRole">
-              <a-select v-model:value="formData.isSystemRole">
-                <a-select-option :value="1">{{ t('role.common.systemRole') }}</a-select-option>
-                <a-select-option :value="0">{{ t('role.common.normalRole') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('role.management.form.isDefault')" name="isDefault">
-              <a-select v-model:value="formData.isDefault">
-                <a-select-option :value="1">{{ t('role.common.yes') }}</a-select-option>
-                <a-select-option :value="0">{{ t('role.common.no') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-collapse-panel>
-        </a-collapse>
-      </a-form>
-    </a-modal>
+      <template #optional>
+        <a-form-item :label="t('role.management.form.isSystemRole')" name="isSystemRole">
+          <a-select v-model:value="formData.isSystemRole">
+            <a-select-option :value="1">{{ t('role.common.systemRole') }}</a-select-option>
+            <a-select-option :value="0">{{ t('role.common.normalRole') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('role.management.form.isDefault')" name="isDefault">
+          <a-select v-model:value="formData.isDefault">
+            <a-select-option :value="1">{{ t('role.common.yes') }}</a-select-option>
+            <a-select-option :value="0">{{ t('role.common.no') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </template>
+    </FormDrawer>
   </div>
 </template>
 
@@ -138,27 +132,18 @@ import {PlusOutlined} from '@ant-design/icons-vue'
 import type {ColumnType} from 'ant-design-vue/es/table'
 import type {TablePaginationConfig} from 'ant-design-vue/es/table'
 import {getRoleList, createRole, updateRole, deleteRole} from '@/api'
-import type {FormInstance} from 'ant-design-vue'
-import type {PageResult, UserRoles, Role} from "@/types/api"
+import type {PageResult, Role} from "@/types"
 import humps from "humps"
 import {useI18n} from 'vue-i18n'
+import FormDrawer from '@/components/FormDrawer.vue'
+import {usePaginationConfig} from '@/utils'
 
 const {t} = useI18n()
 
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref(t('role.management.addRole'))
-const modalCollapseActiveKey = ref<string[]>(['required'])
-const formRef = ref<FormInstance>()
-
-interface PaginationConfig {
-  current: number
-  pageSize: number
-  total: number
-  showTotal: (total: number) => string
-  showSizeChanger: boolean
-  showQuickJumper: boolean
-}
+const modalRef = ref<InstanceType<typeof FormDrawer>>()
 
 const columns = computed<ColumnType[]>(() => [
   {
@@ -185,12 +170,14 @@ const columns = computed<ColumnType[]>(() => [
   {
     title: t('role.management.columns.isSystemRole'),
     key: 'isSystemRole',
-    width: 100
+    width: 100,
+    align: 'center'
   },
   {
     title: t('role.management.columns.isDefault'),
     key: 'isDefault',
-    width: 100
+    width: 100,
+    align: 'center'
   },
   {
     title: t('role.management.columns.sortOrder'),
@@ -200,7 +187,8 @@ const columns = computed<ColumnType[]>(() => [
   {
     title: t('role.management.columns.status'),
     key: 'status',
-    width: 100
+    width: 100,
+    align: 'center'
   },
   {
     title: t('role.management.columns.action'),
@@ -211,14 +199,7 @@ const columns = computed<ColumnType[]>(() => [
 ])
 
 const dataSource = ref<Role[]>([])
-const pagination = reactive<PaginationConfig>({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showTotal: (total: number) => t('role.management.pagination.total', {total}),
-  showSizeChanger: true,
-  showQuickJumper: true
-})
+const pagination = reactive(usePaginationConfig('role.management.pagination.total').value)
 
 const formData = reactive({
   roleId: undefined as number | undefined,
@@ -245,7 +226,7 @@ const loadData = async (): Promise<void> => {
     })
     let {data} = response
     if (data.code === 200 && data.data) {
-      data = humps.camelizeKeys(data) as PageResult<UserRoles>
+      data = humps.camelizeKeys(data) as PageResult<Role>
       dataSource.value = data.data || []
       pagination.total = data.total || 0
       pagination.current = data.current || 1
@@ -266,7 +247,9 @@ const handleTableChange = (pag: TablePaginationConfig): void => {
 
 const handleAdd = (): void => {
   modalTitle.value = t('role.management.addRole')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {
     roleId: undefined,
     roleName: '',
@@ -282,7 +265,9 @@ const handleAdd = (): void => {
 
 const handleEdit = (record: Role): void => {
   modalTitle.value = t('role.management.editRole')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, record)
   modalVisible.value = true
 }
@@ -307,7 +292,7 @@ const handleDelete = (record: Role): void => {
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    await formRef.value?.validate()
+    await modalRef.value?.validate()
     if (formData.roleId) {
       await updateRole(formData.roleId, formData)
       message.success(t('role.management.messages.updateSuccess'))
@@ -324,7 +309,7 @@ const handleSubmit = async (): Promise<void> => {
 
 const handleCancel = (): void => {
   modalVisible.value = false
-  formRef.value?.resetFields()
+  modalRef.value?.resetFields()
 }
 
 onMounted(() => {

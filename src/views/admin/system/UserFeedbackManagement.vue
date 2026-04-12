@@ -59,56 +59,50 @@
       </a-table>
     </a-card>
 
-    <a-modal
+    <FormDrawer
+        ref="modalRef"
         v-model:open="modalVisible"
         :title="modalTitle"
-        :width="560"
+        :model-value="formData"
+        :rules="rules"
+        :required-header="t('userFeedback.management.form.basicInfo')"
+        :optional-header="t('userFeedback.management.form.extraInfo')"
         @ok="handleSubmit"
         @cancel="handleCancel"
     >
-      <a-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
-      >
-        <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" :header="t('userFeedback.management.form.basicInfo')" :force-render="true">
-            <a-form-item :label="t('userFeedback.management.form.userId')" name="userId">
-              <a-input-number v-model:value="formData.userId" style="width: 100%" :min="1" :disabled="!!formData.id"/>
-            </a-form-item>
-            <a-form-item :label="t('userFeedback.management.form.type')" name="type">
-              <a-select v-model:value="formData.type">
-                <a-select-option :value="1">{{ t('userFeedback.common.type.systemIssue') }}</a-select-option>
-                <a-select-option :value="2">{{ t('userFeedback.common.type.featureSuggestion') }}</a-select-option>
-                <a-select-option :value="3">{{ t('userFeedback.common.type.bugReport') }}</a-select-option>
-                <a-select-option :value="4">{{ t('userFeedback.common.type.other') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('userFeedback.management.form.content')" name="content">
-              <a-textarea v-model:value="formData.content" :rows="4"/>
-            </a-form-item>
-            <a-form-item :label="t('userFeedback.management.form.status')" name="status">
-              <a-select v-model:value="formData.status">
-                <a-select-option :value="1">{{ t('userFeedback.common.status.pending') }}</a-select-option>
-                <a-select-option :value="2">{{ t('userFeedback.common.status.accepted') }}</a-select-option>
-                <a-select-option :value="3">{{ t('userFeedback.common.status.resolved') }}</a-select-option>
-                <a-select-option :value="4">{{ t('userFeedback.common.status.closed') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-collapse-panel>
-          <a-collapse-panel key="optional" :header="t('userFeedback.management.form.extraInfo')">
-            <a-form-item :label="t('userFeedback.management.form.contactInfo')" name="contactInfo">
-              <a-input v-model:value="formData.contactInfo"/>
-            </a-form-item>
-            <a-form-item :label="t('userFeedback.management.form.reply')" name="reply">
-              <a-textarea v-model:value="formData.reply" :rows="3"/>
-            </a-form-item>
-          </a-collapse-panel>
-        </a-collapse>
-      </a-form>
-    </a-modal>
+      <template #required>
+        <a-form-item :label="t('userFeedback.management.form.userId')" name="userId">
+          <a-input-number v-model:value="formData.userId" style="width: 100%" :min="1" :disabled="!!formData.id"/>
+        </a-form-item>
+        <a-form-item :label="t('userFeedback.management.form.type')" name="type">
+          <a-select v-model:value="formData.type">
+            <a-select-option :value="1">{{ t('userFeedback.common.type.systemIssue') }}</a-select-option>
+            <a-select-option :value="2">{{ t('userFeedback.common.type.featureSuggestion') }}</a-select-option>
+            <a-select-option :value="3">{{ t('userFeedback.common.type.bugReport') }}</a-select-option>
+            <a-select-option :value="4">{{ t('userFeedback.common.type.other') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('userFeedback.management.form.content')" name="content">
+          <a-textarea v-model:value="formData.content" :rows="4"/>
+        </a-form-item>
+        <a-form-item :label="t('userFeedback.management.form.status')" name="status">
+          <a-select v-model:value="formData.status">
+            <a-select-option :value="1">{{ t('userFeedback.common.status.pending') }}</a-select-option>
+            <a-select-option :value="2">{{ t('userFeedback.common.status.accepted') }}</a-select-option>
+            <a-select-option :value="3">{{ t('userFeedback.common.status.resolved') }}</a-select-option>
+            <a-select-option :value="4">{{ t('userFeedback.common.status.closed') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </template>
+      <template #optional>
+        <a-form-item :label="t('userFeedback.management.form.contactInfo')" name="contactInfo">
+          <a-input v-model:value="formData.contactInfo"/>
+        </a-form-item>
+        <a-form-item :label="t('userFeedback.management.form.reply')" name="reply">
+          <a-textarea v-model:value="formData.reply" :rows="3"/>
+        </a-form-item>
+      </template>
+    </FormDrawer>
   </div>
 </template>
 
@@ -119,11 +113,12 @@ import {PlusOutlined} from '@ant-design/icons-vue'
 import type {ColumnType} from 'ant-design-vue/es/table'
 import type {TablePaginationConfig} from 'ant-design-vue/es/table'
 import {getFeedbackList, addFeedback, updateFeedback, deleteFeedback} from '@/api'
-import type {FormInstance} from 'ant-design-vue'
-import type {PageResult, UserFeedbackRecord} from '@/types/api'
+import type {PageResult, UserFeedbackRecord} from '@/types'
 import humps from 'humps'
 import {useUserStore} from '@/stores/user'
 import {useI18n} from 'vue-i18n'
+import FormDrawer from '@/components/FormDrawer.vue'
+import {usePaginationConfig} from '@/utils'
 
 const {t} = useI18n()
 
@@ -156,17 +151,7 @@ const userStore = useUserStore()
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref(t('userFeedback.management.add'))
-const modalCollapseActiveKey = ref<string[]>(['required'])
-const formRef = ref<FormInstance>()
-
-interface PaginationConfig {
-  current: number
-  pageSize: number
-  total: number
-  showTotal: (total: number) => string
-  showSizeChanger: boolean
-  showQuickJumper: boolean
-}
+const modalRef = ref<InstanceType<typeof FormDrawer>>()
 
 const columns = computed<ColumnType[]>(() => [
   {title: t('userFeedback.management.columns.id'), dataIndex: 'id', key: 'id', width: 80},
@@ -179,14 +164,7 @@ const columns = computed<ColumnType[]>(() => [
 ])
 
 const dataSource = ref<UserFeedbackRecord[]>([])
-const pagination = reactive<PaginationConfig>({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showTotal: (total: number) => t('userFeedback.management.pagination.total', {total}),
-  showSizeChanger: true,
-  showQuickJumper: true
-})
+const pagination = reactive(usePaginationConfig('userFeedback.management.pagination.total').value)
 
 const formData = reactive<UserFeedbackRecord>({
   id: undefined,
@@ -235,7 +213,9 @@ const handleTableChange = (pag: TablePaginationConfig): void => {
 
 const handleAdd = (): void => {
   modalTitle.value = t('userFeedback.management.add')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {
     id: undefined,
     userId: userStore.currentUserId,
@@ -250,7 +230,9 @@ const handleAdd = (): void => {
 
 const handleEdit = (record: UserFeedbackRecord): void => {
   modalTitle.value = t('userFeedback.management.edit')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {...record})
   modalVisible.value = true
 }
@@ -275,7 +257,7 @@ const handleDelete = (record: UserFeedbackRecord): void => {
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    await formRef.value?.validate()
+    await modalRef.value?.validate()
     if (formData.id) {
       await updateFeedback(formData.id, formData)
       message.success(t('userFeedback.management.messages.updateSuccess'))
@@ -292,7 +274,7 @@ const handleSubmit = async (): Promise<void> => {
 
 const handleCancel = (): void => {
   modalVisible.value = false
-  formRef.value?.resetFields()
+  modalRef.value?.resetFields()
 }
 
 onMounted(() => {

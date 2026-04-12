@@ -7,4 +7,44 @@
     overflow-y: auto;
   }
 
+  .tree-container {
+    min-height: 400px;
+    padding: 0;
+
+    .tree-node {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding-right: 8px;
+
+      .node-title {
+        font-weight: 500;
+      }
+
+      .node-info {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .node-actions {
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      &:hover .node-actions {
+        opacity: 1;
+      }
+    }
+  }
+  
+  .ant-tree {
+    background: transparent;
+
+    &-node-content-wrapper {
+      width: calc(100% - 24px);
+    }
+  }
+
 }

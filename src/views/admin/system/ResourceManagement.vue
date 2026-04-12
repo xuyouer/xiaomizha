@@ -1,227 +1,22 @@
-<template>
-  <div class="resource-management">
-    <a-card>
-      <template #title>
-        <span>{{ t('resource.management.title') }}</span>
-      </template>
-      <template #extra>
-        <a-space>
-          <a-button @click="handleExpandAll">{{ t('resource.management.expandAll') }}</a-button>
-          <a-button @click="handleCollapseAll">{{ t('resource.management.collapseAll') }}</a-button>
-          <a-button type="primary" @click="handleAdd">
-            <template #icon>
-              <PlusOutlined/>
-            </template>
-            {{ t('resource.management.addResource') }}
-          </a-button>
-        </a-space>
-      </template>
-
-      <a-table
-          :columns="columns"
-          :data-source="dataSource"
-          :loading="loading"
-          :pagination="false"
-          :expandable="{ expandedRowKeys, onExpand }"
-          row-key="resourceId"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'resourceName'">
-            <a-tag>
-              {{ record.resourceName }}
-            </a-tag>
-          </template>
-          <template v-if="column.key === 'resourceCode'">
-            <a-tag>
-              {{ record.resourceCode }}
-            </a-tag>
-          </template>
-          <template v-if="column.key === 'sortOrder'">
-            <a-tag>
-              {{ record.sortOrder }}
-            </a-tag>
-          </template>
-          <template v-if="column.key === 'status'">
-            <a-tag :color="record.status === 1 ? 'green' : 'red'">
-              {{ record.status === 1 ? t('resource.common.enabled') : t('resource.common.disabled') }}
-            </a-tag>
-          </template>
-          <template v-if="column.key === 'resourceCategory'">
-            <a-tag>{{ record.resourceCategory }}</a-tag>
-          </template>
-          <template v-if="column.key === 'action'">
-            <a-space>
-              <a-button type="link" size="small" @click="handleEdit(record)">{{
-                  t('resource.management.edit')
-                }}
-              </a-button>
-              <a-button type="link" size="small" danger @click="handleDelete(record)">{{
-                  t('resource.management.delete')
-                }}
-              </a-button>
-            </a-space>
-          </template>
-        </template>
-      </a-table>
-    </a-card>
-
-    <a-modal
-        v-model:open="modalVisible"
-        :title="modalTitle"
-        @ok="handleSubmit"
-        @cancel="handleCancel"
-        width="800px"
-    >
-      <a-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
-      >
-        <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" :header="t('resource.management.form.basicInfo')" :force-render="true">
-            <a-form-item :label="t('resource.management.form.resourceName')" name="resourceName">
-              <a-input v-model:value="formData.resourceName"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.resourceCode')" name="resourceCode">
-              <a-input v-model:value="formData.resourceCode"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.resourceDescription')" name="resourceDescription">
-              <a-textarea v-model:value="formData.resourceDescription" :rows="3"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.resourceCategory')" name="resourceCategory">
-              <a-select v-model:value="formData.resourceCategory">
-                <a-select-option value="CATALOG">{{ t('resource.management.form.catalog') }}</a-select-option>
-                <a-select-option value="MENU">{{ t('resource.management.form.menu') }}</a-select-option>
-                <a-select-option value="BUTTON">{{ t('resource.management.form.button') }}</a-select-option>
-                <a-select-option value="API">{{ t('resource.management.form.api') }}</a-select-option>
-                <a-select-option value="PAGE">{{ t('resource.management.form.page') }}</a-select-option>
-                <a-select-option value="MODULE">{{ t('resource.management.form.module') }}</a-select-option>
-                <a-select-option value="OTHER">{{ t('resource.management.form.other') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.resourcePath')" name="resourcePath">
-              <a-input v-model:value="formData.resourcePath"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.parentId')" name="parentId">
-              <a-select v-model:value="formData.parentId" allow-clear>
-                <a-select-option :value="0">{{ t('resource.management.form.none') }}</a-select-option>
-                <a-select-option
-                    v-for="item in resourceOptions"
-                    :key="item.resourceId"
-                    :value="item.resourceId"
-                >
-                  {{ item.resourceName }}
-                </a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.level')" name="level">
-              <a-input-number v-model:value="formData.level" :min="0" :max="100"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.sortOrder')" name="sortOrder">
-              <a-input-number v-model:value="formData.sortOrder" :min="0" :max="100"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.status')" name="status">
-              <a-select v-model:value="formData.status">
-                <a-select-option :value="1">{{ t('resource.common.enabled') }}</a-select-option>
-                <a-select-option :value="0">{{ t('resource.common.disabled') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.createBy')" name="createBy">
-              <a-input v-model:value="formData.createBy" :disabled="isEditMode"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.updateBy')" name="updateBy">
-              <a-input v-model:value="formData.updateBy" :disabled="!!userStore.currentUserId"/>
-            </a-form-item>
-          </a-collapse-panel>
-
-          <a-collapse-panel key="optional" :header="t('resource.management.form.extraInfo')">
-            <a-form-item :label="t('resource.management.form.resourceComponent')" name="resourceComponent">
-              <a-input v-model:value="formData.resourceComponent"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.resourceIcon')" name="resourceIcon">
-              <a-input v-model:value="formData.resourceIcon"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.visible')" name="visible">
-              <a-select v-model:value="formData.visible">
-                <a-select-option :value="1">{{ t('resource.common.visible') }}</a-select-option>
-                <a-select-option :value="0">{{ t('resource.common.hidden') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.isSystem')" name="isSystem">
-              <a-select v-model:value="formData.isSystem">
-                <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
-                <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.permissionFlag')" name="permissionFlag">
-              <a-input v-model:value="formData.permissionFlag"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.requiresAuth')" name="requiresAuth">
-              <a-select v-model:value="formData.requiresAuth">
-                <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
-                <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.keepAlive')" name="keepAlive">
-              <a-select v-model:value="formData.keepAlive">
-                <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
-                <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.externalLink')" name="externalLink">
-              <a-select v-model:value="formData.externalLink">
-                <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
-                <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.target')" name="target">
-              <a-select v-model:value="formData.target">
-                <a-select-option value="_self">_self</a-select-option>
-                <a-select-option value="_blank">_blank</a-select-option>
-                <a-select-option value="_parent">_parent</a-select-option>
-                <a-select-option value="_top">_top</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.badge')" name="badge">
-              <a-input v-model:value="formData.badge"/>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.badgeType')" name="badgeType">
-              <a-select v-model:value="formData.badgeType">
-                <a-select-option value="danger">danger</a-select-option>
-                <a-select-option value="warning">warning</a-select-option>
-                <a-select-option value="success">success</a-select-option>
-                <a-select-option value="info">info</a-select-option>
-                <a-select-option value="primary">primary</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item :label="t('resource.management.form.metaJson')" name="metaJson">
-              <a-textarea v-model:value="formData.metaJson" :rows="3"/>
-            </a-form-item>
-          </a-collapse-panel>
-        </a-collapse>
-      </a-form>
-    </a-modal>
-  </div>
-</template>
-
 <script setup lang="ts">
 import {ref, reactive, onMounted, computed} from 'vue'
 import {message, Modal} from 'ant-design-vue'
-import {PlusOutlined} from '@ant-design/icons-vue'
-import type {ColumnType} from 'ant-design-vue/es/table'
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined
+} from '@ant-design/icons-vue'
 import {
   getResourceList,
   createResource,
   updateResource,
   deleteResource
 } from '@/api'
-import type {FormInstance} from 'ant-design-vue'
-import type {PageResult, Resource} from "@/types/api"
+import type {PageResult, Resource} from "@/types"
 import humps from "humps"
 import {useUserStore} from "@/stores/user"
 import {useI18n} from 'vue-i18n'
+import FormDrawer from "@/components/FormDrawer.vue"
 
 const {t} = useI18n()
 
@@ -229,51 +24,23 @@ const userStore = useUserStore()
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref(t('resource.management.addResource'))
-const modalCollapseActiveKey = ref<string[]>(['required'])
-const formRef = ref<FormInstance>()
-const expandedRowKeys = ref<number[]>([])
+const modalRef = ref<InstanceType<typeof FormDrawer>>()
+const expandedKeys = ref<number[]>([])
 
 const isEditMode = computed(() => !!formData.resourceId)
-
-const columns = computed<ColumnType[]>(() => [
-  {
-    title: t('resource.management.columns.resourceName'),
-    dataIndex: 'resourceName',
-    key: 'resourceName'
-  },
-  {
-    title: t('resource.management.columns.resourceCode'),
-    dataIndex: 'resourceCode',
-    key: 'resourceCode'
-  },
-  {
-    title: t('resource.management.columns.resourceCategory'),
-    key: 'resourceCategory',
-    width: 100
-  },
-  {
-    title: t('resource.management.columns.sortOrder'),
-    dataIndex: 'sortOrder',
-    key: 'sortOrder',
-    width: 100
-  },
-  {
-    title: t('resource.management.columns.status'),
-    key: 'status',
-    width: 100
-  },
-  {
-    title: t('resource.management.columns.action'),
-    key: 'action',
-    width: 150,
-    fixed: 'right'
-  }
-])
 
 const dataSource = ref<Resource[]>([])
 const resourceOptions = ref<Resource[]>([])
 
-const RESOURCE_CATEGORIES = ['CATALOG', 'MENU', 'BUTTON', 'API', 'PAGE', 'MODULE', 'OTHER'] as const
+const RESOURCE_CATEGORIES = computed(() => [
+  {value: 'CATALOG', label: t('resource.management.form.catalog')},
+  {value: 'MENU', label: t('resource.management.form.menu')},
+  {value: 'PAGE', label: t('resource.management.form.page')},
+  {value: 'BUTTON', label: t('resource.management.form.button')},
+  {value: 'API', label: t('resource.management.form.api')},
+  {value: 'MODULE', label: t('resource.management.form.module')},
+  {value: 'OTHER', label: t('resource.management.form.other')}
+])
 
 const formData = reactive<Resource>({
   resourceId: undefined as number | undefined,
@@ -312,6 +79,61 @@ const rules = {
   status: [{required: true, message: t('resource.management.form.validate.status'), trigger: 'change'}]
 }
 
+interface TreeData {
+  key: number
+  title: string
+  resourceId: number
+  resourceName: string
+  resourceCode: string
+  resourceCategory: string
+  status: number
+  sortOrder: number
+  children?: TreeData[]
+}
+
+const treeData = ref<TreeData[]>([])
+
+
+const buildTreeData = (resources: Resource[]): TreeData[] => {
+  const map = new Map<number, TreeData>()
+  const roots: TreeData[] = []
+
+  resources.forEach((resource) => {
+    if (resource.resourceId) {
+      map.set(resource.resourceId, {
+        key: resource.resourceId,
+        title: resource.resourceName || '',
+        resourceId: resource.resourceId,
+        resourceName: resource.resourceName || '',
+        resourceCode: resource.resourceCode || '',
+        resourceCategory: resource.resourceCategory || '',
+        status: resource.status || 0,
+        sortOrder: resource.sortOrder || 0,
+        children: []
+      })
+    }
+  })
+
+  resources.forEach((resource) => {
+    const node = map.get(resource.resourceId!)
+    if (!node) return
+
+    if (resource.parentId === 0 || !resource.parentId) {
+      roots.push(node)
+    } else {
+      const parent = map.get(resource.parentId)
+      if (parent) {
+        if (!parent.children) {
+          parent.children = []
+        }
+        parent.children.push(node)
+      }
+    }
+  })
+
+  return roots
+}
+
 const loadData = async (): Promise<void> => {
   loading.value = true
   try {
@@ -323,9 +145,10 @@ const loadData = async (): Promise<void> => {
     if (data?.code === 200 && data?.data) {
       data = humps.camelizeKeys(data) as PageResult<Resource>
       const resources = data.data || []
-      dataSource.value = buildTree(resources)
+      dataSource.value = resources
+      treeData.value = buildTreeData(resources)
       resourceOptions.value = resources.filter((r) =>
-          RESOURCE_CATEGORIES.includes((r.resourceCategory ?? '') as (typeof RESOURCE_CATEGORIES)[number])
+          RESOURCE_CATEGORIES.value.some(cat => cat.value === r.resourceCategory)
       )
     }
   } catch {
@@ -335,64 +158,46 @@ const loadData = async (): Promise<void> => {
   }
 }
 
-const buildTree = (resources: Resource[]): Resource[] => {
-  const map = new Map<number, Resource & { children?: Resource[] }>()
-  const roots: Resource[] = []
-
-  resources.forEach((resource) => {
-    map.set(resource.resourceId!, {...resource, children: []})
-  })
-
-  resources.forEach((resource) => {
-    const node = map.get(resource.resourceId!)
-    if (resource.parentId === 0 || !resource.parentId) {
-      roots.push(node!)
-    } else {
-      const parent = map.get(resource.parentId)
-      if (parent) {
-        if (!parent.children) {
-          parent.children = []
-        }
-        parent.children.push(node!)
-      }
-    }
-  })
-
-  return roots
-}
-
-const onExpand = (expanded: boolean, record: Resource): void => {
-  if (expanded) {
-    expandedRowKeys.value.push(record.resourceId!)
-  } else {
-    const index = expandedRowKeys.value.indexOf(record.resourceId!)
-    if (index > -1) {
-      expandedRowKeys.value.splice(index, 1)
-    }
-  }
-}
-
 const handleExpandAll = (): void => {
-  const getAllIds = (resources: Resource[]): number[] => {
+  const getAllIds = (nodes: TreeData[]): number[] => {
     let ids: number[] = []
-    resources.forEach((r) => {
-      ids.push(r.resourceId!)
-      if ((r as Resource & { children?: Resource[] }).children) {
-        ids = ids.concat(getAllIds((r as Resource & { children?: Resource[] }).children!))
+    nodes.forEach((node) => {
+      ids.push(node.resourceId)
+      if (node.children && node.children.length > 0) {
+        ids = ids.concat(getAllIds(node.children))
       }
     })
     return ids
   }
-  expandedRowKeys.value = getAllIds(dataSource.value)
+  expandedKeys.value = getAllIds(treeData.value)
 }
 
 const handleCollapseAll = (): void => {
-  expandedRowKeys.value = []
+  expandedKeys.value = []
+}
+
+const onSelect = (keys: number[]): void => {
+  if (keys.length > 0) {
+    const selectedId = keys[0]
+    if (selectedId === undefined) return
+    const resource = findResourceById(selectedId)
+    if (resource) {
+      Object.assign(formData, {...resource})
+      modalTitle.value = t('resource.management.editResource')
+      modalVisible.value = true
+    }
+  }
+}
+
+const findResourceById = (id: number): Resource | undefined => {
+  return dataSource.value.find(r => r.resourceId === id)
 }
 
 const handleAdd = (): void => {
   modalTitle.value = t('resource.management.addResource')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {
     resourceId: undefined,
     resourceName: '',
@@ -422,24 +227,27 @@ const handleAdd = (): void => {
   modalVisible.value = true
 }
 
-const handleEdit = (record: Resource): void => {
-  modalTitle.value = t('resource.management.editResource')
-  modalCollapseActiveKey.value = ['required']
-  Object.assign(formData, {...record, createBy: record.createBy, updateBy: userStore.currentUserId})
-  modalVisible.value = true
+const handleEdit = (resourceId: number): void => {
+  const resource = findResourceById(resourceId)
+  if (resource) {
+    modalTitle.value = t('resource.management.editResource')
+    if (modalRef.value) {
+      modalRef.value.collapseActiveKey = ['required']
+    }
+    Object.assign(formData, {...resource, createBy: resource.createBy, updateBy: userStore.currentUserId})
+    modalVisible.value = true
+  }
 }
 
-const handleDelete = (record: Resource): void => {
+const handleDelete = (resourceId: number, resourceName: string): void => {
   Modal.confirm({
     title: t('resource.management.confirm.delete.title'),
-    content: t('resource.management.confirm.delete.content', {resourceName: record.resourceName}),
+    content: t('resource.management.confirm.delete.content', {resourceName}),
     onOk: async () => {
       try {
-        if (record.resourceId) {
-          await deleteResource(record.resourceId)
-          message.success(t('resource.management.messages.deleteSuccess'))
-          await loadData()
-        }
+        await deleteResource(resourceId)
+        message.success(t('resource.management.messages.deleteSuccess'))
+        await loadData()
       } catch {
         message.error(t('resource.management.messages.deleteFailed'))
       }
@@ -449,7 +257,7 @@ const handleDelete = (record: Resource): void => {
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    await formRef.value?.validate()
+    await modalRef.value?.validate()
     if (formData.resourceId) {
       await updateResource(formData.resourceId, formData)
       message.success(t('resource.management.messages.updateSuccess'))
@@ -466,13 +274,206 @@ const handleSubmit = async (): Promise<void> => {
 
 const handleCancel = (): void => {
   modalVisible.value = false
-  formRef.value?.resetFields()
+  modalRef.value?.resetFields()
 }
 
 onMounted(() => {
   loadData()
 })
 </script>
+
+<template>
+  <div class="resource-management">
+    <a-card>
+      <template #title>
+        <span>{{ t('resource.management.title') }}</span>
+      </template>
+      <template #extra>
+        <a-space>
+          <a-button @click="handleExpandAll">{{ t('resource.management.expandAll') }}</a-button>
+          <a-button @click="handleCollapseAll">{{ t('resource.management.collapseAll') }}</a-button>
+          <a-button type="primary" @click="handleAdd">
+            <template #icon>
+              <PlusOutlined/>
+            </template>
+            {{ t('resource.management.addResource') }}
+          </a-button>
+        </a-space>
+      </template>
+
+      <div class="tree-container">
+        <a-spin :spinning="loading">
+          <a-tree
+              :tree-data="treeData"
+              :expanded-keys="expandedKeys"
+              :block-node="true"
+              @select="onSelect"
+              @expand="(keys: number[]) => expandedKeys = keys"
+          >
+            <template #title="node">
+              <div class="tree-node">
+                <span class="node-title">{{ node.title }}</span>
+                <span class="node-info">
+                  <a-tag :color="node.resourceCategory === 'CATALOG' ? 'orange' : 'blue'"
+                         size="small">
+                    {{ node.resourceCategory }}
+                  </a-tag>
+                  <a-tag :color="node.status === 1 ? 'green' : 'red'" size="small">
+                    {{
+                      node.status === 1 ? t('resource.common.enabled') : t('resource.common.disabled')
+                    }}
+                  </a-tag>
+                  <span class="node-actions">
+                    <a-button type="link" size="small" @click.stop="handleEdit(node.resourceId)">
+                      <EditOutlined/>
+                    </a-button>
+                    <a-button type="link" size="small" danger
+                              @click.stop="handleDelete(node.resourceId, node.title)">
+                      <DeleteOutlined/>
+                    </a-button>
+                  </span>
+                </span>
+              </div>
+            </template>
+          </a-tree>
+        </a-spin>
+      </div>
+    </a-card>
+
+    <FormDrawer
+        ref="modalRef"
+        v-model:open="modalVisible"
+        :title="modalTitle"
+        :model-value="formData"
+        :rules="rules"
+        :required-header="t('resource.management.form.basicInfo')"
+        :optional-header="t('resource.management.form.extraInfo')"
+        @ok="handleSubmit"
+        @cancel="handleCancel"
+    >
+      <template #required>
+        <a-form-item :label="t('resource.management.form.resourceName')" name="resourceName">
+          <a-input v-model:value="formData.resourceName"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.resourceCode')" name="resourceCode">
+          <a-input v-model:value="formData.resourceCode"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.resourceDescription')" name="resourceDescription">
+          <a-textarea v-model:value="formData.resourceDescription" :rows="3"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.resourceCategory')" name="resourceCategory">
+          <a-select v-model:value="formData.resourceCategory">
+            <a-select-option value="CATALOG">{{ t('resource.management.form.catalog') }}</a-select-option>
+            <a-select-option value="MENU">{{ t('resource.management.form.menu') }}</a-select-option>
+            <a-select-option value="BUTTON">{{ t('resource.management.form.button') }}</a-select-option>
+            <a-select-option value="API">{{ t('resource.management.form.api') }}</a-select-option>
+            <a-select-option value="PAGE">{{ t('resource.management.form.page') }}</a-select-option>
+            <a-select-option value="MODULE">{{ t('resource.management.form.module') }}</a-select-option>
+            <a-select-option value="OTHER">{{ t('resource.management.form.other') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.resourcePath')" name="resourcePath">
+          <a-input v-model:value="formData.resourcePath"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.parentId')" name="parentId">
+          <a-select v-model:value="formData.parentId" allow-clear>
+            <a-select-option :value="0">{{ t('resource.management.form.none') }}</a-select-option>
+            <a-select-option
+                v-for="item in resourceOptions"
+                :key="item.resourceId"
+                :value="item.resourceId"
+            >
+              {{ item.resourceName }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.level')" name="level">
+          <a-input-number v-model:value="formData.level" :min="0" :max="100"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.sortOrder')" name="sortOrder">
+          <a-input-number v-model:value="formData.sortOrder" :min="0" :max="100"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.status')" name="status">
+          <a-select v-model:value="formData.status">
+            <a-select-option :value="1">{{ t('resource.common.enabled') }}</a-select-option>
+            <a-select-option :value="0">{{ t('resource.common.disabled') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.createBy')" name="createBy">
+          <a-input v-model:value="formData.createBy" :disabled="isEditMode"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.updateBy')" name="updateBy">
+          <a-input v-model:value="formData.updateBy" :disabled="!!userStore.currentUserId"/>
+        </a-form-item>
+      </template>
+
+      <template #optional>
+        <a-form-item :label="t('resource.management.form.resourceComponent')" name="resourceComponent">
+          <a-input v-model:value="formData.resourceComponent"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.resourceIcon')" name="resourceIcon">
+          <a-input v-model:value="formData.resourceIcon"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.visible')" name="visible">
+          <a-select v-model:value="formData.visible">
+            <a-select-option :value="1">{{ t('resource.common.visible') }}</a-select-option>
+            <a-select-option :value="0">{{ t('resource.common.hidden') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.isSystem')" name="isSystem">
+          <a-select v-model:value="formData.isSystem">
+            <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
+            <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.permissionFlag')" name="permissionFlag">
+          <a-input v-model:value="formData.permissionFlag"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.requiresAuth')" name="requiresAuth">
+          <a-select v-model:value="formData.requiresAuth">
+            <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
+            <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.keepAlive')" name="keepAlive">
+          <a-select v-model:value="formData.keepAlive">
+            <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
+            <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.externalLink')" name="externalLink">
+          <a-select v-model:value="formData.externalLink">
+            <a-select-option :value="1">{{ t('resource.common.yes') }}</a-select-option>
+            <a-select-option :value="0">{{ t('resource.common.no') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.target')" name="target">
+          <a-select v-model:value="formData.target">
+            <a-select-option value="_self">_self</a-select-option>
+            <a-select-option value="_blank">_blank</a-select-option>
+            <a-select-option value="_parent">_parent</a-select-option>
+            <a-select-option value="_top">_top</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.badge')" name="badge">
+          <a-input v-model:value="formData.badge"/>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.badgeType')" name="badgeType">
+          <a-select v-model:value="formData.badgeType">
+            <a-select-option value="danger">danger</a-select-option>
+            <a-select-option value="warning">warning</a-select-option>
+            <a-select-option value="success">success</a-select-option>
+            <a-select-option value="info">info</a-select-option>
+            <a-select-option value="primary">primary</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item :label="t('resource.management.form.metaJson')" name="metaJson">
+          <a-textarea v-model:value="formData.metaJson" :rows="3"/>
+        </a-form-item>
+      </template>
+    </FormDrawer>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 

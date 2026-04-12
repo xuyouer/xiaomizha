@@ -163,8 +163,12 @@
 
     .social-login {
       display: flex;
-      justify-content: center;
+      flex-flow: column;
       gap: 16px;
+
+      .ant-btn {
+        width: 100%;
+      }
 
       .ant-btn-circle {
         width: 40px;

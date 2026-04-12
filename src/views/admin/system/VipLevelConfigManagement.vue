@@ -52,65 +52,59 @@
       </a-table>
     </a-card>
 
-    <a-modal
+    <FormDrawer
+        ref="modalRef"
         v-model:open="modalVisible"
         :title="modalTitle"
-        :width="560"
+        :model-value="formData"
+        :rules="rules"
+        :required-header="t('vipLevel.management.form.basicInfo')"
+        :optional-header="t('vipLevel.management.form.extraInfo')"
         @ok="handleSubmit"
         @cancel="handleCancel"
     >
-      <a-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
-      >
-        <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" :header="t('vipLevel.management.form.basicInfo')" :force-render="true">
-            <a-form-item :label="t('vipLevel.management.form.vipLevel')" name="vipLevel">
-              <a-input-number v-model:value="formData.vipLevel" style="width: 100%" :min="0"/>
-            </a-form-item>
-            <a-form-item :label="t('vipLevel.management.form.levelName')" name="levelName">
-              <a-input v-model:value="formData.levelName"/>
-            </a-form-item>
-            <a-form-item :label="t('vipLevel.management.form.minPoints')" name="minPoints">
-              <a-input-number v-model:value="formData.minPoints" style="width: 100%" :min="0"/>
-            </a-form-item>
-            <a-form-item :label="t('vipLevel.management.form.maxPoints')" name="maxPoints">
-              <a-input-number v-model:value="formData.maxPoints" style="width: 100%" :min="0"
-                              :placeholder="t('vipLevel.management.form.maxPointsPlaceholder')"/>
-            </a-form-item>
-            <a-form-item :label="t('vipLevel.management.form.dailyPointsLimit')" name="dailyPointsLimit">
-              <a-input-number v-model:value="formData.dailyPointsLimit" style="width: 100%" :min="0"/>
-            </a-form-item>
-            <a-form-item :label="t('vipLevel.management.form.monthlyPointsLimit')" name="monthlyPointsLimit">
-              <a-input-number v-model:value="formData.monthlyPointsLimit" style="width: 100%" :min="0"/>
-            </a-form-item>
-            <a-form-item :label="t('vipLevel.management.form.status')" name="status">
-              <a-select v-model:value="formData.status">
-                <a-select-option :value="1">{{ t('vipLevel.common.enabled') }}</a-select-option>
-                <a-select-option :value="0">{{ t('vipLevel.common.disabled') }}</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-collapse-panel>
-          <a-collapse-panel key="optional" :header="t('vipLevel.management.form.extraInfo')">
-            <a-form-item :label="t('vipLevel.management.form.iconUrl')" name="iconUrl">
-              <a-input v-model:value="formData.iconUrl"
-                       :placeholder="t('vipLevel.management.form.iconUrlPlaceholder')"/>
-            </a-form-item>
-            <a-form-item :label="t('vipLevel.management.form.badgeColor')" name="badgeColor">
-              <a-input v-model:value="formData.badgeColor"
-                       :placeholder="t('vipLevel.management.form.badgeColorPlaceholder')"/>
-            </a-form-item>
-            <a-form-item :label="t('vipLevel.management.form.benefitsJson')" name="benefitsJson">
-              <a-textarea v-model:value="formData.benefitsJson" :rows="4"
-                          :placeholder="t('vipLevel.management.form.benefitsJsonPlaceholder')"/>
-            </a-form-item>
-          </a-collapse-panel>
-        </a-collapse>
-      </a-form>
-    </a-modal>
+      <template #required>
+        <a-form-item :label="t('vipLevel.management.form.vipLevel')" name="vipLevel">
+          <a-input-number v-model:value="formData.vipLevel" style="width: 100%" :min="0"/>
+        </a-form-item>
+        <a-form-item :label="t('vipLevel.management.form.levelName')" name="levelName">
+          <a-input v-model:value="formData.levelName"/>
+        </a-form-item>
+        <a-form-item :label="t('vipLevel.management.form.minPoints')" name="minPoints">
+          <a-input-number v-model:value="formData.minPoints" style="width: 100%" :min="0"/>
+        </a-form-item>
+        <a-form-item :label="t('vipLevel.management.form.maxPoints')" name="maxPoints">
+          <a-input-number v-model:value="formData.maxPoints" style="width: 100%" :min="0"
+                          :placeholder="t('vipLevel.management.form.maxPointsPlaceholder')"/>
+        </a-form-item>
+        <a-form-item :label="t('vipLevel.management.form.dailyPointsLimit')" name="dailyPointsLimit">
+          <a-input-number v-model:value="formData.dailyPointsLimit" style="width: 100%" :min="0"/>
+        </a-form-item>
+        <a-form-item :label="t('vipLevel.management.form.monthlyPointsLimit')" name="monthlyPointsLimit">
+          <a-input-number v-model:value="formData.monthlyPointsLimit" style="width: 100%" :min="0"/>
+        </a-form-item>
+        <a-form-item :label="t('vipLevel.management.form.status')" name="status">
+          <a-select v-model:value="formData.status">
+            <a-select-option :value="1">{{ t('vipLevel.common.enabled') }}</a-select-option>
+            <a-select-option :value="0">{{ t('vipLevel.common.disabled') }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </template>
+      <template #optional>
+        <a-form-item :label="t('vipLevel.management.form.iconUrl')" name="iconUrl">
+          <a-input v-model:value="formData.iconUrl"
+                   :placeholder="t('vipLevel.management.form.iconUrlPlaceholder')"/>
+        </a-form-item>
+        <a-form-item :label="t('vipLevel.management.form.badgeColor')" name="badgeColor">
+          <a-input v-model:value="formData.badgeColor"
+                   :placeholder="t('vipLevel.management.form.badgeColorPlaceholder')"/>
+        </a-form-item>
+        <a-form-item :label="t('vipLevel.management.form.benefitsJson')" name="benefitsJson">
+          <a-textarea v-model:value="formData.benefitsJson" :rows="4"
+                      :placeholder="t('vipLevel.management.form.benefitsJsonPlaceholder')"/>
+        </a-form-item>
+      </template>
+    </FormDrawer>
   </div>
 </template>
 
@@ -126,27 +120,18 @@ import {
   updateVipLevelConfig,
   deleteVipLevelConfig
 } from '@/api'
-import type {FormInstance} from 'ant-design-vue'
-import type {PageResult, VipLevelConfigRecord} from '@/types/api'
+import type {PageResult, VipLevelConfigRecord} from '@/types'
 import humps from 'humps'
 import {useI18n} from 'vue-i18n'
+import FormDrawer from "@/components/FormDrawer.vue"
+import {usePaginationConfig} from '@/utils'
 
 const {t} = useI18n()
 
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref(t('vipLevel.management.add'))
-const modalCollapseActiveKey = ref<string[]>(['required'])
-const formRef = ref<FormInstance>()
-
-interface PaginationConfig {
-  current: number
-  pageSize: number
-  total: number
-  showTotal: (total: number) => string
-  showSizeChanger: boolean
-  showQuickJumper: boolean
-}
+const modalRef = ref<InstanceType<typeof FormDrawer>>()
 
 const columns = computed<ColumnType[]>(() => [
   {title: t('vipLevel.management.columns.levelId'), dataIndex: 'levelId', key: 'levelId', width: 80},
@@ -166,20 +151,18 @@ const columns = computed<ColumnType[]>(() => [
     key: 'monthlyPointsLimit',
     width: 90
   },
-  {title: t('vipLevel.management.columns.status'), key: 'status', width: 80},
+  {
+    title: t('vipLevel.management.columns.status'),
+    key: 'status',
+    width: 80,
+    align: 'center'
+  },
   {title: t('vipLevel.management.columns.createdAt'), dataIndex: 'createdAt', key: 'createdAt', width: 180},
   {title: t('vipLevel.management.columns.action'), key: 'action', width: 150, fixed: 'right'}
 ])
 
 const dataSource = ref<VipLevelConfigRecord[]>([])
-const pagination = reactive<PaginationConfig>({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showTotal: (total: number) => t('vipLevel.management.pagination.total', {total}),
-  showSizeChanger: true,
-  showQuickJumper: true
-})
+const pagination = reactive(usePaginationConfig('vipLevel.management.pagination.total').value)
 
 const formData = reactive<VipLevelConfigRecord>({
   levelId: undefined,
@@ -242,7 +225,9 @@ const handleTableChange = (pag: TablePaginationConfig): void => {
 
 const handleAdd = (): void => {
   modalTitle.value = t('vipLevel.management.add')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {
     levelId: undefined,
     vipLevel: 0,
@@ -261,7 +246,9 @@ const handleAdd = (): void => {
 
 const handleEdit = (record: VipLevelConfigRecord): void => {
   modalTitle.value = t('vipLevel.management.edit')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {...record})
   modalVisible.value = true
 }
@@ -286,7 +273,7 @@ const handleDelete = (record: VipLevelConfigRecord): void => {
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    await formRef.value?.validate()
+    await modalRef.value?.validate()
     if (formData.levelId) {
       await updateVipLevelConfig(formData.levelId, formData)
       message.success(t('vipLevel.management.messages.updateSuccess'))
@@ -303,7 +290,7 @@ const handleSubmit = async (): Promise<void> => {
 
 const handleCancel = (): void => {
   modalVisible.value = false
-  formRef.value?.resetFields()
+  modalRef.value?.resetFields()
 }
 
 onMounted(() => {

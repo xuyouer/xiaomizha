@@ -6,6 +6,7 @@ import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import SignInButton from "@/components/SignInButton.vue"
 import FormModal from "@/components/FormModal.vue"
 import UserDropdown from "@/components/UserDropdown.vue"
+import FormDrawer from "@/components/FormDrawer.vue"
 
 const GLOBAL_COMPONENTS: Record<string, Component> = {
     Header,
@@ -15,6 +16,7 @@ const GLOBAL_COMPONENTS: Record<string, Component> = {
     SignInButton,
     FormModal,
     UserDropdown,
+    FormDrawer,
 }
 
 /**

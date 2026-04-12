@@ -16,6 +16,10 @@ export default {
         loading: 'Loading...',
         success: 'Success',
         fail: 'Failed',
+        refresh: 'Refresh',
+        collapse: 'Collapse',
+        expand: 'Expand',
+        total: 'Total {total} items',
     },
     nav: {
         home: 'Home',
@@ -73,6 +77,7 @@ export default {
         dashboard: 'Dashboard',
         system: 'System',
         userManage: 'Users',
+        userAssign: 'User Assign',
         profilesManage: 'Profiles',
         userDetailManage: 'User Details',
         roleManage: 'Roles',
@@ -83,6 +88,9 @@ export default {
         systemConfigs: 'System Configs',
         userFeedback: 'User Feedback',
         licensesManage: 'Licenses',
+        licenseManage: 'License Management',
+        personalLicense: 'Personal License',
+        allUsersLicenses: 'Users Licenses',
         profile: 'Profile',
         personalCenter: 'Profile',
         personalSettings: 'Settings',
@@ -90,6 +98,12 @@ export default {
         user: 'User',
         signInManage: 'Sign In',
         signInCenter: 'Sign In Center',
+        repairCardManage: 'Repair Card Management',
+        pageTabs: {
+            close: 'Close',
+            closeOthers: 'Close Others',
+            closeAll: 'Close All'
+        }
     },
     personalSecurity: {
         title: 'Account Security',
@@ -243,6 +257,110 @@ export default {
         signInFailed: 'Sign in failed, please try again later',
         getMonthlyRecordFailed: 'Failed to get monthly record',
         getRankingFailed: 'Failed to get ranking',
+        repair: {
+            title: 'Repair Sign In',
+            repairCard: 'Repair Card',
+            normalCard: 'Normal Repair Card',
+            advancedCard: 'Advanced Repair Card',
+            cardCount: 'Card Count',
+            availableDates: 'Available Repair Dates',
+            maxRepairDays: 'Max Repair Days',
+            repairNow: 'Repair Now',
+            repairing: 'Repairing...',
+            batchRepair: 'Batch Repair',
+            repairSuccess: 'Repair Successful',
+            repairFailed: 'Repair Failed',
+            noCard: 'Insufficient Repair Cards',
+            alreadySigned: 'Already signed in on this date',
+            alreadyRepaired: 'Already repaired this date',
+            dateTooOld: 'Exceeded max repair days limit',
+            futureDate: 'Cannot repair future dates',
+            preview: 'Repair Preview',
+            continuousBefore: 'Continuous Days Before',
+            continuousAfter: 'Continuous Days After',
+            pointsReward: 'Expected Points',
+            repairRecord: 'Repair Record',
+            repairDate: 'Repair Date',
+            cardType: 'Card Type',
+            status: 'Status',
+            repairTime: 'Repair Time',
+            getRepairStatusFailed: 'Failed to get repair status',
+            getRepairPreviewFailed: 'Failed to get repair preview',
+            getRepairRecordsFailed: 'Failed to get repair records',
+            confirmRepair: 'Confirm Repair',
+            confirmRepairContent: 'Are you sure to use 1 repair card for {date}?',
+            confirmBatchRepair: 'Confirm Batch Repair',
+            confirmBatchRepairContent: 'Are you sure to use {count} repair cards for {dates}?',
+            monthlyGrant: 'Monthly Grant',
+            claimNormalCard: 'Claim Normal Card',
+            claimAdvancedCard: 'Claim Advanced Card',
+            claimSuccess: 'Claim Successful',
+            claimFailed: 'Claim Failed',
+            alreadyClaimed: 'Already Claimed This Month',
+            cardSource: {
+                monthly_grant: 'Monthly Grant',
+                purchase: 'Purchase',
+                reward: 'Reward',
+                admin_grant: 'Admin Grant'
+            },
+            showMore: 'Show More ({count})',
+            noAvailableDates: 'No available repair dates'
+        }
+    },
+    repairCardManagement: {
+        title: 'Repair Card Management',
+        tabs: {
+            cardInventory: 'Card Inventory',
+            grantRecords: 'Grant Records'
+        },
+        columns: {
+            userId: 'User ID',
+            username: 'Username',
+            normalCard: 'Normal Card',
+            advancedCard: 'Advanced Card',
+            totalCard: 'Total Cards',
+            action: 'Action',
+            grantId: 'Record ID',
+            cardType: 'Card Type',
+            quantity: 'Quantity',
+            source: 'Source',
+            grantMonth: 'Grant Month',
+            remark: 'Remark',
+            createdAt: 'Created At'
+        },
+        cardTypes: {
+            normal: 'Normal Card',
+            advanced: 'Advanced Card'
+        },
+        sources: {
+            monthly_grant: 'Monthly Grant',
+            purchase: 'Purchase',
+            reward: 'Reward',
+            admin_grant: 'Admin Grant'
+        },
+        actions: {
+            grant: 'Grant'
+        },
+        modal: {
+            grantTitle: 'Grant Repair Card'
+        },
+        form: {
+            userId: 'User',
+            selectUser: 'Please select a user',
+            cardType: 'Card Type',
+            quantity: 'Quantity',
+            remark: 'Remark',
+            remarkPlaceholder: 'Enter remark (optional)'
+        },
+        searchPlaceholder: 'Search username or user ID',
+        messages: {
+            loadFailed: 'Failed to load data',
+            loadUsersFailed: 'Failed to load user list',
+            grantSuccess: 'Grant successful',
+            grantFailed: 'Grant failed',
+            selectUser: 'Please select a user',
+            invalidQuantity: 'Please enter a valid quantity'
+        }
     },
     signInUserManagement: {
         title: 'User Sign In Records',
@@ -266,7 +384,7 @@ export default {
             reset: 'Reset'
         },
         action: {
-            viewDetail: 'View Detail',
+            viewDetail: 'Detail',
             brief: 'Brief'
         },
         detail: {
@@ -669,6 +787,91 @@ export default {
             total: 'Total {total} items'
         }
     },
+    userAssign: {
+        title: 'User Assignment',
+        searchPlaceholder: 'Search username or user ID',
+        assign: 'Assign',
+        assignRoles: 'Assign Roles',
+        assignResources: 'Assign Resources',
+        assignVip: 'Assign VIP',
+        assignPoints: 'Assign Points',
+        assignLicense: 'Assign License',
+        columns: {
+            userId: 'User ID',
+            username: 'Username',
+            accountStatus: 'Status',
+            createdAt: 'Created At',
+            action: 'Action'
+        },
+        status: {
+            normal: 'Normal',
+            disabled: 'Disabled'
+        },
+        extraInfo: {
+            userId: 'User ID',
+            username: 'Username',
+            roles: 'Current Roles',
+            vipLevel: 'VIP Level',
+            points: 'Current Points',
+            accountStatus: 'Account Status'
+        },
+        form: {
+            basicInfo: 'Basic Info (Required)',
+            extraInfo: 'Extra Info (Optional)',
+            userId: 'User ID',
+            username: 'Username',
+            selectRoles: 'Select Roles',
+            selectRolesPlaceholder: 'Please select roles to assign',
+            selectResources: 'Select Resources',
+            selectResourcesPlaceholder: 'Please select resources to assign',
+            vipLevel: 'VIP Level',
+            selectVipPlaceholder: 'Please select VIP level',
+            vipExpireTime: 'Expire Time',
+            vipExpireTimePlaceholder: 'Please select expire time',
+            pointsType: 'Operation Type',
+            pointsAdd: 'Add Points',
+            pointsSubtract: 'Subtract Points',
+            pointsSet: 'Set To',
+            pointsAmount: 'Points Amount',
+            pointsAmountPlaceholder: 'Please enter points amount',
+            pointsReason: 'Reason',
+            pointsReasonPlaceholder: 'Please enter reason',
+            licenseType: 'License Type',
+            selectLicensePlaceholder: 'Please select license type',
+            licenseDuration: 'Duration',
+            licenseDurationPlaceholder: 'Please enter duration in days',
+            licenseReason: 'Reason',
+            licenseReasonPlaceholder: 'Please enter reason',
+            days: 'days',
+            validate: {
+                roleIds: 'Please select roles',
+                resourceIds: 'Please select resources',
+                vipLevel: 'Please select VIP level',
+                pointsAmount: 'Please enter points amount',
+                pointsReason: 'Please enter reason',
+                licenseType: 'Please select license type',
+                licenseDuration: 'Please enter duration'
+            }
+        },
+        messages: {
+            loadFailed: 'Failed to load data',
+            loadDetailFailed: 'Failed to load user details',
+            loadRoleFailed: 'Failed to load role list',
+            loadResourceFailed: 'Failed to load resource list',
+            loadVipFailed: 'Failed to load VIP level list',
+            loadLicenseFailed: 'Failed to load license list',
+            noChanges: 'No changes to update',
+            assignSuccess: 'Assigned successfully',
+            assignRolesSuccess: 'Roles assigned successfully',
+            assignResourcesSuccess: 'Resources assigned successfully',
+            assignVipSuccess: 'VIP assigned successfully',
+            assignPointsSuccess: 'Points assigned successfully',
+            assignLicenseSuccess: 'License assigned successfully'
+        },
+        pagination: {
+            total: 'Total {total} items'
+        }
+    },
     userNameHistory: {
         management: {
             title: 'Username Change History',
@@ -972,6 +1175,7 @@ export default {
         activationCode: 'Activation Code',
         columns: {
             licenseKey: 'License Key',
+            licenseId: 'License ID',
             userName: 'User Name',
             companyName: 'Company Name',
             contactEmail: 'Contact Email',
@@ -981,8 +1185,13 @@ export default {
             endTime: 'End Time',
             productVersion: 'Product Version',
             maxConcurrentUsers: 'Max Concurrent Users',
+            allowOffline: 'Allow Offline',
             features: 'Features',
             remarks: 'Remarks',
+            hardwareInfo: 'Hardware Info',
+            activationCode: 'Activation Code',
+            lastActivationTime: 'Last Activation Time',
+            createdBy: 'Created By',
             action: 'Action'
         },
         search: {
@@ -1000,14 +1209,19 @@ export default {
         },
         type: {
             trial: 'Trial',
+            basic: 'Basic',
+            premium: 'Premium',
             standard: 'Standard',
             professional: 'Professional',
-            enterprise: 'Enterprise'
+            enterprise: 'Enterprise',
+            custom: 'Custom'
         },
         status: {
             active: 'Active',
             expired: 'Expired',
-            disabled: 'Disabled'
+            revoked: 'Revoked',
+            inactive: 'Inactive',
+            suspended: 'Suspended'
         },
         messages: {
             loadFailed: 'Failed to load data',
@@ -1029,6 +1243,167 @@ export default {
         },
         pagination: {
             total: 'Total {total} items'
+        },
+        personal: {
+            title: 'Personal License',
+            description: 'View details of the current user or a specific license',
+            noData: 'No license data',
+            backToList: 'Back to List',
+            applyTrial: 'Apply for Trial',
+            applyTrialSuccess: 'Trial license applied successfully',
+            applyTrialFailed: 'Failed to apply for trial license, please try again later'
+        },
+        userManagement: {
+            title: 'Users Licenses',
+            columns: {
+                licenseKey: 'License Key',
+                userName: 'Username',
+                companyName: 'Company Name',
+                contactEmail: 'Contact Email',
+                licenseType: 'License Type',
+                status: 'Status',
+                startTime: 'Start Time',
+                endTime: 'End Time',
+                productVersion: 'Product Version',
+                maxConcurrentUsers: 'Max Concurrent Users',
+                features: 'Features',
+                remarks: 'Remarks',
+                action: 'Action'
+            },
+            search: {
+                licenseKey: 'License Key',
+                licenseKeyPlaceholder: 'Enter license key',
+                search: 'Search',
+                reset: 'Reset'
+            },
+            action: {
+                detail: 'Detail',
+                edit: 'Edit',
+                delete: 'Delete'
+            },
+            form: {
+                addTitle: 'Add License Relation',
+                editTitle: 'Edit License Info',
+                licenseKey: 'License Key',
+                userId: 'User ID',
+                licenseKeyPlaceholder: 'Enter license key',
+                userIdPlaceholder: 'Enter user ID'
+            },
+            messages: {
+                loadFailed: 'Failed to load license data',
+                deleteSuccess: 'Delete successful',
+                deleteFailed: 'Delete failed',
+                saveSuccess: 'Save successful',
+                saveFailed: 'Save failed'
+            },
+            confirm: {
+                delete: {
+                    title: 'Confirm Delete',
+                    content: 'Are you sure to delete license "{licenseKey}"?'
+                }
+            },
+            pagination: {
+                total: 'Total {total} records'
+            }
         }
+    },
+    licensesManagement: {
+        title: 'License Management',
+        columns: {
+            assignedUsers: 'Assigned Users'
+        },
+        search: {
+            licenseTypePlaceholder: 'License Type',
+            statusPlaceholder: 'Status'
+        },
+        action: {
+            viewUsers: 'View Users',
+            disable: 'Disable',
+            enable: 'Enable'
+        },
+        form: {
+            editTitle: 'Edit License',
+            basicInfo: 'Basic Information',
+            extendedInfo: 'Extended Information',
+            assignedUsers: 'Assigned Users',
+            userNamePlaceholder: 'Enter user name',
+            companyNamePlaceholder: 'Enter company name',
+            productVersionPlaceholder: 'Enter product version',
+            contactEmailPlaceholder: 'Enter contact email',
+            hardwareInfoPlaceholder: 'Enter hardware binding info',
+            activationCodePlaceholder: 'Enter activation code',
+            selectLicenseType: 'Select license type',
+            selectStatus: 'Select status',
+            selectStartTime: 'Select start time',
+            selectEndTime: 'Select end time',
+            selectAllowOffline: 'Select allow offline',
+            offlineDisabled: 'Disabled',
+            offlineEnabled: 'Enabled',
+            maxConcurrentUsersPlaceholder: 'Enter max concurrent users',
+            featuresPlaceholder: 'Enter features',
+            remarksPlaceholder: 'Enter remarks',
+            validate: {
+                userName: 'Please enter user name',
+                companyName: 'Please enter company name',
+                productVersion: 'Please enter product version',
+                licenseType: 'Please select license type',
+                status: 'Please select status'
+            }
+        },
+        confirm: {
+            disable: {
+                title: 'Confirm Disable',
+                content: 'Are you sure to disable license "{licenseKey}"?'
+            },
+            enable: {
+                title: 'Confirm Enable',
+                content: 'Are you sure to enable license "{licenseKey}"?'
+            },
+            delete: {
+                title: 'Confirm Delete',
+                content: 'Are you sure to delete license "{licenseKey}" and all its associations?'
+            }
+        },
+        messages: {
+            deleteSuccess: 'Delete successful',
+            deleteFailed: 'Delete failed'
+        },
+        modal: {
+            assignedUsersTitle: 'Assigned Users',
+            noAssignedUsers: 'No assigned users',
+            userId: 'User ID',
+            status: 'Status',
+            assignedAt: 'Assigned At'
+        }
+    },
+    licensesUserManagement: {
+        title: 'User Licenses',
+        columns: {
+            userId: 'User ID',
+            username: 'Username',
+            accountStatus: 'Account Status',
+            licenseCount: 'License Count',
+            createdAt: 'Created At'
+        },
+        search: {
+            keywordPlaceholder: 'Search username or user ID'
+        },
+        action: {
+            assignLicense: 'Assign License',
+            addLicense: 'Add License',
+            remove: 'Remove'
+        },
+        confirm: {
+            remove: {
+                title: 'Confirm Remove',
+                content: 'Are you sure to remove license "{licenseKey}" from user "{username}"?'
+            }
+        },
+        messages: {
+            loadFailed: 'Failed to load data',
+            removeSuccess: 'Remove successful',
+            removeFailed: 'Remove failed'
+        },
+        noLicenses: 'This user has no licenses'
     }
 } as const

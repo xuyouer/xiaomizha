@@ -4,6 +4,7 @@ import {message} from 'ant-design-vue'
 import i18n from '@/locales'
 import routes from './modules'
 import {localStorageCache, sessionStorageCache} from "@/utils"
+import {CACHE_KEYS} from "@/constants"
 
 const router = createRouter({
     history: createWebHistory(),
@@ -15,7 +16,7 @@ router.beforeEach(async (to, _from, next) => {
     document.title = (to.meta.title as string) ?? i18n.global.t('app.title')
 
     const userStore = useUserStore()
-    const token = localStorageCache.get('token') || sessionStorageCache.get('token')
+    const token = localStorageCache.get(CACHE_KEYS.token) || sessionStorageCache.get(CACHE_KEYS.token)
     const t = i18n.global.t
 
     if (to.meta.requiresAuth !== false) {
@@ -32,8 +33,8 @@ router.beforeEach(async (to, _from, next) => {
             } catch (error) {
                 // message.error('获取用户信息失败，请重新登录')
                 message.error(t('auth.loginFailed'))
-                localStorageCache.remove('token')
-                sessionStorageCache.remove('token')
+                localStorageCache.remove(CACHE_KEYS.token)
+                sessionStorageCache.remove(CACHE_KEYS.token)
                 // next({ path: '/login', replace: true })
                 next({path: '/login', query: {redirect: to.fullPath}, replace: true})
                 return

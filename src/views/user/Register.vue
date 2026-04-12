@@ -100,8 +100,8 @@ import {useRoute, useRouter} from 'vue-router'
 import {useI18n} from 'vue-i18n'
 import {message} from 'ant-design-vue'
 import {UserOutlined, LockOutlined} from '@ant-design/icons-vue'
-import {registerUser} from '@/api/user/user'
-import type {User} from '@/types/api'
+import {registerUser} from '@/api'
+import type {User} from '@/types'
 
 const {t} = useI18n()
 const router = useRouter()

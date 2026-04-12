@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import { onMounted } from 'vue'
-import { useUserStore } from '@/stores/user'
-import AppProvider from "@/components/AppProvider.vue";
+import {RouterView} from 'vue-router'
+import {onMounted} from 'vue'
+import {useUserStore} from '@/stores/user'
+import AppProvider from "@/components/AppProvider.vue"
 
 const userStore = useUserStore()
 
@@ -15,7 +15,7 @@ onMounted(() => {
 
 <template>
   <AppProvider>
-    <RouterView />
+    <RouterView/>
   </AppProvider>
 </template>
 

@@ -46,46 +46,39 @@
       </a-table>
     </a-card>
 
-    <a-modal
+    <FormDrawer
+        ref="modalRef"
         v-model:open="modalVisible"
         :title="modalTitle"
+        :model-value="formData"
+        :rules="rules"
+        :required-header="t('userNameHistory.management.form.basicInfo')"
         @ok="handleSubmit"
         @cancel="handleCancel"
     >
-      <a-form
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
-      >
-        <a-collapse v-model:activeKey="modalCollapseActiveKey">
-          <a-collapse-panel key="required" :header="t('userNameHistory.management.form.basicInfo')"
-                            :force-render="true">
-            <a-form-item :label="t('userNameHistory.management.form.userId')" name="userId">
-              <a-input-number v-model:value="formData.userId" style="width: 100%" :min="1" :disabled="isEditMode"/>
-            </a-form-item>
-            <a-form-item :label="t('userNameHistory.management.form.oldDisplayName')" name="oldDisplayName">
-              <a-input v-model:value="formData.oldDisplayName"/>
-            </a-form-item>
-            <a-form-item :label="t('userNameHistory.management.form.newDisplayName')" name="newDisplayName">
-              <a-input-group compact style="display: flex">
-                <a-input v-model:value="formData.newDisplayName"/>
-                <a-button @click="handleRandomNewDisplayName"
-                          :title="t('userNameHistory.management.form.randomNewDisplayName')">
-                  <ReloadOutlined/>
-                </a-button>
-              </a-input-group>
-            </a-form-item>
-            <a-form-item
-                :label="isEditMode ? t('userNameHistory.management.form.changedBy') : t('userNameHistory.management.form.createdBy')"
-                name="changedBy">
-              <a-input-number v-model:value="formData.changedBy" style="width: 100%" :min="0" :disabled="true"/>
-            </a-form-item>
-          </a-collapse-panel>
-        </a-collapse>
-      </a-form>
-    </a-modal>
+      <template #required>
+        <a-form-item :label="t('userNameHistory.management.form.userId')" name="userId">
+          <a-input-number v-model:value="formData.userId" style="width: 100%" :min="1" :disabled="isEditMode"/>
+        </a-form-item>
+        <a-form-item :label="t('userNameHistory.management.form.oldDisplayName')" name="oldDisplayName">
+          <a-input v-model:value="formData.oldDisplayName"/>
+        </a-form-item>
+        <a-form-item :label="t('userNameHistory.management.form.newDisplayName')" name="newDisplayName">
+          <a-input-group compact style="display: flex">
+            <a-input v-model:value="formData.newDisplayName"/>
+            <a-button @click="handleRandomNewDisplayName"
+                      :title="t('userNameHistory.management.form.randomNewDisplayName')">
+              <ReloadOutlined/>
+            </a-button>
+          </a-input-group>
+        </a-form-item>
+        <a-form-item
+            :label="isEditMode ? t('userNameHistory.management.form.changedBy') : t('userNameHistory.management.form.createdBy')"
+            name="changedBy">
+          <a-input-number v-model:value="formData.changedBy" style="width: 100%" :min="0" :disabled="true"/>
+        </a-form-item>
+      </template>
+    </FormDrawer>
   </div>
 </template>
 
@@ -96,12 +89,12 @@ import {PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import type {ColumnType} from 'ant-design-vue/es/table'
 import type {TablePaginationConfig} from 'ant-design-vue/es/table'
 import {getNameHistoryList, addHistory, updateHistory, deleteHistory} from '@/api'
-import type {FormInstance} from 'ant-design-vue'
-import type {PageResult, UserNameHistoryRecord} from '@/types/api'
+import type {PageResult, UserNameHistoryRecord} from '@/types'
 import humps from 'humps'
 import {useUserStore} from '@/stores/user'
-import {generateNickname} from "@/utils"
+import {generateNickname, usePaginationConfig} from "@/utils"
 import {useI18n} from 'vue-i18n'
+import FormDrawer from '@/components/FormDrawer.vue'
 
 const {t} = useI18n()
 
@@ -109,18 +102,8 @@ const userStore = useUserStore()
 const loading = ref(false)
 const modalVisible = ref(false)
 const modalTitle = ref(t('userNameHistory.management.add'))
-const modalCollapseActiveKey = ref<string[]>(['required'])
-const formRef = ref<FormInstance>()
+const modalRef = ref<InstanceType<typeof FormDrawer>>()
 const isEditMode = computed(() => !!formData.historyId)
-
-interface PaginationConfig {
-  current: number
-  pageSize: number
-  total: number
-  showTotal: (total: number) => string
-  showSizeChanger: boolean
-  showQuickJumper: boolean
-}
 
 const columns = computed<ColumnType[]>(() => [
   {title: t('userNameHistory.management.columns.historyId'), dataIndex: 'historyId', key: 'historyId', width: 90},
@@ -133,14 +116,7 @@ const columns = computed<ColumnType[]>(() => [
 ])
 
 const dataSource = ref<UserNameHistoryRecord[]>([])
-const pagination = reactive<PaginationConfig>({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showTotal: (total: number) => t('userNameHistory.management.pagination.total', {total}),
-  showSizeChanger: true,
-  showQuickJumper: true
-})
+const pagination = reactive(usePaginationConfig('userNameHistory.management.pagination.total').value)
 
 const formData = reactive<UserNameHistoryRecord>({
   historyId: undefined,
@@ -167,7 +143,7 @@ const rules = {
 
 const handleRandomNewDisplayName = (): void => {
   formData.newDisplayName = generateNickname()
-  formRef.value?.clearValidate?.(['newDisplayName'])
+  modalRef.value?.clearValidate?.(['newDisplayName'])
 }
 
 const loadData = async (): Promise<void> => {
@@ -200,7 +176,9 @@ const handleTableChange = (pag: TablePaginationConfig): void => {
 
 const handleAdd = (): void => {
   modalTitle.value = t('userNameHistory.management.add')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {
     historyId: undefined,
     userId: userStore.currentUserId,
@@ -214,7 +192,9 @@ const handleAdd = (): void => {
 
 const handleEdit = (record: UserNameHistoryRecord): void => {
   modalTitle.value = t('userNameHistory.management.edit')
-  modalCollapseActiveKey.value = ['required']
+  if (modalRef.value) {
+    modalRef.value.collapseActiveKey = ['required']
+  }
   Object.assign(formData, {
     ...record,
     changedBy: userStore.currentUserId || record.changedBy
@@ -242,7 +222,7 @@ const handleDelete = (record: UserNameHistoryRecord): void => {
 
 const handleSubmit = async (): Promise<void> => {
   try {
-    await formRef.value?.validate()
+    await modalRef.value?.validate()
     if (formData.historyId) {
       await updateHistory(formData.historyId, formData)
       message.success(t('userNameHistory.management.messages.updateSuccess'))
@@ -259,7 +239,7 @@ const handleSubmit = async (): Promise<void> => {
 
 const handleCancel = (): void => {
   modalVisible.value = false
-  formRef.value?.resetFields()
+  modalRef.value?.resetFields()
 }
 
 onMounted(() => {

@@ -36,6 +36,15 @@ const adminRoutes: RouteRecordRaw[] = [
                         }
                     },
                     {
+                        path: 'user-assign',
+                        name: 'UserAssign',
+                        component: () => import('@/views/admin/system/UserAssignManagement.vue'),
+                        meta: {
+                            title: '用户分配',
+                            icon: 'UserSwitchOutlined'
+                        }
+                    },
+                    {
                         path: 'profiles',
                         name: 'Profiles',
                         component: () => import('@/views/admin/system/ProfilesManagement.vue'),
@@ -187,6 +196,43 @@ const adminRoutes: RouteRecordRaw[] = [
                         component: () => import('@/views/admin/signin/SignInUserManagement.vue'),
                         meta: {
                             title: '用户管理',
+                            icon: 'TeamOutlined'
+                        }
+                    },
+                    {
+                        path: 'repair-cards',
+                        name: 'RepairCardManagement',
+                        component: () => import('@/views/admin/signin/RepairCardManagement.vue'),
+                        meta: {
+                            title: '补签卡管理',
+                            icon: 'GiftOutlined'
+                        }
+                    }
+                ]
+            },
+            {
+                path: 'license',
+                name: 'LicenseManagement',
+                meta: {
+                    title: '许可证管理',
+                    icon: 'KeyOutlined'
+                },
+                children: [
+                    {
+                        path: 'personal',
+                        name: 'PersonalLicenseManagement',
+                        component: () => import('@/views/admin/license/PersonalLicenseManagement.vue'),
+                        meta: {
+                            title: '个人许可证',
+                            icon: 'IdcardOutlined'
+                        }
+                    },
+                    {
+                        path: 'users',
+                        name: 'LicenseUserManagement',
+                        component: () => import('@/views/admin/license/LicenseUserManagement.vue'),
+                        meta: {
+                            title: '所有用户许可证',
                             icon: 'TeamOutlined'
                         }
                     }

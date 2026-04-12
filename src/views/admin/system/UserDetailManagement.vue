@@ -17,10 +17,8 @@ import {
   EditOutlined
 } from '@ant-design/icons-vue'
 import type {ColumnType} from 'ant-design-vue/es/table'
-import {getUserDetail, getUserIdByUsername} from '@/api'
-import {getFeedbacksByUserId} from '@/api/feedback'
-import {getLicensesByUserId} from '@/api/license'
-import type {UserDetailDTO, UserFeedbackRecord, LicenseInfo} from '@/types/api'
+import {getUserDetail, getUserIdByUsername, getFeedbacksByUserId, getLicensesByUserId} from '@/api'
+import type {UserDetailDTO, UserFeedbackRecord, LicenseInfo} from '@/types'
 import humps from 'humps'
 import {useI18n} from 'vue-i18n'
 import {useUserStore} from '@/stores/user'

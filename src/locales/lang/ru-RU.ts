@@ -16,6 +16,10 @@ export default {
         loading: 'Загрузка...',
         success: 'Операция выполнена успешно',
         fail: 'Операция не выполнена',
+        refresh: 'Обновить',
+        collapse: 'Свернуть',
+        expand: 'Развернуть',
+        total: 'Всего {total}',
     },
     nav: {
         home: 'Главная',
@@ -73,6 +77,7 @@ export default {
         dashboard: 'Панель управления',
         system: 'Управление системой',
         userManage: 'Управление пользователями',
+        userAssign: 'Назначение пользователей',
         profilesManage: 'Управление профилями',
         userDetailManage: 'Детали пользователя',
         roleManage: 'Управление ролями',
@@ -83,6 +88,9 @@ export default {
         systemConfigs: 'Системные настройки',
         userFeedback: 'Обратная связь пользователей',
         licensesManage: 'Управление лицензиями',
+        licenseManage: 'Управление лицензиями',
+        personalLicense: 'Персональная лицензия',
+        allUsersLicenses: 'Лицензии пользователей',
         profile: 'Персональное управление',
         personalCenter: 'Личный центр',
         personalSettings: 'Персональные настройки',
@@ -90,6 +98,12 @@ export default {
         user: 'Пользователь',
         signInManage: 'Управление регистрацией',
         signInCenter: 'Центр регистрации',
+        repairCardManage: 'Управление картами',
+        pageTabs: {
+            close: 'Закрыть',
+            closeOthers: 'Закрыть другие',
+            closeAll: 'Закрыть все'
+        }
     },
     personalSecurity: {
         title: 'Безопасность аккаунта',
@@ -243,6 +257,110 @@ export default {
         signInFailed: 'Регистрация не удалась, попробуйте позже',
         getMonthlyRecordFailed: 'Не удалось получить месячную запись',
         getRankingFailed: 'Не удалось получить рейтинг',
+        repair: {
+            title: 'Восстановить отметку',
+            repairCard: 'Карта восстановления',
+            normalCard: 'Обычная карта восстановления',
+            advancedCard: 'Продвинутая карта восстановления',
+            cardCount: 'Количество карт',
+            availableDates: 'Доступные даты восстановления',
+            maxRepairDays: 'Макс. дней для восстановления',
+            repairNow: 'Восстановить сейчас',
+            repairing: 'Восстановление...',
+            batchRepair: 'Пакетное восстановление',
+            repairSuccess: 'Восстановление успешно',
+            repairFailed: 'Ошибка восстановления',
+            noCard: 'Недостаточно карт восстановления',
+            alreadySigned: 'На эту дату уже есть отметка',
+            alreadyRepaired: 'Эта дата уже восстановлена',
+            dateTooOld: 'Превышен лимит дней для восстановления',
+            futureDate: 'Нельзя восстановить будущую дату',
+            preview: 'Предпросмотр восстановления',
+            continuousBefore: 'Дней до восстановления',
+            continuousAfter: 'Дней после восстановления',
+            pointsReward: 'Ожидаемые баллы',
+            repairRecord: 'Запись восстановления',
+            repairDate: 'Дата восстановления',
+            cardType: 'Тип карты',
+            status: 'Статус',
+            repairTime: 'Время восстановления',
+            getRepairStatusFailed: 'Не удалось получить статус восстановления',
+            getRepairPreviewFailed: 'Не удалось получить предпросмотр',
+            getRepairRecordsFailed: 'Не удалось получить записи',
+            confirmRepair: 'Подтвердить восстановление',
+            confirmRepairContent: 'Использовать 1 карту восстановления для {date}?',
+            confirmBatchRepair: 'Подтвердить пакетное восстановление',
+            confirmBatchRepairContent: 'Использовать {count} карт для {dates}?',
+            monthlyGrant: 'Ежемесячная выдача',
+            claimNormalCard: 'Получить обычную карту',
+            claimAdvancedCard: 'Получить продвинутую карту',
+            claimSuccess: 'Успешно получено',
+            claimFailed: 'Не удалось получить',
+            alreadyClaimed: 'Уже получено в этом месяце',
+            cardSource: {
+                monthly_grant: 'Ежемесячная выдача',
+                purchase: 'Покупка',
+                reward: 'Награда',
+                admin_grant: 'Выдача администратором'
+            },
+            showMore: 'Показать больше ({count})',
+            noAvailableDates: 'Нет доступных дат для восстановления'
+        }
+    },
+    repairCardManagement: {
+        title: 'Управление картами восстановления',
+        tabs: {
+            cardInventory: 'Запас карт',
+            grantRecords: 'Записи выдачи'
+        },
+        columns: {
+            userId: 'ID пользователя',
+            username: 'Имя пользователя',
+            normalCard: 'Обычная карта',
+            advancedCard: 'Расширенная карта',
+            totalCard: 'Всего карт',
+            action: 'Действие',
+            grantId: 'ID записи',
+            cardType: 'Тип карты',
+            quantity: 'Количество',
+            source: 'Источник',
+            grantMonth: 'Месяц выдачи',
+            remark: 'Заметка',
+            createdAt: 'Время выдачи'
+        },
+        cardTypes: {
+            normal: 'Обычная карта',
+            advanced: 'Расширенная карта'
+        },
+        sources: {
+            monthly_grant: 'Ежемесячная выдача',
+            purchase: 'Покупка',
+            reward: 'Награда',
+            admin_grant: 'Выдача администратором'
+        },
+        actions: {
+            grant: 'Выдать'
+        },
+        modal: {
+            grantTitle: 'Выдать карту восстановления'
+        },
+        form: {
+            userId: 'Пользователь',
+            selectUser: 'Выберите пользователя',
+            cardType: 'Тип карты',
+            quantity: 'Количество',
+            remark: 'Заметка',
+            remarkPlaceholder: 'Введите примечание (необязательно)'
+        },
+        searchPlaceholder: 'Поиск по имени пользователя или ID',
+        messages: {
+            loadFailed: 'Ошибка загрузки данных',
+            loadUsersFailed: 'Ошибка загрузки списка пользователей',
+            grantSuccess: 'Успешно выдано',
+            grantFailed: 'Ошибка выдачи',
+            selectUser: 'Выберите пользователя',
+            invalidQuantity: 'Введите корректное количество'
+        }
     },
     signInUserManagement: {
         title: 'Записи регистрации пользователей',
@@ -286,6 +404,91 @@ export default {
         },
         messages: {
             loadFailed: 'Не удалось загрузить данные'
+        },
+        pagination: {
+            total: 'Всего {total} записей'
+        }
+    },
+    userAssign: {
+        title: 'Назначение пользователей',
+        searchPlaceholder: 'Поиск по имени или ID пользователя',
+        assign: 'Назначить',
+        assignRoles: 'Назначить роли',
+        assignResources: 'Назначить ресурсы',
+        assignVip: 'Назначить VIP',
+        assignPoints: 'Назначить баллы',
+        assignLicense: 'Назначить лицензию',
+        columns: {
+            userId: 'ID пользователя',
+            username: 'Имя пользователя',
+            accountStatus: 'Статус',
+            createdAt: 'Дата создания',
+            action: 'Действие'
+        },
+        status: {
+            normal: 'Нормальный',
+            disabled: 'Отключен'
+        },
+        extraInfo: {
+            userId: 'ID пользователя',
+            username: 'Имя пользователя',
+            roles: 'Текущие роли',
+            vipLevel: 'Уровень VIP',
+            points: 'Текущие баллы',
+            accountStatus: 'Статус аккаунта'
+        },
+        form: {
+            basicInfo: 'Основная информация (обязательно)',
+            extraInfo: 'Дополнительная информация (опционально)',
+            userId: 'ID пользователя',
+            username: 'Имя пользователя',
+            selectRoles: 'Выбрать роли',
+            selectRolesPlaceholder: 'Пожалуйста, выберите роли для назначения',
+            selectResources: 'Выбрать ресурсы',
+            selectResourcesPlaceholder: 'Пожалуйста, выберите ресурсы для назначения',
+            vipLevel: 'Уровень VIP',
+            selectVipPlaceholder: 'Пожалуйста, выберите уровень VIP',
+            vipExpireTime: 'Срок действия',
+            vipExpireTimePlaceholder: 'Пожалуйста, выберите срок действия',
+            pointsType: 'Тип операции',
+            pointsAdd: 'Добавить баллы',
+            pointsSubtract: 'Вычесть баллы',
+            pointsSet: 'Установить',
+            pointsAmount: 'Количество баллов',
+            pointsAmountPlaceholder: 'Пожалуйста, введите количество баллов',
+            pointsReason: 'Причина',
+            pointsReasonPlaceholder: 'Пожалуйста, введите причину',
+            licenseType: 'Тип лицензии',
+            selectLicensePlaceholder: 'Пожалуйста, выберите тип лицензии',
+            licenseDuration: 'Срок действия',
+            licenseDurationPlaceholder: 'Пожалуйста, введите срок в днях',
+            licenseReason: 'Причина',
+            licenseReasonPlaceholder: 'Пожалуйста, введите причину',
+            days: 'дней',
+            validate: {
+                roleIds: 'Пожалуйста, выберите роли',
+                resourceIds: 'Пожалуйста, выберите ресурсы',
+                vipLevel: 'Пожалуйста, выберите уровень VIP',
+                pointsAmount: 'Пожалуйста, введите количество баллов',
+                pointsReason: 'Пожалуйста, введите причину',
+                licenseType: 'Пожалуйста, выберите тип лицензии',
+                licenseDuration: 'Пожалуйста, введите срок действия'
+            }
+        },
+        messages: {
+            loadFailed: 'Не удалось загрузить данные',
+            loadDetailFailed: 'Не удалось загрузить данные пользователя',
+            loadRoleFailed: 'Не удалось загрузить список ролей',
+            loadResourceFailed: 'Не удалось загрузить список ресурсов',
+            loadVipFailed: 'Не удалось загрузить список уровней VIP',
+            loadLicenseFailed: 'Не удалось загрузить список лицензий',
+            noChanges: 'Нет изменений для обновления',
+            assignSuccess: 'Назначение успешно',
+            assignRolesSuccess: 'Роли успешно назначены',
+            assignResourcesSuccess: 'Ресурсы успешно назначены',
+            assignVipSuccess: 'VIP успешно назначен',
+            assignPointsSuccess: 'Баллы успешно назначены',
+            assignLicenseSuccess: 'Лицензия успешно назначена'
         },
         pagination: {
             total: 'Всего {total} записей'
@@ -972,6 +1175,7 @@ export default {
         activationCode: 'Код активации',
         columns: {
             licenseKey: 'Ключ лицензии',
+            licenseId: 'ID лицензии',
             userName: 'Имя пользователя',
             companyName: 'Название компании',
             contactEmail: 'Контактная электронная почта',
@@ -981,8 +1185,13 @@ export default {
             endTime: 'Время окончания',
             productVersion: 'Версия продукта',
             maxConcurrentUsers: 'Макс. одновременных пользователей',
+            allowOffline: 'Разрешить оффлайн',
             features: 'Функции',
             remarks: 'Примечания',
+            hardwareInfo: 'Информация о железе',
+            activationCode: 'Код активации',
+            lastActivationTime: 'Время последней активации',
+            createdBy: 'Создано',
             action: 'Действие'
         },
         search: {
@@ -1000,14 +1209,19 @@ export default {
         },
         type: {
             trial: 'Пробная',
+            basic: 'Базовая',
+            premium: 'Премиум',
             standard: 'Стандартная',
             professional: 'Профессиональная',
-            enterprise: 'Корпоративная'
+            enterprise: 'Корпоративная',
+            custom: 'Пользовательская'
         },
         status: {
             active: 'Активна',
             expired: 'Истекла',
-            disabled: 'Отключена'
+            revoked: 'Отозвана',
+            inactive: 'Неактивна',
+            suspended: 'Приостановлена'
         },
         messages: {
             loadFailed: 'Не удалось загрузить данные',
@@ -1029,6 +1243,167 @@ export default {
         },
         pagination: {
             total: 'Всего {total} записей'
+        },
+        personal: {
+            title: 'Персональная лицензия',
+            description: 'Просмотр детальной информации о лицензиях текущего пользователя или указанной лицензии',
+            noData: 'Нет данных о лицензиях',
+            backToList: 'Назад к списку',
+            applyTrial: 'Запросить пробную лицензию',
+            applyTrialSuccess: 'Пробная лицензия успешно получена',
+            applyTrialFailed: 'Не удалось получить пробную лицензию, попробуйте позже'
+        },
+        userManagement: {
+            title: 'Лицензии пользователей',
+            columns: {
+                licenseKey: 'Ключ лицензии',
+                userName: 'Имя пользователя',
+                companyName: 'Название компании',
+                contactEmail: 'Контактная электронная почта',
+                licenseType: 'Тип лицензии',
+                status: 'Статус',
+                startTime: 'Время начала',
+                endTime: 'Время окончания',
+                productVersion: 'Версия продукта',
+                maxConcurrentUsers: 'Макс. одновременных пользователей',
+                features: 'Функции',
+                remarks: 'Примечания',
+                action: 'Действие'
+            },
+            search: {
+                licenseKey: 'Ключ лицензии',
+                licenseKeyPlaceholder: 'Введите ключ лицензии',
+                search: 'Поиск',
+                reset: 'Сброс'
+            },
+            action: {
+                detail: 'Подробнее',
+                edit: 'Редактировать',
+                delete: 'Удалить'
+            },
+            form: {
+                addTitle: 'Добавить связь лицензии',
+                editTitle: 'Редактировать информацию о лицензии',
+                licenseKey: 'Ключ лицензии',
+                userId: 'ID пользователя',
+                licenseKeyPlaceholder: 'Введите ключ лицензии',
+                userIdPlaceholder: 'Введите ID пользователя'
+            },
+            messages: {
+                loadFailed: 'Не удалось загрузить данные по лицензиям',
+                deleteSuccess: 'Удаление успешно',
+                deleteFailed: 'Удаление не удалось',
+                saveSuccess: 'Сохранение успешно',
+                saveFailed: 'Сохранение не удалось'
+            },
+            confirm: {
+                delete: {
+                    title: 'Подтвердить удаление',
+                    content: 'Вы уверены, что хотите удалить лицензию "{licenseKey}"?'
+                }
+            },
+            pagination: {
+                total: 'Всего {total} записей'
+            }
         }
+    },
+    licensesManagement: {
+        title: 'Управление лицензиями',
+        columns: {
+            assignedUsers: 'Назначенные пользователи'
+        },
+        search: {
+            licenseTypePlaceholder: 'Тип лицензии',
+            statusPlaceholder: 'Статус'
+        },
+        action: {
+            viewUsers: 'Просмотр пользователей',
+            disable: 'Отключить',
+            enable: 'Включить'
+        },
+        form: {
+            editTitle: 'Редактировать лицензию',
+            basicInfo: 'Основная информация',
+            extendedInfo: 'Дополнительная информация',
+            assignedUsers: 'Назначенные пользователи',
+            userNamePlaceholder: 'Введите имя пользователя',
+            companyNamePlaceholder: 'Введите название компании',
+            productVersionPlaceholder: 'Введите версию продукта',
+            contactEmailPlaceholder: 'Введите контактную электронную почту',
+            hardwareInfoPlaceholder: 'Введите информацию о железе',
+            activationCodePlaceholder: 'Введите код активации',
+            selectLicenseType: 'Выберите тип лицензии',
+            selectStatus: 'Выберите статус',
+            selectStartTime: 'Выберите время начала',
+            selectEndTime: 'Выберите время окончания',
+            selectAllowOffline: 'Выберите разрешить оффлайн',
+            offlineDisabled: 'Запрещено',
+            offlineEnabled: 'Разрешено',
+            maxConcurrentUsersPlaceholder: 'Введите макс. одновременных пользователей',
+            featuresPlaceholder: 'Введите функции',
+            remarksPlaceholder: 'Введите примечания',
+            validate: {
+                userName: 'Пожалуйста, введите имя пользователя',
+                companyName: 'Пожалуйста, введите название компании',
+                productVersion: 'Пожалуйста, введите версию продукта',
+                licenseType: 'Пожалуйста, выберите тип лицензии',
+                status: 'Пожалуйста, выберите статус'
+            }
+        },
+        confirm: {
+            disable: {
+                title: 'Подтвердить отключение',
+                content: 'Вы уверены, что хотите отключить лицензию "{licenseKey}"?'
+            },
+            enable: {
+                title: 'Подтвердить включение',
+                content: 'Вы уверены, что хотите включить лицензию "{licenseKey}"?'
+            },
+            delete: {
+                title: 'Подтвердить удаление',
+                content: 'Вы уверены, что хотите удалить лицензию "{licenseKey}" и все её связи?'
+            }
+        },
+        messages: {
+            deleteSuccess: 'Удаление успешно',
+            deleteFailed: 'Удаление не удалось'
+        },
+        modal: {
+            assignedUsersTitle: 'Назначенные пользователи',
+            noAssignedUsers: 'Нет назначенных пользователей',
+            userId: 'ID пользователя',
+            status: 'Статус',
+            assignedAt: 'Дата назначения'
+        }
+    },
+    licensesUserManagement: {
+        title: 'Лицензии пользователей',
+        columns: {
+            userId: 'ID пользователя',
+            username: 'Имя пользователя',
+            accountStatus: 'Статус аккаунта',
+            licenseCount: 'Количество лицензий',
+            createdAt: 'Дата создания'
+        },
+        search: {
+            keywordPlaceholder: 'Поиск по имени или ID пользователя'
+        },
+        action: {
+            assignLicense: 'Назначить лицензию',
+            addLicense: 'Добавить лицензию',
+            remove: 'Удалить'
+        },
+        confirm: {
+            remove: {
+                title: 'Подтвердить удаление',
+                content: 'Вы уверены, что хотите удалить лицензию "{licenseKey}" у пользователя "{username}"?'
+            }
+        },
+        messages: {
+            loadFailed: 'Не удалось загрузить данные',
+            removeSuccess: 'Удаление успешно',
+            removeFailed: 'Удаление не удалось'
+        },
+        noLicenses: 'У этого пользователя нет лицензий'
     }
 } as const
